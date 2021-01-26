@@ -4,3 +4,6 @@ ncdu
 terminator
 paru
 rcs
+meld
+gufw
+solaar
