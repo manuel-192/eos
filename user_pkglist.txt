@@ -2,7 +2,6 @@ emacs
 code
 ncdu
 terminator
-paru
 rcs
 meld
 gufw
