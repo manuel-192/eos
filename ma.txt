@@ -21,7 +21,9 @@ alias cp='cp -i'
 alias mv='mv -i'
 alias rm='rm -i'
 alias ln='ln -i'
+alias hlp='eos-apps-info-helper'
 alias PP='pac -Syu'
+alias AA='arch-audit'
 
 alias nano='nano -l'
 alias pacdiff=eos-pacdiff
@@ -40,8 +42,95 @@ bind 'set show-all-if-ambiguous on'        # complete with single TAB
 bind 'set mark-symlinked-directories on'   # complete directory symlinks with slash
 
 export LESS="-RFn"
+export FUNCNEST=50
 
 PS1='\w> '
+
+type() {
+    # without parameters, show all aliases and functions
+    case "\$1" in
+        "") { alias && declare -F ; } | less ;;
+        *) builtin type -a "\$@" ;;
+    esac
+}
+
+curl() {
+    local code=0
+    command curl --fail "\$@"
+    code=\$?
+    if [ \$code -ne 0 ] ; then
+        curl-exit-code-to-string \$code
+    fi
+    return \$code
+}
+
+####################################### ==> TERM TITLE
+_CURRENT_KERNEL=\$(cat /proc/cmdline | sed 's|^BOOT_IMAGE=.*vmlinuz-\([^ ]*\) .*|\1|')
+
+MyTermTitle() {
+    local latest_command="\$(history 1 | sed 's|^[ ]*[0-9]*[ ]*||')"
+    [ "\$latest_command" = "\$latest_command_previous" ] && return
+    latest_command="\$_CURRENT_KERNEL: \$latest_command"
+    latest_command_previous="\$latest_command"
+    _set_terminal_window_title "\$latest_command"
+}
+
+# Set terminal title to currently running command:
+trap "MyTermTitle" DEBUG
+####################################### <== TERM TITLE
+
+####################################### ==> MELD
+meld() {
+    # Adding support for 'meld' with
+    # - git and hub
+    # - comparing two files when one of the args is a folder name
+    local meld="command meld"
+    local xx
+    local parents="\$PWD"
+    local has_git=no
+
+    # Is this a git tree?
+
+    while [ -n "\$parents" ] ; do
+        if [ -d "\$parents/.git" ] ; then
+            has_git=yes
+            break
+        fi
+        [ "\$parents" = "/" ] && break
+        parents="\$(dirname "\$parents")"
+    done
+
+    if [ "\$has_git" = "yes" ] ; then
+        if [ -z "\$1" ] ; then
+            # meld for the current folder in git tree
+            \$meld . &
+            return
+        fi
+    fi
+
+    # compare two files/folders
+
+    if [ -n "\$1" ] && [ -n "\$2" ] && [ -z "\$3" ] && [ -e "\$1" ] && [ -e "\$2" ] ; then
+        # Two args, files or folders.
+        # If one of them is a folder, meld needs help to use the file in the folder.
+        local f1="\$1"
+        local f2="\$2"
+        if [ -d "\$f1" ] && [ ! -d "\$f2" ] ; then
+            f1="\${f1%/}"                             # remove possible trailing slash
+            f1="\$f1/\$(basename "\$f2")"               # add file name after the folder name
+        elif [ -d "\$f2" ] && [ ! -d "\$f1" ] ; then
+            f2="\${f2%/}"
+            f2="\$f2/\$(basename "\$f1")"
+        fi
+        \$meld "\$f1" "\$f2" &
+    else
+        # Other cases
+        \$meld "\$@" &
+    fi
+}
+
+####################################### <== MELD
+
 
 EOF
     chown $new_user:$new_user $home/.bashrc    # not really needed if it already exists
