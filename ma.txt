@@ -67,6 +67,8 @@ curl() {
 ####################################### ==> TERM TITLE
 _CURRENT_KERNEL=\$(cat /proc/cmdline | sed 's|^BOOT_IMAGE=.*vmlinuz-\([^ ]*\) .*|\1|')
 
+_set_terminal_window_title()  { printf "\e]0;%s\a" "$*" ; }
+
 MyTermTitle() {
     local latest_command="\$(history 1 | sed 's|^[ ]*[0-9]*[ ]*||')"
     [ "\$latest_command" = "\$latest_command_previous" ] && return
