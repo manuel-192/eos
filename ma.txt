@@ -340,6 +340,13 @@ Main() {
 
     rm -f /etc/pacman.d/mirrorlist.pacnew
 
+    cat <<EOF >> /boot/grub/custom.cfg
+
+menuentry 'Shutdown' { halt ; }
+menuentry 'Restart'  { reboot ; }
+EOF
+    update_grub=yes
+
     if [ "$update_grub" = "yes" ] ; then
         grub-mkconfig -o /boot/grub/grub.cfg
     fi
