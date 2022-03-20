@@ -338,6 +338,8 @@ Main() {
 
     DriverSettings
 
+    rm -f /etc/pacman.d/mirrorlist.pacnew
+
     if [ "$update_grub" = "yes" ] ; then
         grub-mkconfig -o /boot/grub/grub.cfg
     fi
