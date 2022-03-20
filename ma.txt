@@ -226,7 +226,17 @@ RemovePackages() {
         parole
         power-profiles-daemon
     )
-    Check pacman -Rsn --noconfirm "${Remove[@]}"
+    local remove=()
+    local pkg
+
+    for pkg in "${Remove[@]}" ; do
+        if pacman -Q $pkg >& /dev/null ; then
+            remove+=($pkg)
+        fi
+    done
+    if [ -n "${remove[0]}" ] ; then
+        Check pacman -Rsn --noconfirm "${remove[@]}"
+    fi
 }
 
 Setup3rdPartyRepos() {
