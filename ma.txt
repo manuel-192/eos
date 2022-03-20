@@ -221,9 +221,10 @@ InstallPackages() {
 
 RemovePackages() {
     Remove=(    # packages to remove
+        file-roller
         glances
         parole
-        file-roller
+        power-profiles-daemon
     )
     Check pacman -Rsn --noconfirm "${Remove[@]}"
 }
