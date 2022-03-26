@@ -329,6 +329,12 @@ DriverSettings() {
     esac
 }
 
+SystemSettings() {
+    sed -i /etc/eos-script-lib-yad.conf \
+        -e 's|^\(EOS_PACDIFF_WARNING\)=.*|\1=no|' \
+        -e 's|^\(SyncAfterUpdate\)=.*|\1=yes|'
+}
+
 Main() {
     local new_user="$1"
     GetNewUserName
@@ -348,6 +354,7 @@ Main() {
     HomeSettings
 
     DriverSettings
+    SystemSettings
 
     rm -f /etc/pacman.d/mirrorlist.pacnew
 
