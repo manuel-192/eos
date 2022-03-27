@@ -248,7 +248,7 @@ AddRepos() {
     local mirrorlist_pkg="mirrorlist-m"
     local mirrorlist_file="mirrorlist-m"
     local mirrorlist_file_url="https://github.com/manuel-192/m-m/raw/master/PKGBUILDs/$mirrorlist_pkg/$mirrorlist_file"
-    local repo_gpg_key="91709405DF6A3A1F4B7EF93FA1F1B5187D25904B"
+    local repo_gpg_key="A1F1B5187D25904B"
     local siglevel=Required
 
     Setup3rdPartyRepos "$mirrorlist_pkg" \
