@@ -239,37 +239,62 @@ RemovePackages() {
     fi
 }
 
-Setup3rdPartyRepos() {
+AddRepos() {
     local reponames=(
         m-m
         m-aur
         m-more2
     )
+    local mirrorlist_pkg="mirrorlist-m"
+    local mirrorlist_file="mirrorlist-m"
+    local mirrorlist_file_url="https://github.com/manuel-192/m-m/raw/master/PKGBUILDs/$mirrorlist_pkg/$mirrorlist_file"
+    local repo_gpg_key="91709405DF6A3A1F4B7EF93FA1F1B5187D25904B"
+    local siglevel=Required
+
+    Setup3rdPartyRepos "$mirrorlist_pkg" \
+                       "$mirrorlist_file" \
+                       "$mirrorlist_file_url" \
+                       "$repo_gpg_key" \
+                       "$siglevel" \
+                       "${reponames[@]}"
+}
+
+Setup3rdPartyRepos() {
+    local mirrorlist_pkg="$1"
+    local mirrorlist_file="$2"
+    local mirrorlist_file_url="$3"
+    local repo_gpg_key="$4"
+    local siglevel="$5"
+
+    shift 5
+
+    # tail is repo name(s), must have at least 1
+    [ -n "$1" ] || Check false
+
     local reponame
     local pacmanconf=/etc/pacman.conf
-    local m_key="91709405DF6A3A1F4B7EF93FA1F1B5187D25904B"
     local repo_added=no
-    local key_added="$(pacman-key --list-keys 2>/dev/null | grep -w $m_key)"
+    local key_added="$(pacman-key --list-keys 2>/dev/null | grep -w "$repo_gpg_key")"
     local need_mirrorlist_pkg=no
 
     if [ -z "$key_added" ] ; then
-        Check pacman-key --keyserver hkps://keyserver.ubuntu.com --recv-keys $m_key
-        Check pacman-key --lsign-key $m_key
+        Check pacman-key --keyserver hkps://keyserver.ubuntu.com --recv-keys "$repo_gpg_key"
+        Check pacman-key --lsign-key "$repo_gpg_key"
     fi
 
-    if ! pacman -Q mirrorlist-m >& /dev/null  ; then
-        Check wget -O /etc/pacman.d/mirrorlist-m https://github.com/manuel-192/m-m/raw/master/PKGBUILDs/mirrorlist-m/mirrorlist-m
+    if ! pacman -Q "$mirrorlist_pkg" >& /dev/null  ; then
+        Check wget -O "/etc/pacman.d/$mirrorlist_file" "$mirrorlist_file_url"
         need_mirrorlist_pkg=yes
     fi
 
-    for reponame in "${reponames[@]}" ; do
+    for reponame in "$@" ; do
         if [ -z "$(grep "^\[$reponame\]$" $pacmanconf )" ] ; then
             cat <<EOF >> "$pacmanconf"
 
 [$reponame]
-Include = /etc/pacman.d/mirrorlist-m
-SigLevel = Required
+Include = /etc/pacman.d/$mirrorlist_file
 EOF
+            [ -n "$siglevel" ] && echo "SigLevel = $siglevel" >> "$pacmanconf"
             repo_added=yes
             INFO "Repository [$reponame] was added to $pacmanconf."
         else
@@ -280,7 +305,7 @@ EOF
         Check pacman -Syu
     fi
     if [ "$need_mirrorlist_pkg" = "yes" ] ; then
-        Check pacman --overwrite '/etc/pacman.d/mirrorlist-m' -Syu --noconfirm mirrorlist-m
+        Check pacman --overwrite "/etc/pacman.d/$mirrorlist_file" -Syu --noconfirm "$mirrorlist_pkg"
     fi
 }
 
@@ -341,7 +366,7 @@ Main() {
     local home="/home/$new_user"
     local update_grub=no
 
-    Setup3rdPartyRepos
+    AddRepos
 
     RemovePackages
     InstallPackages
