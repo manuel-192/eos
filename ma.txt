@@ -199,7 +199,6 @@ InstallPackages() {
         emacs
         firefox-developer-edition
         gparted
-        gufw
         # kaffeine
         libreoffice-fresh
         linux-lts
@@ -216,6 +215,9 @@ InstallPackages() {
         # m-m
         pac
     )
+    if ! pacman -Q firewalld >& /dev/null ; then
+        Install+=(gufw)
+    fi
     Check pacman -Syu --noconfirm --needed "${Install[@]}"
 }
 
