@@ -11,3 +11,7 @@
   L 46,5
   S 34 huulen kanssa, 29 ilman
   K 33,5
+- kylppärin hyllymittaus, mikko cm:
+  - L 47
+  - IKEA: Hemnes hylly, valkoinen: L:42 K:172 S:37, 99€
+
