@@ -373,9 +373,11 @@ Main() {
     RemovePackages
     InstallPackages
 
-    # enable firewall service
-    sleep 1
-    systemctl enable ufw
+    if pacman -Q ufw >& /dev/null ; then
+        # enable ufw firewall service
+        sleep 1
+        systemctl enable ufw
+    fi
 
     # modify some dotfiles at $HOME
     HomeSettings
