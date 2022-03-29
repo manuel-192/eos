@@ -181,11 +181,33 @@ GetNewUserName() {
     fi
 }
 
+OtherConfig() {
+    local file="$home/.config/autostart/Terminal-at-start.desktop"
+
+    cat <<EOF > "$file"
+[Desktop Entry]
+Encoding=UTF-8
+Version=0.9.4
+Type=Application
+Name=Terminal at start
+Comment=
+Exec=xfce4-terminal
+OnlyShowIn=XFCE;
+RunHook=0
+StartupNotify=false
+Terminal=false
+Hidden=false
+
+EOF
+    chown "$new_user:$new_user" "$file"
+}
+
 HomeSettings() {
     # Add here some user specific stuff!
     if [ -n "$new_user" ] && [ -d $home ] ; then
         EmacsConfig
         BashrcConfig
+        OtherConfig
     else
         ERROR "$FUNCNAME failed!"
     fi  
