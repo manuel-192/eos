@@ -223,6 +223,7 @@ InstallPackages() {
         gparted
         # kaffeine
         libreoffice-fresh
+        libreoffice-fresh-fi
         linux-lts
         linux-lts-headers
         llpp            # fast PDF reader for complex PDF files
