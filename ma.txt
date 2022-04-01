@@ -410,11 +410,11 @@ Main() {
         systemctl enable ufw
     fi
 
-    # modify some dotfiles at $HOME
-    HomeSettings
-
     DriverSettings
     SystemSettings
+
+    # modify some dotfiles at $HOME
+    HomeSettings
 
     rm -f /etc/pacman.d/mirrorlist.pacnew
 
