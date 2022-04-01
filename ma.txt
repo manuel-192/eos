@@ -197,12 +197,26 @@ RunHook=0
 StartupNotify=false
 Terminal=false
 Hidden=false
-
 EOF
     chown "$new_user:$new_user" "$file"
 
     case "$this_rig" in
-        l1) xbacklight =30 ;;
+        l1)
+            file="$home/.config/autostart/Xbacklight.desktop"
+            cat <<EOF
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Xbacklight
+Comment=
+Exec=xbacklight =30
+Icon=
+Path=
+Terminal=false
+StartupNotify=false
+EOF
+            chown "$new_user:$new_user" "$file"
+            ;;
     esac
 }
 
