@@ -203,7 +203,7 @@ EOF
     case "$this_rig" in
         l1)
             file="$home/.config/autostart/Xbacklight.desktop"
-            cat <<EOF
+            cat <<EOF > "$file"
 [Desktop Entry]
 Version=1.0
 Type=Application
