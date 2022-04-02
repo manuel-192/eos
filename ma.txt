@@ -259,7 +259,8 @@ InstallPackages() {
     if ! pacman -Q firewalld >& /dev/null ; then
         Install+=(gufw)
     fi
-    Check pacman -Syu --noconfirm --needed "${Install[@]}"
+    Check pacman -Syu
+    Check pacman -S --noconfirm --needed "${Install[@]}"
 }
 
 RemovePackages() {
@@ -345,10 +346,10 @@ EOF
         fi
     done
     if [ "$repo_added" = "yes" ] ; then
-        Check pacman -Syu
+        Check pacman -Sy
     fi
     if [ "$need_mirrorlist_pkg" = "yes" ] ; then
-        Check pacman --overwrite "/etc/pacman.d/$mirrorlist_file" -Syu --noconfirm "$mirrorlist_pkg"
+        Check pacman --overwrite "/etc/pacman.d/$mirrorlist_file" -Sy --noconfirm "$mirrorlist_pkg"
     fi
 }
 
