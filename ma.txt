@@ -46,6 +46,8 @@ export FUNCNEST=50
 
 PS1='\w> '
 
+emacs() { setsid /usr/bin/emacs --reverse-video "$@" ; }
+
 type() {
     # without parameters, show all aliases and functions
     case "\$1" in
