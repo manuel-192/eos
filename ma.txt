@@ -250,6 +250,7 @@ InstallPackages() {
         mpv
         ncdu
         pahis
+        paru
         # rcs
         simple-scan
         solaar
