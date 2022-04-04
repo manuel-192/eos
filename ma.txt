@@ -22,7 +22,7 @@ alias mv='mv -i'
 alias rm='rm -i'
 alias ln='ln -i'
 alias hlp='eos-apps-info-helper'
-alias PP='pac -Syu'
+alias PP='paru -Syu'
 alias AA='arch-audit'
 
 alias nano='nano -l'
