@@ -237,7 +237,6 @@ InstallPackages() {
     local Install=(   # packages to install
         akm
         atril
-        vscodium-bin
         emacs
         firefox-developer-edition
         gparted
@@ -255,6 +254,7 @@ InstallPackages() {
         simple-scan
         solaar
         terminator
+        vscodium-bin
 
         # m-m
         pac
@@ -272,6 +272,8 @@ RemovePackages() {
         glances
         parole
         power-profiles-daemon
+        xfce4-netload-plugin
+        xfce4-weather-plugin
     )
     local remove=()
     local pkg
