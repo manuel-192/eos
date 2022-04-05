@@ -47,6 +47,8 @@ export FUNCNEST=50
 PS1='\w> '
 
 emacs() { setsid /usr/bin/emacs --reverse-video "\$@" ; }
+yay()   { /usr/bin/yay "\$@" ; sync ; }
+paru()  { /usr/bin/paru "\$@" ; sync ; }
 
 type() {
     # without parameters, show all aliases and functions
@@ -135,6 +137,36 @@ meld() {
 
 ####################################### <== MELD
 
+####################################### ==> PACCACHE
+paccache() {
+    # 1. check if sudo is needed
+    # 2. be verbose always
+
+    local sudo=no
+    local verbose=0
+    local arg
+
+    for arg in "\$@" ; do
+        case "\$arg" in
+            --move | --remove) sudo=yes ;;
+            --verbose) ((verbose++)) ;;
+            --*) ;;
+            -*m* | -*r*) sudo=yes ;;
+            -*v*) ((verbose++)) ;;
+        esac
+    done
+    if [ \$verbose -eq 0 ] ; then
+        verbose="--verbose"
+    else
+        verbose=""
+    fi
+    if [ "\$sudo" = "yes" ] ; then
+        sudo /usr/bin/paccache \$verbose "\$@"
+    else
+        /usr/bin/paccache \$verbose "\$@"
+    fi
+}
+####################################### <== PACCACHE
 
 EOF
     chown $new_user:$new_user $home/.bashrc    # not really needed if it already exists
