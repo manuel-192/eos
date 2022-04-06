@@ -35,6 +35,7 @@ alias df='df -hT'
 alias md='vscodium -n'                     # Visual Studio Code as a markdown editor
 alias grep='grep -n'
 alias sou='source ~/.bashrc'               # re-read ~/.bashrc
+alias branch='grep "^\[testing\]\$" /etc/pacman.conf >/dev/null && echo testing || echo stable'
 
 bind '"\e[A":history-search-backward'      # history with arrow up key
 bind '"\e[B":history-search-forward'       # history with arrow down key
