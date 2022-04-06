@@ -278,6 +278,7 @@ InstallPackages() {
         linux-lts
         linux-lts-headers
         llpp            # fast PDF reader for complex PDF files
+        most
         mpv
         ncdu
         pahis
@@ -309,6 +310,10 @@ RemovePackages() {
     )
     local remove=()
     local pkg
+
+    case "$this_rig" in
+        v1 | p1) Remove+=(bluez) ;;
+    esac
 
     for pkg in "${Remove[@]}" ; do
         if pacman -Q $pkg >& /dev/null ; then
