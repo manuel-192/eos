@@ -35,7 +35,7 @@ alias df='df -hT'
 alias md='vscodium -n'                     # Visual Studio Code as a markdown editor
 alias grep='grep -n'
 alias sou='source ~/.bashrc'               # re-read ~/.bashrc
-alias branch='grep "^\[testing\]\$" /etc/pacman.conf >/dev/null && echo testing || echo stable'
+alias branch='grep "^\[testing\]\$" $pacmanconf >/dev/null && echo testing || echo stable'
 
 bind '"\e[A":history-search-backward'      # history with arrow up key
 bind '"\e[B":history-search-forward'       # history with arrow down key
@@ -359,7 +359,6 @@ Setup3rdPartyRepos() {
     [ -n "$1" ] || Check false
 
     local reponame
-    local pacmanconf=/etc/pacman.conf
     local repo_added=no
     local key_added="$(pacman-key --list-keys 2>/dev/null | grep -w "$repo_gpg_key")"
     local need_mirrorlist_pkg=no
@@ -446,6 +445,18 @@ SystemSettings() {
         -e 's|^\(SyncAfterUpdate\)=.*|\1=yes|'
 }
 
+SetRepoTypes() {
+    case "$repotype" in
+        testing)
+            sed -i $pacmanconf \
+                -e 's|^#\(\[testing\]\)$|\1|' \
+                -e 's|^#\(\[community-testing\]\)$|\1|' \
+                -e 's|^#\(\[multilib-testing\]\)$|\1|' \
+                -e 's|^#\(Include = \)$|\1|'
+            ;;
+    esac
+}
+
 Main() {
     local new_user="$1"
     GetNewUserName
@@ -454,6 +465,10 @@ Main() {
     local lspci=$(lspci -vnn)
     local graphics=$(echo "$lspci" | grep -Pw 'VGA|Display|3D')
     local this_rig=""
+    local pacmanconf=/etc/pacman.conf
+    local repotype=stable    # stable or testing
+
+    SetRepoTypes
 
     ThisRig
 
