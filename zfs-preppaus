@@ -1,0 +1,34 @@
+#!/bin/bash
+
+# For Apollo: unofficial preparations for zfs before install.
+
+Main() {
+    sudo sed -i /etc/calamares/modules/pacstrap.conf \
+         -e '/^  - base$/i \  - zfs-dkms'
+    sudo sed -i /etc/calamares/modules/partition.conf \
+         -e 's|^\(avail.*,"btrfs",\)|\1"zfs",|'
+    sudo sed -i /etc/calamares/modules/services-systemd.conf \
+         -e '/^   - name: "firewalld"/i \   - name: "zfs-import-cache"\n     mandatory: false\n   - name: "zfs-mount"\n     mandatory: true' \
+         -e '/^ targets:/a \   - name: "zfs"\n     mandatory: true\n   - name: "zfs-import"\n     mandatory: true' \
+         -e 's|^\( targets:\) \[\]|\1|'
+
+    sudo sed -i /etc/calamares/settings_online.conf \
+         -e '/^  - mount$/i \  - zfs'
+
+    sudo sed -i /etc/calamares/scripts/chrooted_cleaner_script.sh \
+         -e '/^_check_install_mode$/i \ \nexport ZPOOL_VDEV_NAME_PATH=1'
+
+    sudo pacman -Sy zfs-dkms --noconfirm  # ignore errors!
+    sudo modprobe zfs
+
+
+    # The following lines are not related to zfs and are not needed after the Apollo ISO.
+    # They make a simple fix to chrooted_cleaner_script.sh.
+
+    if [ -n "$(grep "2022\.04\.08" /usr/lib/endeavouros-release)" ] ; then
+        sudo sed -i /etc/calamares/scripts/chrooted_cleaner_script.sh \
+             -e 's|^rm -R /etc/calamares /opt/extra-drivers|rm -rf /etc/calamares /opt/extra-drivers|'
+    fi
+}
+
+Main "$@"
