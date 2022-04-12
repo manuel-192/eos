@@ -294,9 +294,9 @@ InstallPackages() {
         # m-m
         pac
     )
-    if ! pacman -Q firewalld >& /dev/null ; then
+    #if ! pacman -Q firewalld >& /dev/null ; then
         Install+=(gufw)
-    fi
+    #fi
     Check pacman -Sy
     Check pacman -S --noconfirm --needed "${Install[@]}"
 }
