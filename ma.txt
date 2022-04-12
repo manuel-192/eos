@@ -14,6 +14,7 @@ BashrcConfig() {
 
     cat <<EOF >> $home/.bashrc
 
+alias ls='ls --color=never'
 alias l='ls -la --ignore=.?*'
 alias ll='ls -la --ignore=..'
 
