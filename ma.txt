@@ -49,9 +49,17 @@ export FUNCNEST=50
 
 PS1='\w> '
 
-emacs() { setsid /usr/bin/emacs --reverse-video "\$@" ; }
+fork_run() { setsid /usr/bin/"${FUNCNAME[1]}" "$@" >& /dev/null ; }
+
+firefox-developer-edition() { fork_run "$@" ; }
+firefox()                   { fork_run "$@" ; }
+librewolf()                 { fork_run "$@" ; }
+vivaldi-stable()            { fork_run "$@" ; }
+emacs()                     { fork_run --reverse-video "\$@" ; }
+
 yay()   { /usr/bin/yay "\$@" ; sync ; }
 paru()  { /usr/bin/paru "\$@" ; sync ; }
+
 
 type() {
     # without parameters, show all aliases and functions
@@ -93,7 +101,7 @@ meld() {
     # Adding support for 'meld' with
     # - git and hub
     # - comparing two files when one of the args is a folder name
-    local meld="command meld"
+    local meld="setsid /usr/bin/meld"
     local xx
     local parents="\$PWD"
     local has_git=no
@@ -112,7 +120,7 @@ meld() {
     if [ "\$has_git" = "yes" ] ; then
         if [ -z "\$1" ] ; then
             # meld for the current folder in git tree
-            \$meld . &
+            \$meld .
             return
         fi
     fi
@@ -131,10 +139,10 @@ meld() {
             f2="\${f2%/}"
             f2="\$f2/\$(basename "\$f1")"
         fi
-        \$meld "\$f1" "\$f2" &
+        \$meld "\$f1" "\$f2"
     else
         # Other cases
-        \$meld "\$@" &
+        \$meld "\$@"
     fi
 }
 
