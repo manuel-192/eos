@@ -25,6 +25,7 @@ alias ln='ln -i'
 alias hlp='eos-apps-info-helper'
 alias PP='paru -Syu'
 alias AA='arch-audit'
+alias ncdu='ncdu --slow-ui-updates --disable-shell --color off'
 
 alias nano='nano -l'
 alias pacdiff=eos-pacdiff
