@@ -14,60 +14,63 @@ BashrcConfig() {
 
     cat <<EOF >> $home/.bashrc
 
-alias ls='ls --color=never -v --group-directories-first --time-style=long-iso'
+# Aliases
+
+alias AA='arch-audit'
+alias branch='grep "^\[testing\]\$" $pacmanconf >/dev/null && echo testing || echo stable'
+alias cp='cp -i'
+alias df='df -hT'
+alias grep='grep -n'
+alias hlp='eos-apps-info-helper'
+alias inxi='inxi -z'
 alias l='ls -la --file-type --ignore=.?*'
 alias ll='ls -la --file-type --ignore=..'
-
-alias cp='cp -i'
-alias mv='mv -i'
-alias rm='rm -i'
 alias ln='ln -i'
-alias hlp='eos-apps-info-helper'
-alias PP='paru -Syu'
-alias AA='arch-audit'
-alias ncdu='ncdu --slow-ui-updates --disable-shell --color off'
-
-alias nano='nano -l'
-alias pacdiff=eos-pacdiff
-
-alias poweroff='sync; poweroff'
-alias reboot='sync; reboot'
-alias update-grub='sudo grub-mkconfig -o /boot/grub/grub.cfg'
-alias df='df -hT'
+alias ls='ls --color=never -v --group-directories-first --time-style=long-iso'
 alias md='vscodium -n'                     # Visual Studio Code as a markdown editor
-alias grep='grep -n'
+alias mv='mv -i'
+alias nano='nano -l'
+alias ncdu='ncdu --slow-ui-updates --disable-shell --color off'
+alias pacdiff=eos-pacdiff
+alias poweroff='sync; poweroff'
+alias PP='pac -Syu'
+alias reboot='sync; reboot'
+alias rm='rm -i'
 alias sou='source ~/.bashrc'               # re-read ~/.bashrc
-alias branch='grep "^\[testing\]\$" $pacmanconf >/dev/null && echo testing || echo stable'
+alias update-grub='sudo grub-mkconfig -o /boot/grub/grub.cfg'
+
+
+# Key bindings and features
 
 bind '"\e[A":history-search-backward'      # history with arrow up key
 bind '"\e[B":history-search-forward'       # history with arrow down key
 bind 'set show-all-if-ambiguous on'        # complete with single TAB
 bind 'set mark-symlinked-directories on'   # complete directory symlinks with slash
 
+# Variables
+
 export LESS="-RFn"
 export FUNCNEST=50
-
+export DIFFPROG=meld
+export HISTCONTROL="erasedups"
 PS1='\w> '
 
-fork_run() { setsid /usr/bin/"${FUNCNAME[1]}" "$@" >& /dev/null ; }
+# Functions
 
-firefox-developer-edition() { fork_run "$@" ; }
-firefox()                   { fork_run "$@" ; }
-librewolf()                 { fork_run "$@" ; }
-vivaldi-stable()            { fork_run "$@" ; }
-emacs()                     { fork_run --reverse-video "\$@" ; }
+_fork_run() { setsid /usr/bin/"${FUNCNAME[1]}" "$@" >& /dev/null ; }
+_sync_run() { /usr/bin/"${FUNCNAME[1]}" "\$@" ; sync ; }
 
-yay()   { /usr/bin/yay "\$@" ; sync ; }
-paru()  { /usr/bin/paru "\$@" ; sync ; }
+df() { /usr/bin/df -hT "$@" | awk '{print $1,$2,$3,$5,$6,$7,$8,$9}' | column -t -R3,4,5 ; }
 
+emacs()                     { _fork_run --reverse-video "\$@" ; }
+firefox-developer-edition() { _fork_run "\$@" ; }
+firefox()                   { _fork_run "\$@" ; }
+gitk()                      { _fork_run "\$@" ; }
+librewolf()                 { _fork_run "\$@" ; }
+vivaldi-stable()            { _fork_run "\$@" ; }
 
-type() {
-    # without parameters, show all aliases and functions
-    case "\$1" in
-        "") { alias && declare -F ; } | less ;;
-        *) builtin type -a "\$@" ;;
-    esac
-}
+paru()  { _sync_run "\$@" ; }
+yay()   { _sync_run "\$@" ; }
 
 curl() {
     local code=0
@@ -79,24 +82,14 @@ curl() {
     return \$code
 }
 
-####################################### ==> TERM TITLE
-_CURRENT_KERNEL=\$(cat /proc/cmdline | sed 's|^BOOT_IMAGE=.*vmlinuz-\([^ ]*\) .*|\1|')
-
-_set_terminal_window_title()  { printf "\e]0;%s\a" "$*" ; }
-
-MyTermTitle() {
-    local latest_command="\$(history 1 | sed 's|^[ ]*[0-9]*[ ]*||')"
-    [ "\$latest_command" = "\$latest_command_previous" ] && return
-    latest_command="\$_CURRENT_KERNEL: \$latest_command"
-    latest_command_previous="\$latest_command"
-    _set_terminal_window_title "\$latest_command"
+type() {
+    # without parameters, show all aliases and functions
+    case "\$1" in
+        "") { alias && declare -F ; } | less ;;
+        *) builtin type -a "\$@" ;;
+    esac
 }
 
-# Set terminal title to currently running command:
-trap "MyTermTitle" DEBUG
-####################################### <== TERM TITLE
-
-####################################### ==> MELD
 meld() {
     # Adding support for 'meld' with
     # - git and hub
@@ -146,9 +139,6 @@ meld() {
     fi
 }
 
-####################################### <== MELD
-
-####################################### ==> PACCACHE
 paccache() {
     # 1. check if sudo is needed
     # 2. be verbose always
@@ -177,7 +167,23 @@ paccache() {
         /usr/bin/paccache \$verbose "\$@"
     fi
 }
-####################################### <== PACCACHE
+
+_set_terminal_window_title()  { printf "\e]0;%s\a" "$*" ; }
+
+MyTermTitle() {
+    if [ -z "$_CURRENT_KERNEL" ] ; then
+        _CURRENT_KERNEL=\$(cat /proc/cmdline | sed 's|^BOOT_IMAGE=.*vmlinuz-\([^ ]*\) .*|\1|')
+    fi
+    local latest_command="\$(history 1 | sed 's|^[ ]*[0-9]*[ ]*||')"
+    [ "\$latest_command" = "\$_latest_command_previous" ] && return
+    latest_command="\$_CURRENT_KERNEL: \$latest_command"
+    _latest_command_previous="\$latest_command"
+    _set_terminal_window_title "\$latest_command"
+}
+
+# Set terminal title to the currently running terminal:
+trap "MyTermTitle" DEBUG
+####################################### <== TERM TITLE
 
 EOF
     chown $new_user:$new_user $home/.bashrc    # not really needed if it already exists
@@ -301,6 +307,7 @@ InstallPackages() {
         vscodium-bin
 
         # m-m
+        m-common
         pac
     )
     #if ! pacman -Q firewalld >& /dev/null ; then
