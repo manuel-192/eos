@@ -14,9 +14,9 @@ BashrcConfig() {
 
     cat <<EOF >> $home/.bashrc
 
-alias ls='ls --color=never'
-alias l='ls -la --ignore=.?*'
-alias ll='ls -la --ignore=..'
+alias ls='ls --color=never -v --group-directories-first --time-style=long-iso'
+alias l='ls -la --file-type --ignore=.?*'
+alias ll='ls -la --file-type --ignore=..'
 
 alias cp='cp -i'
 alias mv='mv -i'
