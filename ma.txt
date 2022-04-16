@@ -49,6 +49,7 @@ bind 'set mark-symlinked-directories on'   # complete directory symlinks with sl
 
 # Variables
 
+export SyncAfterUpdate=yes                 # see also: /etc/eos-update-notifier.conf
 export LESS="-RFn"
 export FUNCNEST=50
 export DIFFPROG=meld
