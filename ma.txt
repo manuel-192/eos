@@ -184,7 +184,6 @@ MyTermTitle() {
 
 # Set terminal title to the currently running terminal:
 trap "MyTermTitle" DEBUG
-####################################### <== TERM TITLE
 
 EOF
     chown $new_user:$new_user $home/.bashrc    # not really needed if it already exists
