@@ -17,7 +17,7 @@ BashrcConfig() {
 # Aliases
 
 alias AA='arch-audit'
-alias branch='grep "^\[testing\]\$" $pacmanconf >/dev/null && echo testing || echo stable'
+alias branch='grep ^\[testing\]\$ $pacmanconf >/dev/null && echo testing || echo stable'
 alias cp='cp -i'
 #alias df='df -hT'
 alias grep='grep -n'
@@ -58,8 +58,8 @@ PS1='\w> '
 
 # Functions
 
-_fork_run() { setsid /usr/bin/"${FUNCNAME[1]}" "$@" >& /dev/null ; }
-_sync_run() { /usr/bin/"${FUNCNAME[1]}" "\$@" ; sync ; }
+_fork_run() { setsid /usr/bin/"\${FUNCNAME[1]}" "\$@" >& /dev/null ; }
+_sync_run() { /usr/bin/"\${FUNCNAME[1]}" "\$@" ; sync ; }
 
 df() { /usr/bin/df -hT "\$@" | awk '{print \$1,\$2,\$3,\$5,\$6,\$7,\$8,\$9}' | column -t -R3,4,5 ; }
 
@@ -169,10 +169,10 @@ paccache() {
     fi
 }
 
-_set_terminal_window_title()  { printf "\e]0;%s\a" "$*" ; }
+_set_terminal_window_title()  { printf "\e]0;%s\a" "\$*" ; }
 
 MyTermTitle() {
-    if [ -z "$_CURRENT_KERNEL" ] ; then
+    if [ -z "\$_CURRENT_KERNEL" ] ; then
         _CURRENT_KERNEL=\$(cat /proc/cmdline | sed 's|^BOOT_IMAGE=.*vmlinuz-\([^ ]*\) .*|\1|')
     fi
     local latest_command="\$(history 1 | sed 's|^[ ]*[0-9]*[ ]*||')"
