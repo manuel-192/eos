@@ -1,11 +1,17 @@
 #!/bin/bash
 
 ERROR() { echo "==> Error: $1" ; }
+WARN()  { echo "==> Warning: $1" ; }
 INFO()  { echo "==> Info: $1" ; }
 Check() {
     if ! "$@" ; then
         ERROR "'$*' failed"
         exit 0
+    fi
+}
+CheckWithWarning() {
+    if ! "$@" ; then
+        WARN "'$*' failed"
     fi
 }
 
@@ -347,7 +353,8 @@ RemovePackages() {
     done
     if [ ${#remove[0]} -gt 0 ] ; then
         INFO "Removing packages: ${remove[*]}"
-        Check pacman -Rsn --noconfirm "${remove[@]}"
+        # Don't exit if uninstall fails (because of dependencies...)
+        CheckWithWarning pacman -Rsn --noconfirm "${remove[@]}" || true
     fi
     INFO "$FUNCNAME done."
 }
