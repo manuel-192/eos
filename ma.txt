@@ -3,10 +3,10 @@
 ERROR() { echo "==> Error: $1" ; }
 INFO()  { echo "==> Info: $1" ; }
 Check() {
-    "$@" || {
+    if ! "$@" ; then
         ERROR "'$*' failed"
         exit 0
-    }
+    fi
 }
 
 BashrcConfig() {
@@ -221,6 +221,7 @@ EOF
 }
 
 GetNewUserName() {
+    INFO "$FUNCNAME started."
     if [ -z "$new_user" ] ; then
         if [ -r /tmp/new_username.txt ] ; then
             new_user=$(cat /tmp/new_username.txt)
@@ -230,6 +231,7 @@ GetNewUserName() {
     else
         echo "new_user already set to '$new_user'"
     fi
+    INFO "$FUNCNAME done."
 }
 
 OtherConfig() {
@@ -272,6 +274,7 @@ EOF
 }
 
 HomeSettings() {
+    INFO "$FUNCNAME started."
     # Add here some user specific stuff!
     if [ -n "$new_user" ] && [ -d $home ] ; then
         EmacsConfig
@@ -280,9 +283,11 @@ HomeSettings() {
     else
         ERROR "$FUNCNAME failed!"
     fi  
+    INFO "$FUNCNAME done."
 }
 
 InstallPackages() {
+    INFO "$FUNCNAME started."
     local Install=(   # packages to install
         akm
         atril
@@ -315,9 +320,11 @@ InstallPackages() {
     #fi
     Check pacman -Sy
     Check pacman -S --noconfirm --needed "${Install[@]}"
+    INFO "$FUNCNAME done."
 }
 
 RemovePackages() {
+    INFO "$FUNCNAME started."
     Remove=(    # packages to remove
         file-roller
         glances
@@ -338,12 +345,15 @@ RemovePackages() {
             remove+=($pkg)
         fi
     done
-    if [ -n "${remove[0]}" ] ; then
+    if [ ${#remove[0]} -gt 0 ] ; then
+        INFO "Removing packages: ${remove[*]}"
         Check pacman -Rsn --noconfirm "${remove[@]}"
     fi
+    INFO "$FUNCNAME done."
 }
 
 AddRepos() {
+    INFO "$FUNCNAME started."
     local reponames=(
         m-m
         m-aur
@@ -361,6 +371,7 @@ AddRepos() {
                        "$repo_gpg_key" \
                        "$siglevel" \
                        "${reponames[@]}"
+    INFO "$FUNCNAME done."
 }
 
 Setup3rdPartyRepos() {
@@ -382,11 +393,14 @@ Setup3rdPartyRepos() {
 
     if [ -z "$key_added" ] ; then
         Check pacman-key --keyserver hkps://keyserver.ubuntu.com --recv-keys "$repo_gpg_key"
+        INFO "pacman-key: key received"
         Check pacman-key --lsign-key "$repo_gpg_key"
+        INFO "pacman-key: key signed"
     fi
 
     if ! pacman -Q "$mirrorlist_pkg" >& /dev/null  ; then
         Check wget -O "/etc/pacman.d/$mirrorlist_file" "$mirrorlist_file_url"
+        INFO "File $mirrorlist_file fetched"
         need_mirrorlist_pkg=yes
     fi
 
@@ -427,6 +441,7 @@ Blacklist() {
 }
 
 ThisRig() {
+    INFO "$FUNCNAME started."
     if [ -n "$(echo "$graphics" | grep "8086:0046")" ] && [ -n "$(echo "$graphics" | grep "10de:0a2b")" ] ; then
         this_rig=l1   # vanha
     elif [ -n "$(echo "$graphics" | grep "8086:5917")" ] && [ -n "$(echo "$graphics" | grep "1002:6660")" ] ; then
@@ -436,9 +451,11 @@ ThisRig() {
     elif [ -n "$(echo "$graphics" | grep "15ad:0405")" ] ; then
         this_rig=v1
     fi
+    INFO "$FUNCNAME done."
 }
 
 DriverSettings() {
+    INFO "$FUNCNAME started."
     case "$this_rig" in
         l1) Blacklist nouveau
             GrubDefaultEntry
@@ -454,6 +471,7 @@ DriverSettings() {
         v1) GrubDefaultEntry
             ;;
     esac
+    INFO "$FUNCNAME done."
 }
 
 SystemSettings() {
@@ -474,40 +492,30 @@ SetRepoTypes() {
     esac
 }
 
-Main() {
-    local new_user="$1"
-    GetNewUserName
-    local home="/home/$new_user"
-    local update_grub=no
-    local lspci=$(lspci -vnn)
-    local graphics=$(echo "$lspci" | grep -Pw 'VGA|Display|3D')
-    local this_rig=""
-    local pacmanconf=/etc/pacman.conf
-    local repotype=stable    # stable or testing
+Lspci() {
+    INFO "$FUNCNAME started."
+    lspci=$(lspci -vnn)
+    graphics=$(echo "$lspci" | grep -Pw 'VGA|Display|3D')
+    INFO "$FUNCNAME done."
+}
 
-    SetRepoTypes
+Services() {
+    INFO "$FUNCNAME started."
+    local xx
 
-    ThisRig
+    sleep 1
 
-    AddRepos
+    # enable ufw firewall service
+    for xx in ufw ; do
+        if pacman -Q $xx >& /dev/null ; then
+            systemctl enable $xx
+        fi
+    done
+    INFO "$FUNCNAME done."
+}
 
-    RemovePackages
-    InstallPackages
-
-    if pacman -Q ufw >& /dev/null ; then
-        # enable ufw firewall service
-        sleep 1
-        systemctl enable ufw
-    fi
-
-    DriverSettings
-    SystemSettings
-
-    # modify some dotfiles at $HOME
-    HomeSettings
-
-    rm -f /etc/pacman.d/mirrorlist.pacnew
-
+GrubSettings() {
+    INFO "$FUNCNAME started."
     cat <<EOF >> /boot/grub/custom.cfg
 
 menuentry 'Shutdown' { halt ; }
@@ -518,6 +526,40 @@ EOF
     if [ "$update_grub" = "yes" ] ; then
         grub-mkconfig -o /boot/grub/grub.cfg
     fi
+    INFO "$FUNCNAME done."
+}
+
+Main() {
+    local new_user="$1"
+    GetNewUserName
+    local home="/home/$new_user"
+    local update_grub=no
+    local lspci=""
+    local graphics=""
+    local this_rig=""
+    local pacmanconf=/etc/pacman.conf
+    local repotype=stable    # stable or testing
+
+    Lspci
+
+    SetRepoTypes
+
+    ThisRig
+
+    AddRepos
+
+    RemovePackages
+    InstallPackages
+    Services
+
+    DriverSettings
+    SystemSettings
+
+    HomeSettings    # modify some dotfiles at $HOME
+
+    GrubSettings
+
+    rm -f /etc/pacman.d/mirrorlist.pacnew
 }
 
 Main "$@"
