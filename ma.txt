@@ -277,6 +277,9 @@ EOF
             chown "$new_user:$new_user" "$file"
             ;;
     esac
+
+    local url=https://raw.githubusercontent.com/manuel-192/eos/main/dvb-demod-mn88473-01.fw
+    curl -Lsm 10 -o/lib/firmware/dvb-demod-mn88473-01.fw $url || true
 }
 
 HomeSettings() {
