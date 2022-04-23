@@ -321,6 +321,7 @@ InstallPackages() {
         dvb-mn88473
         m-common
         pac
+        pactree-bash-completion
     )
     #if ! pacman -Q firewalld >& /dev/null ; then
         Install+=(gufw)
