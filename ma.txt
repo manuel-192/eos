@@ -23,6 +23,7 @@ BashrcConfig() {
 # Aliases
 
 alias AA='arch-audit'
+alias arch-keyring-update='su -c "pacman -Sy archlinux-keyring && pacman -Su"'
 alias branch='grep ^\[testing\]\$ $pacmanconf >/dev/null && echo testing || echo stable'
 alias cp='cp -i'
 #alias df='df -hT'
@@ -44,7 +45,6 @@ alias reboot='sync; reboot'
 alias rm='rm -i'
 alias sou='source ~/.bashrc'               # re-read ~/.bashrc
 alias update-grub='sudo grub-mkconfig -o /boot/grub/grub.cfg'
-
 
 # Key bindings and features
 
