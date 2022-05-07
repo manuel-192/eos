@@ -23,7 +23,6 @@ BashrcConfig() {
 # Aliases
 
 alias AA='arch-audit'
-alias arch-keyring-update='su -c "pacman -Sy archlinux-keyring && pacman -Su"'
 alias branch='grep ^\[testing\]\$ $pacmanconf >/dev/null && echo testing || echo stable'
 alias cp='cp -i'
 #alias df='df -hT'
@@ -39,14 +38,14 @@ alias mv='mv -i'
 alias nano='nano -l'
 alias ncdu='ncdu --slow-ui-updates --disable-shell --color off'
 alias pacdiff=eos-pacdiff
-alias poweroff='sync; poweroff'
+alias poweroff='sync && poweroff'
 alias PP='pac -Syu'
-alias reboot='sync; reboot'
+alias reboot='sync && reboot'
 alias rm='rm -i'
 alias sou='source ~/.bashrc'               # re-read ~/.bashrc
 alias update-grub='sudo grub-mkconfig -o /boot/grub/grub.cfg'
 
-# Key bindings and features
+# Key bindings and CLI features
 
 bind '"\e[A":history-search-backward'      # history with arrow up key
 bind '"\e[B":history-search-forward'       # history with arrow down key
@@ -55,11 +54,10 @@ bind 'set mark-symlinked-directories on'   # complete directory symlinks with sl
 
 # Variables
 
-export SyncAfterUpdate=yes                 # see also: /etc/eos-update-notifier.conf
-export LESS="-RFn"
-export FUNCNEST=50
-export DIFFPROG=meld
+export FUNCNEST=50                         # prevent bad loops!
 export HISTCONTROL="erasedups"
+export LESS="-RFn"
+
 PS1='\w> '
 
 # Functions
