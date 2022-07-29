@@ -303,7 +303,7 @@ InstallPackages() {
         libreoffice-fresh-fi
         linux-lts
         linux-lts-headers
-        llpp            # fast PDF reader for complex PDF files
+        # llpp            # fast PDF reader for complex PDF files    # not working anymore
         most
         mpv
         ncdu
