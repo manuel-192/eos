@@ -58,8 +58,8 @@ export PROMPT_COMMAND=_bash_prompt_command
 # Functions
 
 _bash_prompt_command() {
-    local datetime=$(LANG=C /usr/bin/date "+%y%m%d %H%M")
-    export PS1="$datetime\n\w> "
+    local datetime=\$(LANG=C /usr/bin/date "+%y%m%d %H%M")
+    export PS1="\$datetime\n\w> "
 }
 
 _fork_run() { setsid /usr/bin/"\${FUNCNAME[1]}" "\$@" >& /dev/null ; }
