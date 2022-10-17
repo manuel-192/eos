@@ -22,28 +22,24 @@ BashrcConfig() {
 
 # Aliases
 
-alias AA='arch-audit'
-alias branch='grep ^\[testing\]\$ $pacmanconf >/dev/null && echo testing || echo stable'
+alias branch='pacman-conf --repo-list | grep "^testing$" || echo stable'
 alias cp='cp -i'
-#alias df='df -hT'
-alias grep='grep -n'
-alias hlp='eos-apps-info-helper'
+alias df='df -hT'
 alias inxi='inxi -z'
-alias l='ls -la --file-type --ignore=.?*'
-alias ll='ls -la --file-type --ignore=..'
 alias ln='ln -i'
-alias ls='ls --color=never -v --group-directories-first --time-style=long-iso'
-alias md='vscodium -n'                     # Visual Studio Code as a markdown editor
+alias lsblk='lsblk -f -o+SIZE'
+alias meld='setsid meld-rcs'
 alias mv='mv -i'
 alias nano='nano -l'
-alias ncdu='ncdu --slow-ui-updates --disable-shell --color off'
+alias p=pacman-ext
+alias pa='pacman-ext --aur'
 alias pacdiff=eos-pacdiff
 alias poweroff='sync && poweroff'
-alias PP='pac -Syu'
 alias reboot='sync && reboot'
 alias rm='rm -i'
 alias sou='source ~/.bashrc'               # re-read ~/.bashrc
-alias update-grub='sudo grub-mkconfig -o /boot/grub/grub.cfg'
+
+# alias grep='grep -n'
 
 # Key bindings and CLI features
 
@@ -56,18 +52,20 @@ bind 'set mark-symlinked-directories on'   # complete directory symlinks with sl
 
 export FUNCNEST=50                         # prevent bad loops!
 export HISTCONTROL="erasedups"
-export LESS="-RFn"
-
-PS1='\w> '
+export PROMPT_COMMAND=_bash_prompt_command
+# export LESS="-Rn"
 
 # Functions
+
+_bash_prompt_command() {
+    local datetime=$(LANG=C /usr/bin/date "+%y%m%d %H%M")
+    export PS1="$datetime\n\w> "
+}
 
 _fork_run() { setsid /usr/bin/"\${FUNCNAME[1]}" "\$@" >& /dev/null ; }
 _sync_run() { /usr/bin/"\${FUNCNAME[1]}" "\$@" ; sync ; }
 
-df() { /usr/bin/df -hT "\$@" | awk '{print \$1,\$2,\$3,\$5,\$6,\$7,\$8,\$9}' | column -t -R3,4,5 ; }
-
-emacs()                     { _fork_run --reverse-video "\$@" ; }
+# emacs()                     { _fork_run --reverse-video "\$@" ; }
 firefox-developer-edition() { _fork_run "\$@" ; }
 firefox()                   { _fork_run "\$@" ; }
 gitk()                      { _fork_run "\$@" ; }
@@ -93,55 +91,6 @@ type() {
         "") { alias && declare -F ; } | less ;;
         *) builtin type -a "\$@" ;;
     esac
-}
-
-meld() {
-    # Adding support for 'meld' with
-    # - git and hub
-    # - comparing two files when one of the args is a folder name
-    local meld="setsid /usr/bin/meld"
-    local xx
-    local parents="\$PWD"
-    local has_git=no
-
-    # Is this a git tree?
-
-    while [ -n "\$parents" ] ; do
-        if [ -d "\$parents/.git" ] ; then
-            has_git=yes
-            break
-        fi
-        [ "\$parents" = "/" ] && break
-        parents="\$(dirname "\$parents")"
-    done
-
-    if [ "\$has_git" = "yes" ] ; then
-        if [ -z "\$1" ] ; then
-            # meld for the current folder in git tree
-            \$meld .
-            return
-        fi
-    fi
-
-    # compare two files/folders
-
-    if [ -n "\$1" ] && [ -n "\$2" ] && [ -z "\$3" ] && [ -e "\$1" ] && [ -e "\$2" ] ; then
-        # Two args, files or folders.
-        # If one of them is a folder, meld needs help to use the file in the folder.
-        local f1="\$1"
-        local f2="\$2"
-        if [ -d "\$f1" ] && [ ! -d "\$f2" ] ; then
-            f1="\${f1%/}"                             # remove possible trailing slash
-            f1="\$f1/\$(basename "\$f2")"               # add file name after the folder name
-        elif [ -d "\$f2" ] && [ ! -d "\$f1" ] ; then
-            f2="\${f2%/}"
-            f2="\$f2/\$(basename "\$f1")"
-        fi
-        \$meld "\$f1" "\$f2"
-    else
-        # Other cases
-        \$meld "\$@"
-    fi
 }
 
 paccache() {
@@ -275,6 +224,11 @@ EOF
             chown "$new_user:$new_user" "$file"
             ;;
     esac
+
+    # prevent Logitech mouse wakeup from suspend
+    echo <<EOF > /etc/udev/rules.d/logitech-unifying.rules
+ACTION=="add", SUBSYSTEM=="usb", DRIVERS=="usb", ATTRS{idVendor}=="046d", ATTRS{idProduct}=="c52b", ATTR{power/wakeup}="disabled"
+EOF
 }
 
 HomeSettings() {
@@ -303,7 +257,7 @@ InstallPackages() {
         libreoffice-fresh-fi
         linux-lts
         linux-lts-headers
-        # llpp            # fast PDF reader for complex PDF files    # not working anymore
+        # llpp            # fast PDF reader for complex PDF files    # not supported anymore :(
         most
         mpv
         ncdu
@@ -316,10 +270,19 @@ InstallPackages() {
         vscodium-bin
 
         # m-m
+        abbrevs-ls
+        abbrevs-misc
         dvb-mn88473
+        emacs-tweaks
+        grub-mkconfig-reminder-after-kernel
+        grub_os-prober_fix
+        hlp
         m-common
-        pac
+        md
+        meld-rcs
+        pau
         pactree-bash-completion
+        vb-notif
     )
     #if ! pacman -Q firewalld >& /dev/null ; then
         Install+=(gufw)
@@ -333,6 +296,7 @@ RemovePackages() {
     INFO "$FUNCNAME started."
     Remove=(    # packages to remove
         file-roller
+        firewalld
         glances
         parole
         power-profiles-daemon
