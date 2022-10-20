@@ -58,7 +58,7 @@ export PROMPT_COMMAND=_bash_prompt_command
 # Functions
 
 _bash_prompt_command() {
-    local datetime=\$(LANG=C /usr/bin/date "+%y%m%d %H%M")
+    local datetime=\$(LANG=C /usr/bin/date "+%d.%m.%y %H:%M:%S")
     export PS1="\$datetime\n\w> "
 }
 
@@ -280,7 +280,7 @@ InstallPackages() {
         m-common
         md
         meld-rcs
-        pau
+        pacman-ext
         pactree-bash-completion
         vb-notif
     )
@@ -307,7 +307,7 @@ RemovePackages() {
     local pkg
 
     case "$this_rig" in
-        v1 | p1) Remove+=(bluez) ;;
+        v1 | p1) Remove+=(bluez bluez-tools gnome-bluetooth ) ;;
     esac
 
     for pkg in "${Remove[@]}" ; do
@@ -501,6 +501,8 @@ EOF
 }
 
 Main() {
+    INFO "Executing user commands: started."
+
     local new_user="$1"
     GetNewUserName
     local home="/home/$new_user"
@@ -531,6 +533,8 @@ Main() {
     GrubSettings
 
     rm -f /etc/pacman.d/mirrorlist.pacnew
+
+    INFO "Executing user commands: done."
 }
 
 Main "$@"
