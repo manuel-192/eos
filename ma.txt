@@ -397,9 +397,11 @@ EOF
     fi
 }
 
-GrubDefaultEntry() {
-    local entry="EndeavourOS, on linux"
-    sed -i /etc/default/grub -e "s|^\(GRUB_DEFAULT=\)0$|\1'$entry'|"
+GrubDefaults() {
+    local entry=2    # "EndeavourOS, on linux"
+    sed -i /etc/default/grub \
+        -e "s|^\(GRUB_DEFAULT=\)0$|\1'$entry'|" \
+        -e "s|^#\(GRUB_DISABLE_SUBMENU=y\)$|\1|"
     update_grub=yes
 }
 
@@ -429,17 +431,17 @@ DriverSettings() {
     INFO "$FUNCNAME started."
     case "$this_rig" in
         l1) Blacklist nouveau
-            GrubDefaultEntry
+            GrubDefaults
             Check pacman -S --needed --noconfirm xf86-video-intel xorg-xbacklight
             ;;
         l2) Blacklist radeon,amdgpu
-            GrubDefaultEntry
+            GrubDefaults
             Check pacman -S --needed --noconfirm xf86-video-intel xorg-xbacklight
             ;;
         p1) Blacklist nouveau,i915
-            GrubDefaultEntry
+            GrubDefaults
             ;;
-        v1) GrubDefaultEntry
+        v1) GrubDefaults
             ;;
     esac
     INFO "$FUNCNAME done."
