@@ -247,7 +247,6 @@ HomeSettings() {
 InstallPackages() {
     INFO "$FUNCNAME started."
     local Install=(   # packages to install
-        akm
         atril
         emacs
         firefox-developer-edition
@@ -263,10 +262,12 @@ InstallPackages() {
         ncdu
         pahis
         paru
-        # rcs
+        rcs
         simple-scan
         solaar
         terminator
+
+        # m-aur
         vscodium-bin
 
         # m-m
@@ -284,9 +285,8 @@ InstallPackages() {
         pactree-bash-completion
         vb-notif
     )
-    #if ! pacman -Q firewalld >& /dev/null ; then
-        Install+=(gufw)
-    #fi
+    Install+=(gufw)    # pacman -Q firewalld >& /dev/null || Install+=(gufw)
+
     Check pacman -Sy
     Check pacman -S --noconfirm --needed "${Install[@]}"
     INFO "$FUNCNAME done."
@@ -463,6 +463,21 @@ SetRepoTypes() {
     esac
 }
 
+FixMirrorlists() {
+    cat <<EOF > /etc/pacman.d/mirrorlist
+Server = https://mirror.pseudoform.org/\$repo/os/\$arch
+Server = https://mirror.f4st.host/archlinux/\$repo/os/\$arch
+Server = https://mirror.moson.org/arch/\$repo/os/\$arch
+Server = https://archlinux.thaller.ws/\$repo/os/\$arch
+EOF
+
+    cat <<EOF > /etc/pacman.d/endeavouros-mirrorlist
+Server = https://mirror.alpix.eu/endeavouros/repo/\$repo/\$arch
+Server = https://mirror.moson.org/endeavouros/repo/\$repo/\$arch
+Server = https://ftp.acc.umu.se/mirror/endeavouros/repo/\$repo/\$arch
+EOF
+}
+
 Lspci() {
     INFO "$FUNCNAME started."
     lspci=$(lspci -vnn)
@@ -521,6 +536,8 @@ Main() {
 
     AddRepos
 
+    FixMirrorlists
+
     RemovePackages
     InstallPackages
     Services
@@ -532,7 +549,12 @@ Main() {
 
     GrubSettings
 
-    rm -f /etc/pacman.d/mirrorlist.pacnew
+    local files_to_delete=(
+        /etc/pacman.d/mirrorlist.pacnew
+        /etc/pacman.d/endeavouros-mirrorlist.pacnew
+        /etc/default/grub.pacnew
+    )
+    rm -f "${files_to_delete[@]}"
 
     INFO "Executing user commands: done."
 }
