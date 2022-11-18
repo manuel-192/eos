@@ -4,15 +4,19 @@ ERROR() { echo "==> Error: $1" ; }
 WARN()  { echo "==> Warning: $1" ; }
 INFO()  { echo "==> Info: $1" ; }
 Check() {
-    if ! "$@" ; then
+    if ! RunCmd "$@" ; then
         ERROR "'$*' failed"
         exit 0
     fi
 }
 CheckWithWarning() {
-    if ! "$@" ; then
+    if ! RunCmd "$@" ; then
         WARN "'$*' failed"
     fi
+}
+RunCmd() {
+    echo "::" "$@"
+    "$@"
 }
 
 BashrcConfig() {
@@ -204,7 +208,7 @@ StartupNotify=false
 Terminal=false
 Hidden=false
 EOF
-    chown "$new_user:$new_user" "$file"
+    CheckWithWarning chown "$new_user:$new_user" "$file"
 
     case "$this_rig" in
         l1)
@@ -221,7 +225,7 @@ Path=
 Terminal=false
 StartupNotify=false
 EOF
-            chown "$new_user:$new_user" "$file"
+            CheckWithWarning chown "$new_user:$new_user" "$file"
             ;;
     esac
 
@@ -477,6 +481,7 @@ EOF
 Lspci() {
     lspci=$(lspci -vnn)
     graphics=$(echo "$lspci" | grep -Pw 'VGA|Display|3D')
+    echo ":: graphics = '$graphics'"
 }
 
 Services() {
@@ -487,7 +492,7 @@ Services() {
     # enable ufw firewall service
     for xx in ufw ; do
         if pacman -Q $xx >& /dev/null ; then
-            systemctl enable $xx
+            RunCmd systemctl enable $xx
         fi
     done
 }
@@ -501,7 +506,7 @@ EOF
     update_grub=yes
 
     if [ "$update_grub" = "yes" ] ; then
-        grub-mkconfig -o /boot/grub/grub.cfg
+        RunCmd grub-mkconfig -o /boot/grub/grub.cfg
     fi
 }
 
@@ -511,7 +516,7 @@ CleanUp() {
         /etc/pacman.d/endeavouros-mirrorlist.pacnew
         /etc/default/grub.pacnew
     )
-    rm -f "${files_to_delete[@]}"
+    RunCmd rm -f "${files_to_delete[@]}"
 }
 
 StartStop() {
