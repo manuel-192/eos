@@ -23,6 +23,7 @@ BashrcConfig() {
 # Aliases
 
 alias branch='pacman-conf --repo-list | grep "^testing$" || echo stable'
+alias cls=clear
 alias cp='cp -i'
 alias df='df -hT'
 alias inxi='inxi -z'
@@ -32,7 +33,8 @@ alias meld='setsid meld-rcs'
 alias mv='mv -i'
 alias nano='nano -l'
 alias p=pacman-ext
-alias pa='pacman-ext --aur'
+alias pa='paru -Sua'
+alias pd='pacman-ext --downgrade'
 alias pacdiff=eos-pacdiff
 alias poweroff='sync && poweroff'
 alias reboot='sync && reboot'
@@ -398,11 +400,17 @@ EOF
 }
 
 GrubDefaults() {
-    local entry=2    # "EndeavourOS, on linux"
-    sed -i /etc/default/grub \
-        -e "s|^\(GRUB_DEFAULT=\)0$|\1'$entry'|" \
-        -e "s|^#\(GRUB_DISABLE_SUBMENU=y\)$|\1|"
-    update_grub=yes
+    if false ; then
+        local entry=2    # "EndeavourOS, on linux"
+        sed -i /etc/default/grub \
+            -e "s|^\(GRUB_DEFAULT=\)0$|\1'$entry'|" \
+            -e "s|^#\(GRUB_DISABLE_SUBMENU=y\)$|\1|"
+        update_grub=yes
+    else
+        sed -i /etc/default/grub \
+            -e '/^GRUB_DEFAULT=0/i \GRUB_TOP_LEVEL=/boot/vmlinuz-linux'
+        update_grub=yes
+    fi
 }
 
 Blacklist() {
@@ -451,6 +459,10 @@ SystemSettings() {
     sed -i /etc/eos-script-lib-yad.conf \
         -e 's|^\(EOS_PACDIFF_WARNING\)=.*|\1=no|' \
         -e 's|^\(SyncAfterUpdate\)=.*|\1=yes|'
+
+    sed -i /etc/eos-rankmirrors.conf \
+        -e 's|^\(EOS_AUTORANK_TIMEOUT\)=.*|\1=2|' \
+        -e 's|^\(ALWAYS_FIRST_EOS_MIRRORS\)=.*|\1="alpix|moson|umu"|'
 }
 
 SetRepoTypes() {
@@ -473,11 +485,13 @@ Server = https://mirror.moson.org/arch/\$repo/os/\$arch
 Server = https://archlinux.thaller.ws/\$repo/os/\$arch
 EOF
 
+    if false ; then
     cat <<EOF > /etc/pacman.d/endeavouros-mirrorlist
 Server = https://mirror.alpix.eu/endeavouros/repo/\$repo/\$arch
 Server = https://mirror.moson.org/endeavouros/repo/\$repo/\$arch
 Server = https://ftp.acc.umu.se/mirror/endeavouros/repo/\$repo/\$arch
 EOF
+    fi
 }
 
 Lspci() {
