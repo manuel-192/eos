@@ -390,24 +390,18 @@ EOF
 }
 
 GrubDefaults() {
-    if false ; then
-        local entry=2    # "EndeavourOS, on linux"
-        sed -i /etc/default/grub \
-            -e "s|^\(GRUB_DEFAULT=\)0$|\1'$entry'|" \
-            -e "s|^#\(GRUB_DISABLE_SUBMENU=y\)$|\1|"
-        update_grub=yes
-    else
-        sed -i /etc/default/grub \
-            -e '/^GRUB_DEFAULT=0/i \GRUB_TOP_LEVEL=/boot/vmlinuz-linux'
-        update_grub=yes
-    fi
+    sed -i /etc/default/grub \
+        -e '/^GRUB_DEFAULT=.*/i \GRUB_TOP_LEVEL=/boot/vmlinuz-linux'
+    update_grub=yes
 }
 
 Blacklist() {
     local blacklists="$1"
 
+    # handle both quoting styles
     sed -i /etc/default/grub \
-        -e "s|^\(GRUB_CMDLINE_LINUX_DEFAULT=\"\)|\1module_blacklist=$blacklists |"
+        -e "s|^\(GRUB_CMDLINE_LINUX_DEFAULT=\"\)|\1module_blacklist=$blacklists |" \
+        -e "s|^\(GRUB_CMDLINE_LINUX_DEFAULT='\)|\1module_blacklist=$blacklists |"
     update_grub=yes
 }
 
