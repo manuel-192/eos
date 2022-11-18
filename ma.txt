@@ -176,7 +176,6 @@ EOF
 }
 
 GetNewUserName() {
-    INFO "$FUNCNAME started."
     if [ -z "$new_user" ] ; then
         if [ -r /tmp/new_username.txt ] ; then
             new_user=$(cat /tmp/new_username.txt)
@@ -186,7 +185,6 @@ GetNewUserName() {
     else
         echo "new_user already set to '$new_user'"
     fi
-    INFO "$FUNCNAME done."
 }
 
 OtherConfig() {
@@ -234,7 +232,6 @@ EOF
 }
 
 HomeSettings() {
-    INFO "$FUNCNAME started."
     # Add here some user specific stuff!
     if [ -n "$new_user" ] && [ -d $home ] ; then
         EmacsConfig
@@ -243,11 +240,9 @@ HomeSettings() {
     else
         ERROR "$FUNCNAME failed!"
     fi  
-    INFO "$FUNCNAME done."
 }
 
 InstallPackages() {
-    INFO "$FUNCNAME started."
     local Install=(   # packages to install
         atril
         emacs
@@ -291,11 +286,9 @@ InstallPackages() {
 
     Check pacman -Sy
     Check pacman -S --noconfirm --needed "${Install[@]}"
-    INFO "$FUNCNAME done."
 }
 
 RemovePackages() {
-    INFO "$FUNCNAME started."
     Remove=(    # packages to remove
         file-roller
         firewalld
@@ -309,7 +302,7 @@ RemovePackages() {
     local pkg
 
     case "$this_rig" in
-        v1 | p1) Remove+=(bluez bluez-tools gnome-bluetooth ) ;;
+        v1 | p1) Remove+=(bluez-tools gnome-bluetooth ) ;;
     esac
 
     for pkg in "${Remove[@]}" ; do
@@ -322,11 +315,9 @@ RemovePackages() {
         # Don't exit if uninstall fails (because of dependencies...)
         CheckWithWarning pacman -Rsn --noconfirm "${remove[@]}" || true
     fi
-    INFO "$FUNCNAME done."
 }
 
 AddRepos() {
-    INFO "$FUNCNAME started."
     local reponames=(
         m-m
         m-aur
@@ -344,7 +335,6 @@ AddRepos() {
                        "$repo_gpg_key" \
                        "$siglevel" \
                        "${reponames[@]}"
-    INFO "$FUNCNAME done."
 }
 
 Setup3rdPartyRepos() {
@@ -422,7 +412,6 @@ Blacklist() {
 }
 
 ThisRig() {
-    INFO "$FUNCNAME started."
     if [ -n "$(echo "$graphics" | grep "8086:0046")" ] && [ -n "$(echo "$graphics" | grep "10de:0a2b")" ] ; then
         this_rig=l1   # vanha
     elif [ -n "$(echo "$graphics" | grep "8086:5917")" ] && [ -n "$(echo "$graphics" | grep "1002:6660")" ] ; then
@@ -432,11 +421,9 @@ ThisRig() {
     elif [ -n "$(echo "$graphics" | grep "15ad:0405")" ] ; then
         this_rig=v1
     fi
-    INFO "$FUNCNAME done."
 }
 
 DriverSettings() {
-    INFO "$FUNCNAME started."
     case "$this_rig" in
         l1) Blacklist nouveau
             GrubDefaults
@@ -452,7 +439,6 @@ DriverSettings() {
         v1) GrubDefaults
             ;;
     esac
-    INFO "$FUNCNAME done."
 }
 
 SystemSettings() {
@@ -495,14 +481,11 @@ EOF
 }
 
 Lspci() {
-    INFO "$FUNCNAME started."
     lspci=$(lspci -vnn)
     graphics=$(echo "$lspci" | grep -Pw 'VGA|Display|3D')
-    INFO "$FUNCNAME done."
 }
 
 Services() {
-    INFO "$FUNCNAME started."
     local xx
 
     sleep 1
@@ -513,11 +496,9 @@ Services() {
             systemctl enable $xx
         fi
     done
-    INFO "$FUNCNAME done."
 }
 
 GrubSettings() {
-    INFO "$FUNCNAME started."
     cat <<EOF >> /boot/grub/custom.cfg
 
 menuentry 'Shutdown' { halt ; }
@@ -528,14 +509,28 @@ EOF
     if [ "$update_grub" = "yes" ] ; then
         grub-mkconfig -o /boot/grub/grub.cfg
     fi
-    INFO "$FUNCNAME done."
+}
+
+CleanUp() {
+    local files_to_delete=(
+        /etc/pacman.d/mirrorlist.pacnew
+        /etc/pacman.d/endeavouros-mirrorlist.pacnew
+        /etc/default/grub.pacnew
+    )
+    rm -f "${files_to_delete[@]}"
+}
+
+StartStop() {
+    INFO "Executing $*: started."
+    "$@"
+    INFO "Executing $*: done."
 }
 
 Main() {
     INFO "Executing user commands: started."
 
     local new_user="$1"
-    GetNewUserName
+    StartStop  GetNewUserName
     local home="/home/$new_user"
     local update_grub=no
     local lspci=""
@@ -544,33 +539,26 @@ Main() {
     local pacmanconf=/etc/pacman.conf
     local repotype=stable    # stable or testing
 
-    Lspci
+    StartStop Lspci
 
-    SetRepoTypes
+    StartStop SetRepoTypes
 
-    ThisRig
+    StartStop ThisRig
 
-    AddRepos
+    StartStop AddRepos
 
-    FixMirrorlists
+    StartStop FixMirrorlists
 
-    RemovePackages
-    InstallPackages
-    Services
+    StartStop RemovePackages
+    StartStop InstallPackages
+    StartStop Services
 
-    DriverSettings
-    SystemSettings
+    StartStop DriverSettings
+    StartStop SystemSettings
+    StartStop HomeSettings    # modify some dotfiles at $HOME
+    StartStop GrubSettings
 
-    HomeSettings    # modify some dotfiles at $HOME
-
-    GrubSettings
-
-    local files_to_delete=(
-        /etc/pacman.d/mirrorlist.pacnew
-        /etc/pacman.d/endeavouros-mirrorlist.pacnew
-        /etc/default/grub.pacnew
-    )
-    rm -f "${files_to_delete[@]}"
+    StartStop CleanUp
 
     INFO "Executing user commands: done."
 }
