@@ -447,6 +447,8 @@ SystemSettings() {
     sed -i /etc/eos-rankmirrors.conf \
         -e 's|^\(EOS_AUTORANK_TIMEOUT\)=.*|\1=2|' \
         -e "s|^\(ALWAYS_FIRST_EOS_MIRRORS\)=.*|\1='alpix\|moson\|umu'|"
+
+    CheckWithWarning eos-rankmirrors
 }
 
 SetRepoTypes() {
