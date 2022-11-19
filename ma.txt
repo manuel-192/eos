@@ -230,9 +230,17 @@ EOF
     esac
 
     # prevent Logitech mouse wakeup from suspend
-    echo <<EOF > /etc/udev/rules.d/logitech-unifying.rules
+    cat <<EOF > /etc/udev/rules.d/logitech-unifying.rules
 ACTION=="add", SUBSYSTEM=="usb", DRIVERS=="usb", ATTRS{idVendor}=="046d", ATTRS{idProduct}=="c52b", ATTR{power/wakeup}="disabled"
 EOF
+
+    # set nice terminal colors
+    local term=/usr/local/bin/xfce4-terminal
+    cat <<EOF > $term
+#!/bin/bash
+/usr/bin/xfce4-terminal --color-text=#7788ee --color-bg=#111111 "\$@"
+EOF
+    chmod +x $term
 }
 
 HomeSettings() {
