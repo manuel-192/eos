@@ -433,11 +433,11 @@ DriverSettings() {
     case "$this_rig" in
         l1) Blacklist nouveau
             GrubDefaults
-            Check pacman -S --needed --noconfirm xf86-video-intel xorg-xbacklight
+            # Check pacman -S --needed --noconfirm xorg-xbacklight # xf86-video-intel
             ;;
         l2) Blacklist radeon,amdgpu
             GrubDefaults
-            Check pacman -S --needed --noconfirm xf86-video-intel xorg-xbacklight
+            # Check pacman -S --needed --noconfirm xorg-xbacklight # xf86-video-intel
             ;;
         p1) Blacklist nouveau,i915
             GrubDefaults
