@@ -277,7 +277,7 @@ InstallPackages() {
         terminator
 
         # m-aur
-        # vscodium-bin    # test: moved to InstallAurPackages()
+        vscodium-bin
 
         # m-m
         abbrevs-ls
@@ -303,30 +303,6 @@ InstallPackages() {
         pacman -S --noconfirm --needed "${Install[@]}" && break
         WARN "$FUNCNAME failed ($xx/3)"
     done
-}
-
-AurHelperForRoot() {
-    local helper="/usr/bin/sudo -u $LOGNAME "
-    if [ -x /usr/bin/paru ] ; then
-        helper+="paru"
-    elif [ -x /usr/bin/yay ] ; then
-        helper+="yay"
-    else
-        helper=""
-    fi
-    echo "$helper"
-}
-
-InstallAurPackages() {
-    local Install=(
-        vscodium-bin
-    )
-    helper="$(AurHelperForRoot)"
-    if [ -n "$helper" ] ; then
-        if [ ${#Install[@]} -gt 0 ] ; then
-            $helper --noconfirm -Sa "${Install[@]}"
-        fi
-    fi
 }
 
 RemovePackages() {
@@ -589,7 +565,6 @@ Main() {
 
     StartStop RemovePackages
     StartStop InstallPackages
-    StartStop InstallAurPackages
     StartStop Services
 
     StartStop DriverSettings
