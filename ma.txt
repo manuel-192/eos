@@ -546,9 +546,10 @@ Main() {
             # called before install!
             local -r install_mode="$2"   # online, offline, community
             if [ "$(device-info --virtualbox)" = "yes" ] ; then
-                sed -i /etc/calamares/modules/partition.conf \
+                # change the default filesystem from ext4 to btrfs in virtualbox VM
+                sed -i /etc/calamares/modules/partition.conf -E \
                     -e 's|^defaultFileSystemType:.*|defaultFileSystemType: "btrfs"|' \
-                    -e 's|^availableFileSystemTypes:[ ].*"ext4","btrfs"|availableFileSystemTypes: ["btrfs","ext4"|'
+                    -e 's|^(availableFileSystemTypes:.*)"ext4","btrfs"|\1"btrfs","ext4"|'
             fi
             # nothing more to do before install
             return
