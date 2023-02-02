@@ -544,6 +544,7 @@ Main() {
     case "$1" in
         --iso-config)
             # called before install!
+            local -r install_mode="$2"   # online, offline, community
             if [ "$(device-info --virtualbox)" = "yes" ] ; then
                 sed -i /etc/calamares/modules/partition.conf \
                     -e 's|^defaultFileSystemType:.*|defaultFileSystemType: "btrfs"|'
