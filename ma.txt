@@ -541,6 +541,17 @@ StartStop() {
 }
 
 Main() {
+    case "$1" in
+        --iso-config)
+            # called before install!
+            if [ "$(device-info --virtualbox)" = "yes" ] ; then
+                sed -i /etc/calamares/modules/partition.conf \
+                    -e 's|^defaultFileSystemType:.*|defaultFileSystemType: "btrfs"|'
+            fi
+            # nothing more to do before install
+            return
+            ;;
+    esac
     INFO "Executing user commands: started."
 
     local new_user="$1"
