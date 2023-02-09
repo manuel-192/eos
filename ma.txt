@@ -29,6 +29,7 @@ BashrcConfig() {
 alias branch='pacman-conf --repo-list | grep "^testing$" || echo stable'
 alias cls=clear
 alias cp='cp -i'
+alias depsof='pactree --depth 1'
 alias df='df -hT'
 alias inxi='inxi -z'
 alias ln='ln -i'
@@ -36,7 +37,8 @@ alias lsblk='lsblk -f -o+SIZE'
 alias meld='setsid meld-rcs'
 alias mv='mv -i'
 alias nano='nano -l'
-alias p=pacman-ext
+alias o=exo-open
+alias p='pacman-ext --extras --no-banner'
 alias pa='paru -Sua'
 alias pd='pacman-ext --downgrade'
 alias pacdiff=eos-pacdiff
@@ -44,6 +46,7 @@ alias poweroff='sync && poweroff'
 alias reboot='sync && reboot'
 alias rm='rm -i'
 alias sou='source ~/.bashrc'               # re-read ~/.bashrc
+alias whoneeds='pactree --reverse'
 
 # alias grep='grep -n'
 
@@ -76,7 +79,7 @@ firefox-developer-edition() { _fork_run "\$@" ; }
 firefox()                   { _fork_run "\$@" ; }
 gitk()                      { _fork_run "\$@" ; }
 librewolf()                 { _fork_run "\$@" ; }
-vivaldi-stable()            { _fork_run "\$@" ; }
+vivaldi()                   { _fork_run "\$@" ; }
 
 paru()  { _sync_run "\$@" ; }
 yay()   { _sync_run "\$@" ; }
@@ -211,21 +214,14 @@ EOF
     CheckWithWarning chown "$new_user:$new_user" "$file"
 
     case "$this_rig" in
-        l1)
-            file="$home/.config/autostart/Xbacklight.desktop"
+        l1 | l2)
+            # prepare for acpilight
+            file=/etc/udev/rules.d/90-blacklight.rules
             cat <<EOF > "$file"
-[Desktop Entry]
-Version=1.0
-Type=Application
-Name=Xbacklight
-Comment=
-Exec=xbacklight =30
-Icon=
-Path=
-Terminal=false
-StartupNotify=false
+SUBSYSTEM=="backlight", ACTION=="add", \
+    RUN+="/bin/chgrp video /sys/class/backlight/%k/brightness", \
+    RUN+="/bin/chmod g+w /sys/class/backlight/%k/brightness"
 EOF
-            CheckWithWarning chown "$new_user:$new_user" "$file"
             ;;
     esac
 
@@ -438,14 +434,22 @@ DriverSettings() {
     case "$this_rig" in
         l1) Blacklist nouveau
             GrubDefaults
-            # Check pacman -S --needed --noconfirm xorg-xbacklight # xf86-video-intel
+            Check pacman -Rsn --noconfirm xf86-video-intel
+            # prepare for acpilight
+            Check pacman -S --needed --noconfirm acpilight
+            CheckWithWarning usermod -aG video $new_user
             ;;
         l2) Blacklist radeon,amdgpu
             GrubDefaults
-            # Check pacman -S --needed --noconfirm xorg-xbacklight # xf86-video-intel
+            Check pacman -Rsn --noconfirm xf86-video-intel
+            # prepare for acpilight
+            Check pacman -S --needed --noconfirm acpilight
+            CheckWithWarning usermod -aG video $new_user
             ;;
         p1) Blacklist nouveau,i915
             GrubDefaults
+            Check pacman -Rsn --noconfirm xf86-video-intel
+            Check pacman -S --needed --noconfirm eos-brightness
             ;;
         v1) GrubDefaults
             ;;
@@ -478,8 +482,8 @@ SetRepoTypes() {
 
 FixMirrorlists() {
     cat <<EOF > /etc/pacman.d/mirrorlist
-Server = https://mirror.pseudoform.org/\$repo/os/\$arch
 Server = https://mirror.f4st.host/archlinux/\$repo/os/\$arch
+Server = https://mirror.pseudoform.org/\$repo/os/\$arch
 Server = https://mirror.moson.org/arch/\$repo/os/\$arch
 Server = https://archlinux.thaller.ws/\$repo/os/\$arch
 EOF
