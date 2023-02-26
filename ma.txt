@@ -262,6 +262,7 @@ InstallPackages() {
         linux-lts
         linux-lts-headers
         # llpp            # fast PDF reader for complex PDF files    # not supported anymore :(
+        materia-gtk-theme    # materia-dark-compact is great!
         most
         mpv
         ncdu
