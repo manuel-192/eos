@@ -404,8 +404,7 @@ EOF
 }
 
 GrubDefaults() {
-    sed -i /etc/default/grub \
-        -e '/^GRUB_DEFAULT=.*/i \GRUB_TOP_LEVEL=\/boot\/vmlinuz-linux'
+    sed -i /etc/default/grub -e '/^GRUB_DEFAULT=.*/i \GRUB_TOP_LEVEL=/boot/vmlinuz-linux'
     update_grub=yes
 }
 
