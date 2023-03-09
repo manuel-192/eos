@@ -256,6 +256,7 @@ InstallPackages() {
         emacs
         firefox-developer-edition
         gparted
+        gpg-crypter
         # kaffeine
         libreoffice-fresh
         libreoffice-fresh-fi
