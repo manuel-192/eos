@@ -1,8 +1,8 @@
 #!/bin/bash
 
-ERROR() { echo "==> Error: $1" ; }
-WARN()  { echo "==> Warning: $1" ; }
-INFO()  { echo "==> Info: $1" ; }
+ERROR() { echo "==> $progname: error: $1" ; }
+WARN()  { echo "==> $progname: warning: $1" ; }
+INFO()  { echo "==> $progname: info: $1" ; }
 Check() {
     if ! RunCmd "$@" ; then
         ERROR "'$*' failed"
@@ -275,7 +275,7 @@ InstallPackages() {
         terminator
 
         # m-aur
-        #vscodium-bin
+        vscodium-bin
 
         # m-m
         abbrevs-ls
@@ -296,11 +296,8 @@ InstallPackages() {
 
     Check pacman -Sy
 
-    local xx
-    for xx in {1..3} ; do
-        pacman -S --noconfirm --needed "${Install[@]}" && break
-        WARN "$FUNCNAME failed ($xx/3)"
-    done
+    local pkgs=( $(expac -S %n "${Install[@]}") )
+    pacman -S --noconfirm --needed "${pkgs[@]}"
 }
 
 RemovePackages() {
@@ -405,18 +402,28 @@ EOF
 }
 
 GrubDefaults() {
-    sed -i /etc/default/grub -e '/^GRUB_DEFAULT=.*/i \GRUB_TOP_LEVEL=/boot/vmlinuz-linux'
-    update_grub=yes
+    local file=/etc/default/grub
+    if [ -r $file ] ; then
+        sed -i $file -e '/^GRUB_DEFAULT=.*/i \GRUB_TOP_LEVEL=/boot/vmlinuz-linux'
+        update_grub=yes
+    else
+        WARN "$FUNCNAME: $file not available."
+    fi
 }
 
 Blacklist() {
     local blacklists="$1"
+    local file=/etc/default/grub
 
-    # handle both quoting styles
-    sed -i /etc/default/grub \
-        -e "s|^\(GRUB_CMDLINE_LINUX_DEFAULT=\"\)|\1module_blacklist=$blacklists |" \
-        -e "s|^\(GRUB_CMDLINE_LINUX_DEFAULT='\)|\1module_blacklist=$blacklists |"
-    update_grub=yes
+    if [ -r $file ] ; then
+        # handle both quoting styles
+        sed -i $file \
+            -e "s|^\(GRUB_CMDLINE_LINUX_DEFAULT=\"\)|\1module_blacklist=$blacklists |" \
+            -e "s|^\(GRUB_CMDLINE_LINUX_DEFAULT='\)|\1module_blacklist=$blacklists |"
+        update_grub=yes
+    else
+        WARN "$FUNCNAME: $file not available."
+    fi
 }
 
 ThisRig() {
@@ -518,15 +525,19 @@ Services() {
 }
 
 GrubSettings() {
-    cat <<EOF >> /boot/grub/custom.cfg
+    if type grub-mkconfig &> /dev/null ; then
+        cat <<EOF >> /boot/grub/custom.cfg
 
 menuentry 'Shutdown' { halt ; }
 menuentry 'Restart'  { reboot ; }
 EOF
-    update_grub=yes
+        update_grub=yes
 
-    if [ "$update_grub" = "yes" ] ; then
-        RunCmd grub-mkconfig -o /boot/grub/grub.cfg
+        if [ "$update_grub" = "yes" ] ; then
+            RunCmd grub-mkconfig -o /boot/grub/grub.cfg
+        fi
+    else
+        WARN "$FUNCNAME: grub not available yet"
     fi
 }
 
@@ -546,6 +557,8 @@ StartStop() {
 }
 
 Main() {
+    local progname="/tmp/user_commands.bash"
+
     case "$1" in
         --iso-config)
             # called before install!
