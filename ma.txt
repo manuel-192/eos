@@ -275,7 +275,7 @@ InstallPackages() {
         terminator
 
         # m-aur
-        vscodium-bin
+        #vscodium-bin
 
         # m-m
         abbrevs-ls
