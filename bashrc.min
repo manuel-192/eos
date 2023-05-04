@@ -1,0 +1,289 @@
+#!/bin/bash
+
+# Some convenient bash settings.
+
+SettingsCommon()
+{
+    [ $VERBOSE = yes ] && echo "==> $FUNCNAME" >&2
+    case "$-" in
+        *i*)
+            # history commands with arrow keys (on an interactive shell)
+            bind '"\e[A":history-search-backward'      # up arrow
+            bind '"\e[B":history-search-forward'       # down arrow
+
+            bind 'set show-all-if-ambiguous on'        # complete with single TAB
+            bind 'set mark-symlinked-directories on'   # complete directory symlinks with slash
+            ;;
+    esac
+    shopt -s autocd
+
+    
+
+    #############################################################
+    # functions
+    #############################################################
+
+    Alias()
+    {
+        local name="$1"
+        local def="$2"
+        local force="$3"   # optional, values: "yes" "no" "", "" means "yes"
+        local alias="builtin alias"
+
+        [ "$force" = "" ] && force=yes
+
+        if [ -n "$name" ] ; then
+            if [ -n "$def" ] ; then
+                if [ "$force" = "yes" ] ; then
+                    $alias "$name"="$def"    # assign alias only if name is "free"
+                    return
+                fi
+                local defold=$(LANG=C type "$name" 2>/dev/null | head -n1)
+                if [ -z "$defold" ] ; then
+                    $alias "$name"="$def"    # assign alias only if name is "free"
+                    return
+                fi
+                [ $VERBOSE_ALIAS = yes ] && echo "Warning: $FUNCNAME: Overriding old definition: '$defold'." >&2
+            else
+                $alias "$name"
+            fi
+        else
+            $alias
+        fi
+    }
+    Unalias() { unalias "$1" 2>/dev/null ; }
+
+    sudofuncs() {
+        local tmpfile=$(mktemp)
+        local name
+        for name in "$@" ; do
+            echo "$name() { sudo /usr/bin/$name \"\$@\" ; }" >> $tmpfile
+        done
+        source $tmpfile
+        rm -f $tmpfile
+    }
+
+
+    Unalias type
+    type() {
+        # without parameters, show all aliases and functions
+        case "$1" in
+            "") { alias && declare -F ; } | less ;;
+            *) builtin type -a "$@" ;;
+        esac
+    }
+
+    -() { cd - ; }
+
+    ..()
+    {
+        # cd to one of the parent folders, given number of levels (zero or more)
+        # Example: .. 5
+
+        local levels="$1"
+        local -r levels_max=10000
+        case "$levels" in
+            "")
+                levels=1
+                ;;
+            # [0-9] | [1-9]*([0-9]))     # assumes extglob is enabled! Note: emacs reformatting fails with this...
+            #     ;;
+            [0-9] | [1-9][0-9])
+                if [ $levels -gt $levels_max ] ; then
+                    echo "number of levels '$levels' must be less than $levels_max" >&2
+                    return 1
+                fi
+                ;;
+            *)
+                echo "invalid number of levels: '$levels'" >&2
+                return 1
+                ;;
+        esac
+        local dir=$(seq $levels | awk '{printf "../"}')
+        cd $dir
+    }
+
+    open-anything() { setsid exo-open "$@" 2>/dev/null ; }      # open any file (based on mime stuff)
+
+    mcd() {
+        # Enhances 'cd' by refusing to go to specified folder(s).
+        # When called with only one parameter (=the target folder), adds
+        #  - rejection of a target folder with
+        #     - array variable CDPATH_REJECT
+        #     - file $REJECTOR_FILE inside the target folder
+        #  - note: direct child folder will not be rejected
+
+        _IsAllowedDir() {
+            [ -f $REJECTOR_FILE ] && return 1
+            local dir
+            for dir in "${CDPATH_REJECT[@]}" ; do
+                [ "$dir" -ef "$PWD" ] && return 2
+            done
+            return 0
+        }
+        _IsDirectChildDir() {
+            [ ".." -ef "$startdir" ]
+        }
+
+        local newdir="$1"
+        local REJECTOR_FILE=".no-cd"
+        local cd="builtin cd"
+
+        case "$newdir" in
+            -* | "")
+                $cd "$@"
+                ;;
+            *)
+                if [ -z "$2" ] ; then
+                    local ret=0
+                    local startdir="$PWD"                     # used for allowing direct child dir
+
+                    $cd "$newdir" >/dev/null
+                    _IsAllowedDir || ret="$?"
+                    case "$ret" in
+                        0) pwd ;;
+                        *)
+                            if ! _IsDirectChildDir ; then
+                                $cd - >/dev/null              # go back to the original folder
+                                case "$ret" in
+                                    1) echo "Sorry, target folder rejected by file '$REJECTOR_FILE'. Use '$cd' instead." >&2 ;;
+                                    2) echo "Sorry, target folder rejected by variable 'CDPATH_REJECT'. Use '$cd' instead." >&2 ;;
+                                    *) echo "Sorry, target folder rejected by user. Use '$cd' instead." >&2 ;;
+                                esac
+                                return $ret
+                            fi
+                            ;;
+                    esac
+                else
+                    $cd "$@"
+                fi
+                ;;
+        esac
+    }
+
+    #mcd_initializer() {
+    #    if false ; then
+    #        if shopt -q cdable_vars; then
+    #            complete -v -F _cd -o nospace mcd
+    #        else
+    #            complete -F _cd -o nospace mcd
+    #        fi
+    #    fi
+    #}
+    #mcd_initializer && unset -f mcd_initializer
+
+    lsd()   { find . -type d -exec ls -ld {} \; ; }
+    drw()   {
+        # shellcheck disable=SC2010
+        ls -l "$@" | grep rw
+    }
+
+    lsblk() {
+        local width=300
+        local lsblk="/usr/bin/lsblk -w$width"
+
+        if [ -z "$1" ] ; then
+            $lsblk -f -o+SIZE
+        else
+            $lsblk "$@"
+        fi
+    }
+
+    sudofuncs fstrim mount umount
+
+
+    #############################################################
+    # variables
+    #############################################################
+
+    [ -z "$FUNCNEST" ] && export FUNCNEST=100
+    export HISTCONTROL="erasedups"
+    FIGNORE=".o:~"                      # ignored suffixes in filename completion
+
+
+    CDPATH="${CDPATH[*]}"
+    CDPATH="${CDPATH// /:}"
+
+    prompt_command_helper() {
+        # printf "\r%*.0s " "$((COLUMNS-1))"                            # clear previous line
+        printf -v PS1 "\r{%s}\n%s> " "$PWD" "$(date +%a\ %H:%M.%S)"     # new prompt
+    }
+    PROMPT_COMMAND=(prompt_command_helper)
+
+    #############################################################
+    # aliases
+    #############################################################
+
+    [ $VERBOSE = yes ] && echo "==> $FUNCNAME: aliases" >&2
+
+    Alias bat            "bat -n"
+    Alias branch         "pacman-conf --repo-list | grep '^testing$' || echo stable"
+    Alias cd             "mcd"                                                         # replace cd with mcd
+    Alias ci             "ci -u"
+    Alias cls            "clear"
+    Alias df             "df -hT"
+    Alias history-del    "history -c && history -w"
+    Alias hlp            "eos-apps-info-helper"
+    Alias inxi           "inxi -z"
+    Alias l              "ls -lav --ignore=.?*"   # show long listing but no hidden dotfiles except "."
+    Alias ll             "ls -lav --ignore=.."    # show long listing of all except ".."
+    Alias ls             "ls --color=auto"
+    Alias md             "ghostwriter"
+    Alias meld           "meld-rcs"
+    Alias nano           "nano -l"
+    Alias o              "open-anything"
+    Alias pacdiff        "eos-pacdiff"
+    Alias p              "pacman-ext --extras --no-banner --expac"
+    Alias paq            "sudo paq"
+    Alias poweroff       "sync && poweroff"
+    Alias reboot         "sync && reboot"
+    Alias ramsleep       "Power-routines suspend"
+    Alias sou            "source ~/.bashrc"
+    Alias welcome        "setsid eos-welcome --once"
+
+    if true ; then
+        Alias cp         "cp -i"
+        Alias ln         "ln -i"
+        Alias mv         "mv -i"
+        Alias rm         "rm -i"
+    fi
+
+    if type logstuff &> /dev/null ; then
+        alias reboot='logstuff off && sync && Power-routines reboot'
+        alias poweroff='logstuff off && sync && Power-routines poweroff'
+    fi
+
+    #############################################################
+    # bash completions
+    #############################################################
+
+    [ $VERBOSE = yes ] && echo "==> $FUNCNAME: bash completions" >&2
+
+    LoadCompletion() {
+        local cmdname="$1"
+        local compname="$2"
+        local compfunc="$3"   # optional
+
+        [ -n "$compfunc" ] || compfunc="_${compname}_"
+
+        complete | grep "\-F" | grep " $cmdname$" >/dev/null || {
+            echo "loading $compfunc completion" >&2
+            source /usr/share/bash-completion/completions/$compname
+            complete -F $compfunc $cmdname
+        }
+    }
+
+    LoadCompletion p  pacman-ext _pacman-ext_
+    LoadCompletion rc pkgcheck   _pkgcheck_
+}
+
+VERBOSE=no           # common verbosity
+VERBOSE_ALIAS=no     # verbosity specific to Alias()
+
+case "$1" in
+    --verbose)       VERBOSE=yes ;;
+    --verbose-alias) VERBOSE_ALIAS=yes ;;
+esac
+
+type SettingsSystemSpecific &>/dev/null && SettingsSystemSpecific
+SettingsCommon
