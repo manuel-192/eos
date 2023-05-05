@@ -138,7 +138,7 @@ SettingsCommon()
                     local ret=0
                     local startdir="$PWD"                     # used for allowing direct child dir
 
-                    $cd "$newdir" >/dev/null
+                    $cd "$newdir" >/dev/null || return $?
                     _IsAllowedDir || ret="$?"
                     case "$ret" in
                         0) pwd ;;
