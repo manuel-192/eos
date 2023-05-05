@@ -228,7 +228,6 @@ SettingsCommon()
     Alias l              "ls -lav --ignore=.?*"   # show long listing but no hidden dotfiles except "."
     Alias ll             "ls -lav --ignore=.."    # show long listing of all except ".."
     Alias ls             "ls --color=auto"
-    Alias md             "ghostwriter"
     Alias meld           "meld-rcs"
     Alias nano           "nano -l"
     Alias o              "open-anything"
