@@ -141,7 +141,7 @@ SettingsCommon()
                     $cd "$newdir" >/dev/null || return $?
                     _IsAllowedDir || ret="$?"
                     case "$ret" in
-                        0) pwd ;;
+                        0) ;;           # pwd
                         *)
                             if ! _IsDirectChildDir ; then
                                 $cd - >/dev/null              # go back to the original folder
@@ -189,6 +189,15 @@ SettingsCommon()
         fi
     }
 
+    BannerLine() {
+        local str="$1"
+        local len="$2"
+        [ -n "$len" ] || len=$((COLUMNS / 2))
+        [ -n "$str" ] || str="="
+        printf "%.0s$str" $(seq $len)
+        echo ""
+    }
+
     sudofuncs fstrim mount umount
 
 
@@ -219,9 +228,13 @@ SettingsCommon()
                                  ;;
             esac
         done
-
         # printf "\r%*.0s " "$((COLUMNS-1))"                            # clear previous line
-        printf -v PS1 "\r{%s}\n%s> " "$pwd" "$(date +%a\ %H:%M.%S)"     # new prompt
+
+        if [ ${#pwd} -gt $((COLUMNS / 3)) ] ; then
+            printf -v PS1 "\r{%s}\n%s> " "$pwd" "$(date +%a\ %H:%M.%S)"
+        else
+            printf -v PS1 "\r%s %s > " "$(date +%a\ %H:%M.%S)" "$pwd"
+        fi
     }
     PROMPT_COMMAND=(my_prompt_command)
 
