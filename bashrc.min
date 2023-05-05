@@ -198,21 +198,6 @@ SettingsCommon()
         echo ""
     }
 
-    sudofuncs fstrim mount umount
-
-
-    #############################################################
-    # variables
-    #############################################################
-
-    [ -z "$FUNCNEST" ] && export FUNCNEST=100
-    export HISTCONTROL="erasedups"
-    FIGNORE=".o:~"                      # ignored suffixes in filename completion
-
-
-    CDPATH="${CDPATH[*]}"
-    CDPATH="${CDPATH// /:}"
-
     my_prompt_command() {
         # Show two line prompt (folder, time) after trying to slightly shorten the folder name.
 
@@ -228,15 +213,30 @@ SettingsCommon()
                                  ;;
             esac
         done
-        # printf "\r%*.0s " "$((COLUMNS-1))"                            # clear previous line
-
         if [ ${#pwd} -gt $((COLUMNS / 3)) ] ; then
             printf -v PS1 "\r{%s}\n%s> " "$pwd" "$(date +%a\ %H:%M.%S)"
         else
             printf -v PS1 "\r%s %s > " "$(date +%a\ %H:%M.%S)" "$pwd"
         fi
     }
+
+    sudofuncs fstrim mount umount
+
+
+    #############################################################
+    # variables
+    #############################################################
+
+    [ -z "$FUNCNEST" ] && export FUNCNEST=100
+
     PROMPT_COMMAND=(my_prompt_command)
+
+    export HISTCONTROL="erasedups"
+    FIGNORE=".o:~"                      # ignored suffixes in filename completion
+
+
+    CDPATH="${CDPATH[*]}"
+    CDPATH="${CDPATH// /:}"
 
     #############################################################
     # aliases
