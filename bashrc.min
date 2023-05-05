@@ -204,11 +204,26 @@ SettingsCommon()
     CDPATH="${CDPATH[*]}"
     CDPATH="${CDPATH// /:}"
 
-    prompt_command_helper() {
+    my_prompt_command() {
+        # Show two line prompt (folder, time) after trying to slightly shorten the folder name.
+
+        local from=( "$HOME" )
+        local to=(   "~"     )
+        local pwd="$PWD"
+        local ix
+
+        for ((ix=0; ix < ${#to[@]}; ix++)) ; do
+            case "$pwd" in
+                "${from[$ix]}"*) pwd=${pwd/${from[$ix]}/${to[$ix]}}
+                                 break
+                                 ;;
+            esac
+        done
+
         # printf "\r%*.0s " "$((COLUMNS-1))"                            # clear previous line
-        printf -v PS1 "\r{%s}\n%s> " "$PWD" "$(date +%a\ %H:%M.%S)"     # new prompt
+        printf -v PS1 "\r{%s}\n%s> " "$pwd" "$(date +%a\ %H:%M.%S)"     # new prompt
     }
-    PROMPT_COMMAND=(prompt_command_helper)
+    PROMPT_COMMAND=(my_prompt_command)
 
     #############################################################
     # aliases
