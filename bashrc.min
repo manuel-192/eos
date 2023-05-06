@@ -111,7 +111,7 @@ SettingsCommon()
                 shopt -q cdable_vars && complete -v -F _cd -o nospace $FUNCNAME || complete -F _cd -o nospace $FUNCNAME
                 ;;
             *)
-                cd $(/usr/bin/cd-extended "$@")
+                builtin cd "$(cd-extended "$@")"
                 ;;
         esac
     }
