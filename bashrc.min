@@ -105,72 +105,17 @@ SettingsCommon()
 
     open-anything() { setsid exo-open "$@" 2>/dev/null ; }      # open any file (based on mime stuff)
 
-    mcd() {
-        # Enhances 'cd' by refusing to go to specified folder(s).
-        # When called with only one parameter (=the target folder), adds
-        #  - rejection of a target folder with
-        #     - array variable CDPATH_REJECT
-        #     - file $REJECTOR_FILE inside the target folder
-        #  - note: direct child folder will not be rejected
-
-        _IsAllowedDir() {
-            [ -f $REJECTOR_FILE ] && return 1
-            local dir
-            for dir in "${CDPATH_REJECT[@]}" ; do
-                [ "$dir" -ef "$PWD" ] && return 2
-            done
-            return 0
-        }
-        _IsDirectChildDir() {
-            [ ".." -ef "$startdir" ]
-        }
-
-        local newdir="$1"
-        local REJECTOR_FILE=".no-cd"
-        local cd="builtin cd"
-
-        case "$newdir" in
-            -* | "")
-                $cd "$@"
+    ncd() {
+        case "$1" in
+            --init)
+                shopt -q cdable_vars && complete -v -F _cd -o nospace $FUNCNAME || complete -F _cd -o nospace $FUNCNAME
                 ;;
             *)
-                if [ -z "$2" ] ; then
-                    local ret=0
-                    local startdir="$PWD"                     # used for allowing direct child dir
-
-                    $cd "$newdir" >/dev/null || return $?
-                    _IsAllowedDir || ret="$?"
-                    case "$ret" in
-                        0) ;;           # pwd
-                        *)
-                            if ! _IsDirectChildDir ; then
-                                $cd - >/dev/null              # go back to the original folder
-                                case "$ret" in
-                                    1) echo "Sorry, target folder rejected by file '$REJECTOR_FILE'. Use '$cd' instead." >&2 ;;
-                                    2) echo "Sorry, target folder rejected by variable 'CDPATH_REJECT'. Use '$cd' instead." >&2 ;;
-                                    *) echo "Sorry, target folder rejected by user. Use '$cd' instead." >&2 ;;
-                                esac
-                                return $ret
-                            fi
-                            ;;
-                    esac
-                else
-                    $cd "$@"
-                fi
+                cd $(/usr/bin/cd-extended "$@")
                 ;;
         esac
     }
-
-    #mcd_initializer() {
-    #    if false ; then
-    #        if shopt -q cdable_vars; then
-    #            complete -v -F _cd -o nospace mcd
-    #        else
-    #            complete -F _cd -o nospace mcd
-    #        fi
-    #    fi
-    #}
-    #mcd_initializer && unset -f mcd_initializer
+    ncd --init
 
     lsd()   { find . -type d -exec ls -ld {} \; ; }
     drw()   {
@@ -234,8 +179,7 @@ SettingsCommon()
     export HISTCONTROL="erasedups"
     FIGNORE=".o:~"                      # ignored suffixes in filename completion
 
-
-    CDPATH="${CDPATH[*]}"
+    CDPATH="${CDPATH_ARR[*]}"
     CDPATH="${CDPATH// /:}"
 
     #############################################################
@@ -246,7 +190,6 @@ SettingsCommon()
 
     Alias bat            "bat -n"
     Alias branch         "pacman-conf --repo-list | grep '^testing$' || echo stable"
-    Alias cd             "mcd"                                                         # replace cd with mcd
     Alias ci             "ci -u"
     Alias cls            "clear"
     Alias df             "df -hT"
@@ -294,7 +237,7 @@ SettingsCommon()
         [ -n "$compfunc" ] || compfunc="_${compname}_"
 
         complete | grep "\-F" | grep " $cmdname$" >/dev/null || {
-            echo "loading $compfunc completion" >&2
+            # echo "loading $compfunc completion" >&2
             source /usr/share/bash-completion/completions/$compname
             complete -F $compfunc $cmdname
         }
@@ -312,6 +255,4 @@ case "$1" in
     --verbose-alias) VERBOSE_ALIAS=yes ;;
 esac
 
-type SettingsSystemSpecific &>/dev/null && SettingsSystemSpecific
-SettingsCommon
-
+source $HOME/.config/cd-extended.conf && SettingsCommon
