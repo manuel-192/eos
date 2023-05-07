@@ -146,22 +146,12 @@ SettingsCommon()
     my_prompt_command() {
         # Show two line prompt (folder, time) after trying to slightly shorten the folder name.
 
-        local from=( "$HOME" )
-        local to=(   "~"     )
-        local pwd="$PWD"
-        local ix
+        local pwd=${PWD/$HOME/\~}                                         # shorten for $HOME
 
-        for ((ix=0; ix < ${#to[@]}; ix++)) ; do
-            case "$pwd" in
-                "${from[$ix]}"*) pwd=${pwd/${from[$ix]}/${to[$ix]}}
-                                 break
-                                 ;;
-            esac
-        done
-        if [ ${#pwd} -gt $((COLUMNS / 3)) ] ; then
-            printf -v PS1 "\r{%s}\n%s> " "$pwd" "$(date +%a\ %H:%M.%S)"
+        if [ ${#pwd} -gt $((COLUMNS / 2)) ] ; then
+            printf -v PS1 "\r{%s}\n%s > " "$pwd" "$(date +%a\ %H:%M.%S)"  # two line prompt
         else
-            printf -v PS1 "\r%s %s > " "$(date +%a\ %H:%M.%S)" "$pwd"
+            printf -v PS1 "\r%11s %s > " "$(date +%a\ %H:%M.%S)" "$pwd"   # one line prompt
         fi
     }
 
