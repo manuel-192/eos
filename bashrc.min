@@ -149,9 +149,9 @@ SettingsCommon()
         local pwd=${PWD/$HOME/\~}                                         # shorten for $HOME
 
         if [ ${#pwd} -gt $((COLUMNS / 2)) ] ; then
-            printf -v PS1 "\r{%s}\n%s > " "$pwd" "$(date +%a\ %H:%M.%S)"  # two line prompt
+            printf -v PS1 "{%s}\n%s > " "$pwd" "$(date +%a\ %H:%M.%S)"  # two line prompt
         else
-            printf -v PS1 "\r%11s %s > " "$(date +%a\ %H:%M.%S)" "$pwd"   # one line prompt
+            printf -v PS1 "%11s %s > " "$(date +%a\ %H:%M.%S)" "$pwd"   # one line prompt
         fi
     }
 
