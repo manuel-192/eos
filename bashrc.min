@@ -333,12 +333,22 @@ SettingsCommon()
     unset -f AppsToFuncsMaker
 }
 
-_COMMON_SETTINGS_VERBOSE=no           # common verbosity
-_COMMON_SETTINGS_VERBOSE_ALIAS=no     # verbosity specific to Alias()
 
 case "$1" in
-    --verbose)       _COMMON_SETTINGS_VERBOSE=yes ;;
-    --verbose-alias) _COMMON_SETTINGS_VERBOSE_ALIAS=yes ;;
-esac
+    --update)
+        pushd $(dirname "$BASH_SOURCE") >/dev/null
+        git pull >/dev/null
+        popd >/dev/null
+        ;;
+    *)
+        _COMMON_SETTINGS_VERBOSE=no           # common verbosity
+        _COMMON_SETTINGS_VERBOSE_ALIAS=no     # verbosity specific to Alias()
 
-source $HOME/.config/cd-extended.conf && SettingsCommon
+        case "$1" in
+            --verbose)       _COMMON_SETTINGS_VERBOSE=yes ;;
+            --verbose-alias) _COMMON_SETTINGS_VERBOSE_ALIAS=yes ;;
+        esac
+
+        source $HOME/.config/cd-extended.conf && SettingsCommon
+        ;;
+esac
