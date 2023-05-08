@@ -235,6 +235,78 @@ SettingsCommon()
 
     LoadCompletion p  pacman-ext _pacman-ext_
     LoadCompletion rc pkgcheck   _pkgcheck_
+
+    AppsToFuncsMaker() {
+        local apps=(
+            adie                             # lightning fast editor
+            # audacity
+            # bluefish
+            # chromium
+            dolphin
+            firefox
+            firefox-developer-edition
+            # geany
+            # gedit
+            ghostwriter
+            gitk
+            # gnome-boxes
+            # gnome-builder
+            kate
+            # kdevelop
+            konsole
+            libreoffice
+            # mousepad
+            # notepadqq
+            pamac-manager
+            parole
+            qterminal
+            ristretto
+            soffice
+            terminator
+            thunderbird
+            xed
+            xfce4-screenshooter
+            xplayer
+            xreader
+
+            # eclipse
+            # tkdiff
+        )
+        apps+=(        # here for other reasons!
+            kaffeine
+            # krusader
+            # vivaldi-stable
+        )
+        local pr
+        local tmpfile=$(mktemp)
+
+        for pr in "${apps[@]}" ; do
+            if [ -x /usr/bin/$pr ] ; then
+                # echo "$pr() { _bg_func \"\$@\" ; }" >> $tmpfile
+                cat <<EOF >> $tmpfile
+$pr() {
+  if [ -x /usr/bin/$pr ] ; then
+    case "\$1" in
+      -h | --help*)
+        /usr/bin/$pr "\$@" 2> /dev/null ;;
+      *)
+        setsid /usr/bin/$pr "\$@" &> /dev/null ;;
+    esac
+  else
+    command $pr  # gives a warning!
+  fi
+}
+EOF
+            fi
+        done
+        if [ -f $tmpfile ] ; then
+            # shellcheck disable=SC1090
+            source $tmpfile
+            rm -f $tmpfile
+        fi
+    }
+    AppsToFuncsMaker
+    unset -f AppsToFuncsMaker
 }
 
 VERBOSE=no           # common verbosity
