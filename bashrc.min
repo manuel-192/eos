@@ -4,7 +4,7 @@
 
 SettingsCommon()
 {
-    [ $VERBOSE = yes ] && echo "==> $FUNCNAME" >&2
+    [ $_COMMON_SETTINGS_VERBOSE = yes ] && echo "==> $FUNCNAME" >&2
     case "$-" in
         *i*)
             # history commands with arrow keys (on an interactive shell)
@@ -22,6 +22,10 @@ SettingsCommon()
     #############################################################
     # functions
     #############################################################
+
+    sou() {
+        source ~/.bashrc  "$@"    # allow parameters to ~/.bashrc :)
+    }
 
     Alias()
     {
@@ -43,12 +47,21 @@ SettingsCommon()
                     $alias "$name"="$def"    # assign alias only if name is "free"
                     return
                 fi
-                [ $VERBOSE_ALIAS = yes ] && echo "Warning: $FUNCNAME: Overriding old definition: '$defold'." >&2
+                [ $_COMMON_SETTINGS_VERBOSE_ALIAS = yes ] && echo "Warning: $FUNCNAME: Overriding old definition: '$defold'." >&2
             else
                 $alias "$name"
             fi
         else
             $alias
+        fi
+    }
+    AliasIf() {
+        # make alias only if the app is available
+        if type "$1" &>/dev/null ; then
+            shift
+            Alias "$@"
+        else
+            [ $_COMMON_SETTINGS_VERBOSE_ALIAS = yes ] && echo "==> $FUNCNAME: sorry, program '$1' not found" >&2
         fi
     }
     Unalias() { unalias "$1" 2>/dev/null ; }
@@ -73,7 +86,7 @@ SettingsCommon()
         esac
     }
 
-    -() { cd - ; }
+    -() { cd - ; }   # make plain - the same as "cd -"
 
     ..()
     {
@@ -155,6 +168,9 @@ SettingsCommon()
         fi
     }
 
+    #Unalias df
+    #df() { /usr/bin/df -hT "$@" | awk '{print $1,$2,$3,$5,$6,$7,$8,$9}' | column -t -R3,4,5 ; }
+
     sudofuncs fstrim mount umount
 
 
@@ -176,13 +192,13 @@ SettingsCommon()
     # aliases
     #############################################################
 
-    [ $VERBOSE = yes ] && echo "==> $FUNCNAME: aliases" >&2
+    [ $_COMMON_SETTINGS_VERBOSE = yes ] && echo "==> $FUNCNAME: aliases" >&2
 
     Alias bat            "bat -n"
     Alias branch         "pacman-conf --repo-list | grep '^testing$' || echo stable"
     Alias ci             "ci -u"
     Alias cls            "clear"
-    Alias df             "df -hT"
+    Alias df             "LANG=C df -hT"
     Alias history-del    "history -c && history -w"
     Alias hlp            "eos-apps-info-helper"
     Alias inxi           "inxi -z"
@@ -198,8 +214,10 @@ SettingsCommon()
     Alias poweroff       "sync && poweroff"
     Alias reboot         "sync && reboot"
     Alias ramsleep       "Power-routines suspend"
-    Alias sou            "source ~/.bashrc"
+    #Alias sou            "source ~/.bashrc"
     Alias welcome        "setsid eos-welcome --once"
+
+    AliasIf grub-mkconfig update-grub "sudo grub-mkconfig -o /boot/grub/grub.cfg"
 
     if true ; then
         Alias cp         "cp -i"
@@ -217,7 +235,7 @@ SettingsCommon()
     # bash completions
     #############################################################
 
-    [ $VERBOSE = yes ] && echo "==> $FUNCNAME: bash completions" >&2
+    [ $_COMMON_SETTINGS_VERBOSE = yes ] && echo "==> $FUNCNAME: bash completions" >&2
 
     LoadCompletion() {
         local cmdname="$1"
@@ -233,8 +251,25 @@ SettingsCommon()
         }
     }
 
-    LoadCompletion p  pacman-ext _pacman-ext_
-    LoadCompletion rc pkgcheck   _pkgcheck_
+    #              new cmdname          pkgname     completion func
+    LoadCompletion pacman-sudo-internal pacman      _pacman
+    LoadCompletion p                    pacman-ext  _pacman-ext_
+    LoadCompletion rc                   pkgcheck    _pkgcheck_
+
+    NiceFuncRun() {
+        local app="$1"
+        local firstpara="$2"
+        shift
+
+        if [ -x /bin/$app ]; then
+            case "$firstpara" in 
+                -h | --help*) /bin/$app "$@" 2> /dev/null ;;
+                *)            setsid /bin/$app "$@" &> /dev/null ;;
+            esac
+        else
+            command $app
+        fi
+    }
 
     AppsToFuncsMaker() {
         local apps=(
@@ -243,6 +278,7 @@ SettingsCommon()
             # bluefish
             # chromium
             dolphin
+            eog
             firefox
             firefox-developer-edition
             # geany
@@ -277,29 +313,16 @@ SettingsCommon()
             # krusader
             # vivaldi-stable
         )
-        local pr
-        local tmpfile=$(mktemp)
 
-        for pr in "${apps[@]}" ; do
-            if [ -x /usr/bin/$pr ] ; then
-                # echo "$pr() { _bg_func \"\$@\" ; }" >> $tmpfile
-                cat <<EOF >> $tmpfile
-$pr() {
-  if [ -x /usr/bin/$pr ] ; then
-    case "\$1" in
-      -h | --help*)
-        /usr/bin/$pr "\$@" 2> /dev/null ;;
-      *)
-        setsid /usr/bin/$pr "\$@" &> /dev/null ;;
-    esac
-  else
-    command $pr  # gives a warning!
-  fi
-}
-EOF
-            fi
-        done
-        if [ -f $tmpfile ] ; then
+        if [ ${#apps[@]} -gt 0 ] ; then
+            local pr
+            local tmpfile=$(mktemp)
+
+            for pr in "${apps[@]}" ; do
+                Unalias $pr
+                which $pr &> /dev/null && echo "$pr() { NiceFuncRun $pr \"\$@\" ; }"
+            done >> $tmpfile
+
             # shellcheck disable=SC1090
             source $tmpfile
             rm -f $tmpfile
@@ -309,12 +332,12 @@ EOF
     unset -f AppsToFuncsMaker
 }
 
-VERBOSE=no           # common verbosity
-VERBOSE_ALIAS=no     # verbosity specific to Alias()
+_COMMON_SETTINGS_VERBOSE=no           # common verbosity
+_COMMON_SETTINGS_VERBOSE_ALIAS=no     # verbosity specific to Alias()
 
 case "$1" in
-    --verbose)       VERBOSE=yes ;;
-    --verbose-alias) VERBOSE_ALIAS=yes ;;
+    --verbose)       _COMMON_SETTINGS_VERBOSE=yes ;;
+    --verbose-alias) _COMMON_SETTINGS_VERBOSE_ALIAS=yes ;;
 esac
 
 source $HOME/.config/cd-extended.conf && SettingsCommon
