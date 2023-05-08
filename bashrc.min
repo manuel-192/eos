@@ -212,6 +212,7 @@ SettingsCommon()
     Alias p              "pacman-ext --extras --no-banner --expac"
     Alias paq            "sudo paq"
     Alias poweroff       "sync && poweroff"
+    Alias rc             "pkgcheck"
     Alias reboot         "sync && reboot"
     Alias ramsleep       "Power-routines suspend"
     #Alias sou            "source ~/.bashrc"
