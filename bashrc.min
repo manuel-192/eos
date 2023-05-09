@@ -336,8 +336,8 @@ SettingsCommon()
 
 case "$1" in
     --update)
-        pushd $(dirname "$BASH_SOURCE") >/dev/null
-        git pull >/dev/null
+        echo "Updating settings..." >&2
+        pushd $(dirname "$BASH_SOURCE") >/dev/null && git pull >/dev/null
         popd >/dev/null
         ;;
     *)
