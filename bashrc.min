@@ -193,7 +193,7 @@ SettingsCommon()
     [ $_COMMON_SETTINGS_VERBOSE = yes ] && echo "==> $FUNCNAME: aliases" >&2
 
     Alias bat            "bat -n"
-    Alias branch         "pacman-conf --repo-list | grep '^testing$' || echo stable"
+    Alias pacman-branch  "pacman-conf --repo-list | grep '^testing$' || echo stable"
     Alias ci             "ci -u"
     Alias cls            "clear"
     Alias df             "LANG=C df -hT"
