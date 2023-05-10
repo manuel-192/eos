@@ -176,6 +176,10 @@ SettingsCommon()
         local file="$1"
 
         case "$1" in
+            "")
+                echo "Usage: $FUNCNAME [--html] md-file" >&2
+                return
+                ;;
             --html)
                 # output viewer is a browser
                 file="$2"
@@ -201,7 +205,7 @@ SettingsCommon()
                 done
                 ;;
         esac
-        echo "Sorry, $FUNCNAME has no way to show '$file'."
+        echo "Sorry, $FUNCNAME has no way to show '$file'." >&2
     }
 
     sudofuncs fstrim mount umount
