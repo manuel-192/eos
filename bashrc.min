@@ -173,16 +173,33 @@ SettingsCommon()
 
     md() {
         # Usage: md name.md
-        local file="$1"
+        local opt="$1"
+        local file="$2"
+        local usage="Usage: $FUNCNAME [--html] md-file"
 
-        case "$1" in
+        case "$opt" in
             "")
-                echo "Usage: $FUNCNAME [--html] md-file" >&2
+                echo "$usage" >&2
                 return
                 ;;
             --html)
-                # output viewer is a browser
+                if [ -z "$file" ] ; then
+                    echo "$usage" >&2
+                    return 1
+                fi
+                ;;
+            *)
                 file="$2"
+                if [ -z "$file" ] ; then
+                    echo "$usage" >&2
+                    return 1
+                fi
+                ;;
+        esac
+
+        case "$opt" in
+            --html)
+                # output viewer is a browser
                 if [ -x /bin/pandoc ] ; then
                     local tmp="$(mktemp /tmp/tmp.$(basename "$file").XXXXX.html)"
                     pandoc -f gfm -t html "$file" > "$tmp" || return 1
@@ -191,6 +208,10 @@ SettingsCommon()
                         rm -f "$tmp"
                     fi
                     return
+                else
+                    echo "$FUNCNAME: error: 'pandoc' not installed." >&2
+                    echo "$usage" >&2
+                    return 1
                 fi
                 ;;
             *)
@@ -205,7 +226,7 @@ SettingsCommon()
                 done
                 ;;
         esac
-        echo "Sorry, $FUNCNAME has no way to show '$file'." >&2
+        echo "Sorry, $FUNCNAME found no way to show '$file'." >&2
     }
 
     sudofuncs fstrim mount umount
