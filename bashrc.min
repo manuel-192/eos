@@ -23,10 +23,6 @@ SettingsCommon()
     # functions
     #############################################################
 
-    sou() {
-        source ~/.bashrc  "$@"    # allow parameters to ~/.bashrc :)
-    }
-
     Alias()
     {
         local name="$1"
@@ -65,6 +61,8 @@ SettingsCommon()
         fi
     }
     Unalias() { unalias "$1" 2>/dev/null ; }
+
+    sou() { source ~/.bashrc "$@" ; }    # allow parameters to ~/.bashrc :)
 
     sudofuncs() {
         local tmpfile=$(mktemp)
@@ -204,8 +202,7 @@ SettingsCommon()
     Alias inxi           "inxi -z"
     Alias l              "ls -lav --ignore=.?*"   # show long listing but no hidden dotfiles except "."
     Alias ll             "ls -lav --ignore=.."    # show long listing of all except ".."
-    Alias ls             "ls --color=auto"
-    Alias meld           "meld-rcs"
+    Alias ls             "ls --color=auto -F"
     Alias nano           "nano -l"
     Alias o              "open-anything"
     Alias pacdiff        "eos-pacdiff"
@@ -215,10 +212,10 @@ SettingsCommon()
     Alias rc             "pkgcheck"
     Alias reboot         "sync && reboot"
     Alias ramsleep       "Power-routines suspend"
-    #Alias sou            "source ~/.bashrc"
     Alias welcome        "setsid eos-welcome --once"
 
     AliasIf grub-mkconfig update-grub "sudo grub-mkconfig -o /boot/grub/grub.cfg"
+    AliasIf meld-rcs meld           "meld-rcs"
 
     if true ; then
         Alias cp         "cp -i"
@@ -243,6 +240,8 @@ SettingsCommon()
         local compname="$2"
         local compfunc="$3"   # optional
 
+        [ -r /usr/share/bash-completion/completions/$compname ] || return 1
+
         [ -n "$compfunc" ] || compfunc="_${compname}_"
 
         complete | grep "\-F" | grep " $cmdname$" >/dev/null || {
@@ -256,6 +255,9 @@ SettingsCommon()
     LoadCompletion pacman-sudo-internal pacman      _pacman
     LoadCompletion p                    pacman-ext  _pacman-ext_
     LoadCompletion rc                   pkgcheck    _pkgcheck_
+
+
+    [ -r ~/.dircolors ] && eval "$(dircolors ~/.dircolors)"
 
     NiceFuncRun() {
         local app="$1"
