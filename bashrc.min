@@ -128,7 +128,10 @@ SettingsCommon()
     }
     ncd --init
 
+    ccat() { /bin/ccat "$@" | /bin/less -F ; }
+
     lsd()   { find . -type d -exec ls -ld {} \; ; }
+
     drw()   {
         # shellcheck disable=SC2010
         ls -l "$@" | grep rw
@@ -144,6 +147,8 @@ SettingsCommon()
             $lsblk "$@"
         fi
     }
+
+    shutdown()  { [ -z "$1" ] && Power-routines poweroff  || /bin/shutdown "$@" ; }
 
     BannerLine() {
         local str="$1"
@@ -208,14 +213,12 @@ SettingsCommon()
     Alias pacdiff        "eos-pacdiff"
     Alias p              "pacman-ext --extras --no-banner --expac"
     Alias paq            "sudo paq"
-    Alias poweroff       "sync && poweroff"
     Alias rc             "pkgcheck"
-    Alias reboot         "sync && reboot"
     Alias ramsleep       "Power-routines suspend"
     Alias welcome        "setsid eos-welcome --once"
 
     AliasIf grub-mkconfig update-grub "sudo grub-mkconfig -o /boot/grub/grub.cfg"
-    AliasIf meld-rcs meld           "meld-rcs"
+    AliasIf meld-rcs      meld        "meld-rcs"
 
     if true ; then
         Alias cp         "cp -i"
@@ -224,9 +227,12 @@ SettingsCommon()
         Alias rm         "rm -i"
     fi
 
-    if type logstuff &> /dev/null ; then
-        alias reboot='logstuff off && sync && Power-routines reboot'
-        alias poweroff='logstuff off && sync && Power-routines poweroff'
+    if which logstuff &> /dev/null ; then
+        Alias reboot    'logstuff off && sync && Power-routines reboot'
+        Alias poweroff  'logstuff off && sync && Power-routines poweroff'
+    else
+        Alias reboot    "sync && reboot"
+        Alias poweroff  "sync && poweroff"
     fi
 
     #############################################################
