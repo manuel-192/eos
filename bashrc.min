@@ -171,8 +171,38 @@ SettingsCommon()
         fi
     }
 
-    #Unalias df
-    #df() { /usr/bin/df -hT "$@" | awk '{print $1,$2,$3,$5,$6,$7,$8,$9}' | column -t -R3,4,5 ; }
+    md() {
+        # Usage: md name.md
+        local file="$1"
+
+        case "$1" in
+            --html)
+                # output viewer is a browser
+                shift
+                if [ -x /bin/pandoc ] ; then
+                    local tmp="$(mktemp /tmp/tmp.$(basename "$file").XXXXX.html)"
+                    pandoc -f gfm -t html "$file" > "$tmp" || return 1
+                    if [ -r "$tmp" ] ; then
+                        /bin/firefox-developer-edition "file://$tmp" &>/dev/null   # this waits!
+                        rm -f "$tmp"
+                    fi
+                    return
+                fi
+                ;;
+            *)
+                # output with an md viewer
+                local prog
+                for prog in ghostwriter # vscodium code-oss code
+                do
+                    if [ -x /bin/$prog ] ; then
+                        $prog "$file"
+                        return $?
+                    fi
+                done
+                ;;
+        esac
+        echo "Sorry, $FUNCNAME has no way to show '$file'."
+    }
 
     sudofuncs fstrim mount umount
 
