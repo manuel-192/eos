@@ -173,60 +173,40 @@ SettingsCommon()
 
     md() {
         # Usage: md name.md
-        local opt="$1"
-        local file="$2"
-        local usage="Usage: $FUNCNAME [--html] md-file"
+        local file="$1"
+        local usage="Usage: $FUNCNAME md-file"
 
-        case "$opt" in
-            "")
-                echo "$usage" >&2
+        if [ -z "$file" ] ; then
+            echo "$usage" >&2
+            return 1
+        fi
+
+        # output with an md viewer
+        local prog
+        for prog in ghostwriter # vscodium code-oss code
+        do
+            if [ -x /bin/$prog ] ; then
+                echo "opening with ghostwriter..." >&2
+                $prog "$file"
                 return
-                ;;
-            --html)
-                if [ -z "$file" ] ; then
-                    echo "$usage" >&2
-                    return 1
-                fi
-                ;;
-            *)
-                file="$2"
-                if [ -z "$file" ] ; then
-                    echo "$usage" >&2
-                    return 1
-                fi
-                ;;
-        esac
+            fi
+        done
 
-        case "$opt" in
-            --html)
-                # output viewer is a browser
-                if [ -x /bin/pandoc ] ; then
-                    local tmp="$(mktemp /tmp/tmp.$(basename "$file").XXXXX.html)"
-                    pandoc -f gfm -t html "$file" > "$tmp" || return 1
-                    if [ -r "$tmp" ] ; then
-                        /bin/firefox-developer-edition "file://$tmp" &>/dev/null   # this waits!
-                        rm -f "$tmp"
-                    fi
-                    return
-                else
-                    echo "$FUNCNAME: error: 'pandoc' not installed." >&2
-                    echo "$usage" >&2
-                    return 1
-                fi
-                ;;
-            *)
-                # output with an md viewer
-                local prog
-                for prog in ghostwriter # vscodium code-oss code
-                do
-                    if [ -x /bin/$prog ] ; then
-                        $prog "$file"
-                        return $?
-                    fi
-                done
-                ;;
-        esac
-        echo "Sorry, $FUNCNAME found no way to show '$file'." >&2
+        # output viewer is a browser
+        if [ -x /bin/pandoc ] ; then
+            echo "converting with pandoc..." >&2
+            local tmp="$(mktemp /tmp/tmp.$(basename "$file").XXXXX.html)"
+            pandoc -f gfm -t html "$file" > "$tmp" || return 1
+            if [ -r "$tmp" ] ; then
+                exo-open "file://$tmp" &>/dev/null
+                sleep 5   # must wait because exo-open does not
+                rm -f "$tmp"
+            fi
+            return
+        fi
+
+        echo "$FUNCNAME: sorry, ghostwriter or pandoc is needed but not installed." >&2
+        return 1
     }
 
     sudofuncs fstrim mount umount
