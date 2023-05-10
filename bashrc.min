@@ -178,7 +178,7 @@ SettingsCommon()
         case "$1" in
             --html)
                 # output viewer is a browser
-                shift
+                file="$2"
                 if [ -x /bin/pandoc ] ; then
                     local tmp="$(mktemp /tmp/tmp.$(basename "$file").XXXXX.html)"
                     pandoc -f gfm -t html "$file" > "$tmp" || return 1
