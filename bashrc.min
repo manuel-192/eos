@@ -137,8 +137,8 @@ SettingsCommon()
         ls -l "$@" | grep rw
     }
 
-    llp() { ll "$@" | less -F ; }
-    lp()  { l  "$@" | less -F ; }
+    lp()  { l  "$@" | less -F ; }   # show long listing but no hidden dotfiles except "."
+    llp() { ll "$@" | less -F ; }   # show long listing of all except ".."
 
     lsblk() {
         local width=300
@@ -235,7 +235,7 @@ SettingsCommon()
 
     [ $_COMMON_SETTINGS_VERBOSE = yes ] && echo "==> $FUNCNAME: aliases" >&2
 
-    Alias bat            "bat -n"
+    Alias bat            "bat --style=number"
     Alias pacman-branch  "pacman-conf --repo-list | grep '^testing$' || echo stable"
     Alias ci             "ci -u"
     Alias cls            "clear"
@@ -244,8 +244,6 @@ SettingsCommon()
     Alias history-del    "history -c && history -w"
     Alias hlp            "eos-apps-info-helper"
     Alias inxi           "inxi -z"
-    Alias l              "ls -lav --ignore=.?*"   # show long listing but no hidden dotfiles except "."
-    Alias ll             "ls -lav --ignore=.."    # show long listing of all except ".."
     Alias ls             "ls --color=auto -F"
     Alias nano           "nano -l"
     Alias o              "open-anything"
