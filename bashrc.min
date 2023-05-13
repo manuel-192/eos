@@ -137,6 +137,9 @@ SettingsCommon()
         ls -l "$@" | grep rw
     }
 
+    llp() { ll "$@" | less -F ; }
+    lp()  { l  "$@" | less -F ; }
+
     lsblk() {
         local width=300
         local lsblk="/usr/bin/lsblk -w$width"
