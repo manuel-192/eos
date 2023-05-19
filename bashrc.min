@@ -381,21 +381,18 @@ SettingsCommon()
 
 case "$1" in
     --update)
-        printf "Updating settings ... " >&2
-        while true ; do
-            for _ix in {10..1} ; do
-                if eos-connection-checker ; then
-                    pushd $(dirname "$BASH_SOURCE") >/dev/null && git pull >/dev/null
-                    popd >/dev/null
-                    echo "done." >&2
-                    break 2
-                fi
-                printf "\r  --> [%s] waiting for internet connection... " "$_ix" >&2
-                sleep 1
-            done
-            printf "\n==> Sorry, no internet connection, update failed.\n" >&2
-            break
+        printf "Updating settings ..." >&2
+        for _ix in {1..10} ; do
+            if eos-connection-checker ; then
+                pushd $(dirname "$BASH_SOURCE") >/dev/null && git pull >/dev/null
+                popd >/dev/null
+                echo " done." >&2
+                return
+            fi
+            printf "."
+            sleep 1
         done
+        printf "\n==> Sorry, no internet connection, update failed.\n" >&2
         ;;
     *)
         _COMMON_SETTINGS_VERBOSE=no           # common verbosity
