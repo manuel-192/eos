@@ -153,14 +153,73 @@ SettingsCommon()
 
     shutdown()  { [ -z "$1" ] && Power-routines poweroff  || /bin/shutdown "$@" ; }
 
+    NextInfo2() { printf "==> %s" "$1" >&2 ; }  # shows info about the next operation (to stderr)
+
     BannerLine() {
-        local str="$1"
-        local len="$2"
-        [ -n "$len" ] || len=$((COLUMNS / 2))
-        [ -n "$str" ] || str="="
+        local len="$1"
+        local str="$2"
+        local newlines="$3"                      # ^ = newline to head, $ = newline to tail (~like in grep)
+
+        if [ -z "$len" ] ; then
+            len=$((COLUMNS / 2))
+        elif [ -n "$(echo "$len" | tr -d '[0-9]')" ] ; then
+            echo "$FUNCNAME: first parameter is not a number" >&2
+            return 1
+        fi
+        case "$str" in
+            "" | default) str="=" ;;
+        esac
+
+        case "$newlines" in
+            "^" | "^$") echo "" ;;
+        esac
         printf "%.0s$str" $(seq $len)
-        echo ""
+        case "$newlines" in
+            "^$" | "$" | "") echo "" ;;
+        esac
     }
+    BannerLine2() { BannerLine "$@" >&2 ; }
+
+    _DailyChecks_() {
+        _SimpleUpdateCheck() {
+            NextInfo2 "Checking updates ... "
+            local updates
+            updates=$(checkupdates)
+            case "$?" in
+                2)  echo "none." >&2 ;;
+                0)
+                   echo "done:" >&2
+
+                   local header="Name|vNow|vNew|Description"                                # header item names
+                   local header_ul=$(echo "$header" | sed 's/[^|]/~/g')                     # underlining the above
+                   local _line
+
+                   updates=$(echo "$updates" | sed 's/ -> / /' | tr ' ' '|')                # remove every " ->" and change every ' ' to '|'
+                   updates=$(
+                       echo "$updates" | \
+                           while read _line ; do
+                               echo "$_line" | sed "s/$/|$(expac -Q %d ${_line%%|*})/"      # append description to each line
+                           done
+                          )
+                   updates="$(echo "$header"; echo "$header_ul"; echo "$updates")"          # add header
+                   updates=$(echo "$updates" | column -t -s'|')                             # 'column' may change longest line length...
+                   local maxlen=$(echo "$updates" | wc -L)                                  # find longest line length (for bannerline)
+                   BannerLine $maxlen
+                   echo "$updates"
+                   BannerLine $maxlen
+                   ;;
+            esac
+        }
+        local daynr=$(date +%j)
+        local daynrfile=$HOME/.daynr
+
+        if [ "$daynr" != "$(cat $daynrfile 2>/dev/null)" ] ; then
+            echo "$daynr" > $daynrfile
+
+            _SimpleUpdateCheck | sed 's|^|    |'
+        fi
+    }
+    _DailyChecks_
 
     man() {
         # simple man extension for some external apps
@@ -228,6 +287,7 @@ SettingsCommon()
         echo "$FUNCNAME: sorry, ghostwriter or pandoc is needed but not installed." >&2
         return 1
     }
+
     p() {
         local args=("$@")
         local basecmd="pacman-ext --extras --expac"
@@ -410,7 +470,7 @@ SettingsCommon()
 
 case "$1" in
     --update)
-        printf "Updating settings ..." >&2
+        NextInfo2 "Updating settings ..."
         for _ix in {1..10} ; do
             if eos-connection-checker ; then
                 pushd $(dirname "$BASH_SOURCE") >/dev/null && git pull >/dev/null
