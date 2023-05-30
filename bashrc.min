@@ -2,6 +2,8 @@
 
 # Some convenient bash settings.
 
+NextInfo2() { printf "==> %s" "$1" >&2 ; }  # shows info about the next operation (to stderr)
+
 SettingsCommon()
 {
     [ $_COMMON_SETTINGS_VERBOSE = yes ] && echo "==> $FUNCNAME" >&2
@@ -152,8 +154,6 @@ SettingsCommon()
     }
 
     shutdown()  { [ -z "$1" ] && Power-routines poweroff  || /bin/shutdown "$@" ; }
-
-    NextInfo2() { printf "==> %s" "$1" >&2 ; }  # shows info about the next operation (to stderr)
 
     BannerLine() {
         local len="$1"
