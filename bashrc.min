@@ -162,6 +162,23 @@ SettingsCommon()
         echo ""
     }
 
+    man() {
+        # simple man extension for some external apps
+
+        local out
+        local mancode=0
+
+        out=$(/bin/man "$@" 2>&1)
+        mancode=$?
+
+        case "$mancode" in
+            16) echo "==> eos-apps-info-helper $*" >&2
+                eos-apps-info-helper "$@"
+                ;;
+            *)  echo "$out" | less -F >&2 ;;
+        esac
+    }
+
     my_prompt_command() {
         # Show two line prompt (folder, time) after trying to slightly shorten the folder name.
 
@@ -211,6 +228,14 @@ SettingsCommon()
         echo "$FUNCNAME: sorry, ghostwriter or pandoc is needed but not installed." >&2
         return 1
     }
+    p() {
+        local args=("$@")
+        local basecmd="pacman-ext --extras --expac"
+        case "$1" in
+            "") args=(--no-banner -Syu) ;;
+        esac
+        $basecmd "${args[@]}"
+    }
 
     sudofuncs fstrim mount umount
 
@@ -248,7 +273,7 @@ SettingsCommon()
     Alias nano           "nano -l"
     Alias o              "open-anything"
     Alias pacdiff        "eos-pacdiff"
-    Alias p              "pacman-ext --extras --no-banner --expac"
+    #Alias p              "pacman-ext --extras --no-banner --expac"
     Alias paq            "sudo paq"
     Alias rc             "pkgcheck"
     Alias ramsleep       "Power-routines suspend"
@@ -262,6 +287,10 @@ SettingsCommon()
         Alias ln         "ln -i"
         Alias mv         "mv -i"
         Alias rm         "rm -i"
+    fi
+
+    if [ -n "$FORUM_MGR" ] && [ -n "$FORUM_DEFAULT" ] ; then
+        Alias forum "$FORUM_MGR $FORUM_DEFAULT"
     fi
 
     if which logstuff &> /dev/null ; then
