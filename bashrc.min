@@ -292,7 +292,7 @@ SettingsCommon()
         local args=("$@")
         local basecmd="pacman-ext --extras --expac"
         case "$1" in
-            "") args=(--no-banner -Syu) ;;
+            "") args=(-Syu --no-banner) ;;
         esac
         $basecmd "${args[@]}"
     }
@@ -358,7 +358,7 @@ SettingsCommon()
     Alias nano               "nano -l"
     Alias o                  "open-anything"
     Alias pacdiff            "eos-pacdiff"
-    Alias p                  "pacman-ext --extras --no-banner --expac"
+    #Alias p                  "pacman-ext --extras --no-banner --expac"
     Alias paq                "sudo paq"
     Alias rc                 "pkgcheck"
     Alias ramsleep           "Power-routines suspend"
