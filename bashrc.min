@@ -180,46 +180,54 @@ SettingsCommon()
     }
     BannerLine2() { BannerLine "$@" >&2 ; }
 
-    _DailyChecks_() {
-        _SimpleUpdateCheck() {
-            NextInfo2 "Checking updates ... "
-            local updates
-            updates=$(checkupdates)
-            case "$?" in
-                2)  echo "none." >&2 ;;
-                0)
-                   echo "done:" >&2
+    _AdHocChecks_() {
+        _DailyCheck_() {
+            _SimpleUpdateCheck() {
+                NextInfo2 "Checking updates ... "
+                local updates
+                updates=$(checkupdates)
+                case "$?" in
+                    2)  echo "none." >&2
+                        ;;
+                    0)  echo "done:" >&2
+                        local header="Name|vNow|vNew|Description"                                # header item names
+                        local header_ul=$(echo "$header" | sed 's/[^|]/~/g')                     # underlining the above
+                        local _line
 
-                   local header="Name|vNow|vNew|Description"                                # header item names
-                   local header_ul=$(echo "$header" | sed 's/[^|]/~/g')                     # underlining the above
-                   local _line
+                        updates=$(echo "$updates" | sed 's/ -> / /' | tr ' ' '|')                # remove every " ->" and change every ' ' to '|'
+                        updates=$(
+                            echo "$updates" | \
+                                while read _line ; do
+                                    echo "$_line" | sed "s/$/|$(expac -Q %d ${_line%%|*})/"      # append description to each line
+                                done
+                               )
+                        updates="$(echo "$header"; echo "$header_ul"; echo "$updates")"          # add header
+                        updates=$(echo "$updates" | column -t -s'|')                             # 'column' may change longest line length...
+                        local maxlen=$(echo "$updates" | wc -L)                                  # find longest line length (for bannerline)
+                        BannerLine $maxlen
+                        echo "$updates"
+                        BannerLine $maxlen
+                        ;;
+                esac
+            }
+            local daynr=$(date +%j)
+            local daynrfile=$HOME/.daynr
 
-                   updates=$(echo "$updates" | sed 's/ -> / /' | tr ' ' '|')                # remove every " ->" and change every ' ' to '|'
-                   updates=$(
-                       echo "$updates" | \
-                           while read _line ; do
-                               echo "$_line" | sed "s/$/|$(expac -Q %d ${_line%%|*})/"      # append description to each line
-                           done
-                          )
-                   updates="$(echo "$header"; echo "$header_ul"; echo "$updates")"          # add header
-                   updates=$(echo "$updates" | column -t -s'|')                             # 'column' may change longest line length...
-                   local maxlen=$(echo "$updates" | wc -L)                                  # find longest line length (for bannerline)
-                   BannerLine $maxlen
-                   echo "$updates"
-                   BannerLine $maxlen
-                   ;;
-            esac
+            if [ "$daynr" != "$(cat $daynrfile 2>/dev/null)" ] ; then
+                echo "$daynr" > $daynrfile
+                _SimpleUpdateCheck | sed 's|^|    |'
+            fi
         }
-        local daynr=$(date +%j)
-        local daynrfile=$HOME/.daynr
+        _CheckAlways_() {
+            if [ -x /usr/local/bin/pacman ] ; then
+                echo "bashrc.min:$FUNCNAME: warning: executable /usr/local/bin/pacman exists!" >&2
+            fi
+        }
 
-        if [ "$daynr" != "$(cat $daynrfile 2>/dev/null)" ] ; then
-            echo "$daynr" > $daynrfile
-
-            _SimpleUpdateCheck | sed 's|^|    |'
-        fi
+        _CheckAlways_            # check always when terminal is initialized
+        _DailyCheck_             # check once a day, when the first terminal is launched
     }
-    _DailyChecks_
+    _AdHocChecks_
 
     man() {                                                               # 'man' extended for some external apps
         /bin/man "$@" && return                                           # try normal man first
