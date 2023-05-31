@@ -297,6 +297,28 @@ SettingsCommon()
         $basecmd "${args[@]}"
     }
 
+    rate-mirrors-arch() {
+        local seconds="$1"
+        [ -n "$seconds" ] || seconds=70
+        local cmd=(
+            rate-mirrors
+            #--disable-comments-in-file
+            --protocol https --save /tmp/mirrorlist
+            --entry-country DE
+            --country-test-mirrors-per-country 2
+            --country-neighbors-per-country 0
+            arch
+            --max-delay=$seconds
+        )
+        "${cmd[@]}" | grep -v "^Server = "
+        printf "\n" >&2
+        local banner=$(BannerLine '~' 70)
+        echo "$banner" >&2
+        grep "^# ARGS: " /tmp/mirrorlist
+        less -F /tmp/mirrorlist
+        echo "$banner" >&2
+    }
+
     sudofuncs fstrim mount umount
 
 
@@ -320,27 +342,30 @@ SettingsCommon()
 
     [ $_COMMON_SETTINGS_VERBOSE = yes ] && echo "==> $FUNCNAME: aliases" >&2
 
-    Alias bat            "bat --style=number"
-    Alias pacman-branch  "pacman-conf --repo-list | grep '^testing$' || echo stable"
-    Alias ci             "ci -u"
-    Alias cls            "clear"
-    Alias curly          "curl --remote-name-all"
-    Alias df             "LANG=C df -hT"
-    Alias history-del    "history -c && history -w"
-    Alias hlp            "eos-apps-info-helper"
-    Alias inxi           "inxi -z"
-    Alias ls             "ls --color=auto -F"
-    Alias nano           "nano -l"
-    Alias o              "open-anything"
-    Alias pacdiff        "eos-pacdiff"
-    #Alias p              "pacman-ext --extras --no-banner --expac"
-    Alias paq            "sudo paq"
-    Alias rc             "pkgcheck"
-    Alias ramsleep       "Power-routines suspend"
-    Alias welcome        "setsid eos-welcome --once"
+    Alias bat                "bat --style=number"
+    Alias pacman-branch      "pacman-conf --repo-list | grep '^testing$' || echo stable"
+    Alias ci                 "ci -u"
+    Alias cls                "clear"
+    Alias curly              "curl --remote-name-all"
+    Alias df                 "LANG=C df -hT"
+    Alias eos-rankmirrors    "eos-rankmirrors --list-only"
+    Alias forum              "firefox https://forum.endeavouros.com/login"
+    Alias history-del        "history -c && history -w"
+    Alias hlp                "eos-apps-info-helper"
+    Alias inxi               "inxi -z"
+    Alias local-repo-manager "local-repo-manager -v"
+    Alias ls                 "ls --color=auto -F"
+    Alias nano               "nano -l"
+    Alias o                  "open-anything"
+    Alias pacdiff            "eos-pacdiff"
+    Alias p                  "pacman-ext --extras --no-banner --expac"
+    Alias paq                "sudo paq"
+    Alias rc                 "pkgcheck"
+    Alias ramsleep           "Power-routines suspend"
+    Alias welcome            "setsid eos-welcome --once"
 
-    AliasIf grub-mkconfig update-grub "sudo grub-mkconfig -o /boot/grub/grub.cfg"
-    AliasIf meld-rcs      meld        "meld-rcs"
+    AliasIf grub-mkconfig  update-grub "sudo grub-mkconfig -o /boot/grub/grub.cfg"
+    AliasIf meld-rcs       meld        "setsid meld-rcs"
 
     if true ; then
         Alias cp         "cp -i"
