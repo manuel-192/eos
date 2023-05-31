@@ -64,7 +64,15 @@ SettingsCommon()
     }
     Unalias() { unalias "$1" 2>/dev/null ; }
 
-    sou() { source ~/.bashrc "$@" ; }    # allow parameters to ~/.bashrc :)
+    sou() {                            # allow parameters to ~/.bashrc
+        while true ; do
+            case "$1" in
+                *) break ;;
+            esac
+        done
+        NextInfo2 "Source ~/.bashrc ..."
+        source ~/.bashrc "$@"
+    }
 
     sudofuncs() {
         local tmpfile=$(mktemp)
