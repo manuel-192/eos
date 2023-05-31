@@ -221,20 +221,14 @@ SettingsCommon()
     }
     _DailyChecks_
 
-    man() {
-        # simple man extension for some external apps
+    man() {                                                               # 'man' extended for some external apps
+        /bin/man "$@" && return                                           # try normal man first
 
-        local out
-        local mancode=0
-
-        out=$(/bin/man "$@" 2>&1)
-        mancode=$?
-
-        case "$mancode" in
-            16) echo "==> eos-apps-info-helper $*" >&2
+        # man failed, handle exit code 16 for unknown app
+        case "$?" in
+            16) echo "==> eos-apps-info-helper:" >&2
                 eos-apps-info-helper "$@"
                 ;;
-            *)  echo "$out" | less -F >&2 ;;
         esac
     }
 
