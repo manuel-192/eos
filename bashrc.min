@@ -319,6 +319,29 @@ SettingsCommon()
         echo "$banner" >&2
     }
 
+    _Check_CDPATH_ARR() {  # CDPATH_ARR should contain unique folders
+        local arrout=()
+        local dir added
+
+        for dir in "${CDPATH_ARR[@]}" ; do
+            for added in "${arrout[@]}" ; do
+                if [ "$dir" = "$added" ] ; then
+                    echo "$FUNCNAME: warning: already added '$dir = $added'" >&2
+                    continue 2
+                fi
+                if [ "$added" != "." ] && [ "$dir" != "." ] && [ "$dir" -ef "$added" ] ; then
+                    echo "$FUNCNAME: warning: already added '$dir -ef $added'" >&2
+                    continue 2
+                fi
+            done
+            arrout+=("$dir")
+        done
+        # echo "orig = ${#CDPATH_ARR[@]}" >&2
+        export CDPATH_ARR=("${arrout[@]}")
+        # echo "new  = ${#CDPATH_ARR[@]}" >&2
+    }
+    _Check_CDPATH_ARR
+
     sudofuncs fstrim mount umount
 
 
