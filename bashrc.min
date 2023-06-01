@@ -128,17 +128,7 @@ SettingsCommon()
 
     if true ; then
         if [ -x /bin/ncd ] ; then
-            cd() {
-                case "$2" in
-                    "")
-                        case "$1" in
-                            -?) builtin cd "$1" ;;
-                            *) builtin cd $(/bin/ncd "$1") ;;
-                        esac
-                        ;;
-                    *)  builtin cd "$@" ;;
-                esac
-            }
+            cd() { builtin cd $(/bin/ncd "$@") ; }
         fi
     else
         ncd() {
