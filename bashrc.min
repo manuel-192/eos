@@ -290,9 +290,9 @@ SettingsCommon()
 
     p() {
         local args=("$@")
-        local basecmd="pacman-ext --extras --expac"
+        local basecmd="pacman-ext --extras --expac --no-banner"
         case "$1" in
-            "") args=(-Syu --no-banner) ;;
+            "") args=(-Syu) ;;
         esac
         $basecmd "${args[@]}"
     }
