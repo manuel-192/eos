@@ -126,23 +126,7 @@ SettingsCommon()
 
     open-anything() { setsid exo-open "$@" 2>/dev/null ; }      # open any file (based on mime stuff)
 
-    if true ; then
-        if [ -x /bin/ncd ] ; then
-            cd() { builtin cd $(/bin/ncd "$@") ; }
-        fi
-    else
-        ncd() {
-            case "$1" in
-                --init)
-                    shopt -q cdable_vars && complete -v -F _cd -o nospace $FUNCNAME || complete -F _cd -o nospace $FUNCNAME
-                    ;;
-                *)
-                    builtin cd "$(cd-extended "$@")"
-                    ;;
-            esac
-        }
-        ncd --init
-    fi
+    [ -x /bin/ncd ] && cd() { builtin cd $(/bin/ncd "$@") ; }
 
     ccat() { /bin/ccat "$@" | /bin/less -F ; }
 
