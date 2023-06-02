@@ -124,6 +124,12 @@ SettingsCommon()
         cd $dir
     }
 
+    bashrc() { # load updated bash settings
+        source /data/code/Manuel/eos/bashrc.min --update
+        source /data/code/Manuel/eos/bashrc.min
+    }
+    echo "==> 'bashrc' will load *updated* bash settings." >&2
+
     open-anything() { setsid exo-open "$@" 2>/dev/null ; }      # open any file (based on mime stuff)
 
     [ -x /bin/ncd ] && cd() { builtin cd $(/bin/ncd "$@") ; }
