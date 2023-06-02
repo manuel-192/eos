@@ -397,6 +397,8 @@ SettingsCommon()
 
     if [ -n "$FORUM_MGR" ] && [ -n "$FORUM_DEFAULT" ] ; then
         Alias forum "$FORUM_MGR $FORUM_DEFAULT"
+    else
+        echo "sorry, forum settings missing" >&2
     fi
 
     if which logstuff &> /dev/null ; then
