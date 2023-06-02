@@ -372,7 +372,6 @@ SettingsCommon()
     Alias curly              "curl --remote-name-all"
     Alias df                 "LANG=C df -hT"
     Alias eos-rankmirrors    "eos-rankmirrors --list-only"
-    Alias forum              "firefox https://forum.endeavouros.com/login"
     Alias history-del        "history -c && history -w"
     Alias hlp                "eos-apps-info-helper"
     Alias inxi               "inxi -z"
