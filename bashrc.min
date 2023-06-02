@@ -540,7 +540,6 @@ bashrc() { # load updated bash settings
                 --verbose-alias) _COMMON_SETTINGS_VERBOSE_ALIAS=yes ;;
             esac
             source ~/.config/cd-extended.conf && SettingsCommon
-            echo "==> 'bashrc' updates bash settings." >&2
             ;;
         *)
             bashrc --update
@@ -551,3 +550,4 @@ bashrc() { # load updated bash settings
 
 # Use current settings now. Update settings with 'bashrc'.
 bashrc --plain
+echo "==> 'bashrc' updates bash settings." >&2
