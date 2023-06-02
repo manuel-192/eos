@@ -70,7 +70,7 @@ SettingsCommon()
                 *) break ;;
             esac
         done
-        NextInfo2 "Source ~/.bashrc ..."
+        # NextInfo2 "Source ~/.bashrc ..."
         source ~/.bashrc "$@"
     }
 
@@ -123,12 +123,6 @@ SettingsCommon()
         local dir=$(seq $levels | awk '{printf "../"}')
         cd $dir
     }
-
-    bashrc() { # load updated bash settings
-        source /data/code/Manuel/eos/bashrc.min --update
-        source /data/code/Manuel/eos/bashrc.min
-    }
-    echo "==> 'bashrc' will load *updated* bash settings." >&2
 
     open-anything() { setsid exo-open "$@" 2>/dev/null ; }      # open any file (based on mime stuff)
 
@@ -522,30 +516,38 @@ SettingsCommon()
 }
 
 
-case "$1" in
-    --update)
-        NextInfo2 "Updating settings ..."
-        for _ix in {1..10} ; do
-            if eos-connection-checker ; then
-                pushd $(dirname "$BASH_SOURCE") >/dev/null && git pull >/dev/null
-                popd >/dev/null
-                echo " done." >&2
-                return
-            fi
-            printf "."
-            sleep 1
-        done
-        printf "\n==> Sorry, no internet connection, update failed.\n" >&2
-        ;;
-    *)
-        _COMMON_SETTINGS_VERBOSE=no           # common verbosity
-        _COMMON_SETTINGS_VERBOSE_ALIAS=no     # verbosity specific to Alias()
+bashrc() { # load updated bash settings
+    case "$1" in
+        --update)
+            NextInfo2 "Updating settings ..."
+            for _ix in {1..10} ; do
+                if eos-connection-checker ; then
+                    pushd $(dirname "$BASH_SOURCE") >/dev/null && git pull >/dev/null
+                    popd >/dev/null
+                    echo " done." >&2
+                    return
+                fi
+                printf "."
+                sleep 1
+            done
+            printf "\n==> Sorry, no internet connection, update failed.\n" >&2
+            ;;
+        --plain)
+            _COMMON_SETTINGS_VERBOSE=no           # common verbosity
+            _COMMON_SETTINGS_VERBOSE_ALIAS=no     # verbosity specific to Alias()
+            case "$1" in
+                --verbose)       _COMMON_SETTINGS_VERBOSE=yes ;;
+                --verbose-alias) _COMMON_SETTINGS_VERBOSE_ALIAS=yes ;;
+            esac
+            source ~/.config/cd-extended.conf && SettingsCommon
+            echo "==> 'bashrc' updates bash settings." >&2
+            ;;
+        *)
+            bashrc --update
+            bashrc --plain
+            ;;
+    esac
+}
 
-        case "$1" in
-            --verbose)       _COMMON_SETTINGS_VERBOSE=yes ;;
-            --verbose-alias) _COMMON_SETTINGS_VERBOSE_ALIAS=yes ;;
-        esac
-
-        source $HOME/.config/cd-extended.conf && SettingsCommon
-        ;;
-esac
+# Use current settings now. Update settings with 'bashrc'.
+bashrc --plain
