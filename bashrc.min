@@ -362,6 +362,7 @@ SettingsCommon()
 
     CDPATH="${CDPATH_ARR[*]}"
     CDPATH="${CDPATH// /:}"
+    export CDPATH
 
     #############################################################
     # aliases
