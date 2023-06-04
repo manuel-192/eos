@@ -326,6 +326,25 @@ SettingsCommon()
         echo "$banner" >&2
     }
 
+    rc() {
+        local cmd="$1"    # default: -n
+        local dir="$2"    # default: .
+
+        [ -n "$dir" ] || dir=.
+
+        case "$cmd" in
+            "" | -n | -nl | --dryrun-local) cmd="--dryrun-local" ;;
+            -nn | -nr | --dryrun)           cmd="--dryrun" ;;
+            --build)                        cmd="" ;;
+            --repoup | --aurdiff | -ad | --allow.downgrade) ;;
+            *)
+                echo "$FUNCNAME: error: unsupported parameter '$cmd'" >&2
+                return 1 ;;
+        esac
+        cd "$dir"
+        assets.make $cmd
+    }
+
     _Check_CDPATH_ARR() {  # CDPATH_ARR should contain unique folders
         local arrout=()
         local dir added
@@ -389,9 +408,10 @@ SettingsCommon()
     Alias ls                 "ls --color=auto -F"
     Alias nano               "nano -l"
     Alias o                  "open-anything"
+    Alias pp                 "p -j"
     Alias pacdiff            "eos-pacdiff"
     Alias paq                "sudo paq"
-    Alias rc                 "pkgcheck"
+    #Alias rc                 "pkgcheck"
     Alias ramsleep           "Power-routines suspend"
     Alias welcome            "setsid eos-welcome --once"
 
