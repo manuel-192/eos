@@ -126,7 +126,7 @@ SettingsCommon()
 
     open-anything() { setsid exo-open "$@" 2>/dev/null ; }      # open any file (based on mime stuff)
 
-    [ -x /bin/ncd ] && cd() { builtin cd $(/bin/ncd "$@") ; }
+    [ -x /bin/chdirex ] && cd() { builtin cd $(/bin/chdirex "$@") ; }
 
     ccat() { /bin/ccat "$@" | /bin/less -F ; }
 
