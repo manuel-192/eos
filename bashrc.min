@@ -380,6 +380,7 @@ SettingsCommon()
     Alias curly              "curl --remote-name-all"
     Alias df                 "LANG=C df -hT"
     #Alias eos-rankmirrors    "eos-rankmirrors --list-only"
+    Alias forum              "firefox https://forum.endeavouros.com/login"
     Alias h                  "history | fzf --tac --no-separator --no-info"
     Alias history-del        "history -c && history -w"
     Alias hlp                "eos-apps-info-helper"
@@ -402,12 +403,6 @@ SettingsCommon()
         Alias ln         "ln -i"
         Alias mv         "mv -i"
         Alias rm         "rm -i"
-    fi
-
-    if [ -n "$FORUM_MGR" ] && [ -n "$FORUM_DEFAULT" ] ; then
-        Alias forum "$FORUM_MGR $FORUM_DEFAULT"
-    else
-        echo "sorry, forum settings missing" >&2
     fi
 
     if which logstuff &> /dev/null ; then
