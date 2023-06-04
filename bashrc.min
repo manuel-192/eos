@@ -550,6 +550,7 @@ bashrc() { # load updated bash settings
         *)
             bashrc --update
             bashrc --plain
+            echo "==> bash settings updated." >&2
             ;;
     esac
 }
