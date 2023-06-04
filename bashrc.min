@@ -217,8 +217,11 @@ SettingsCommon()
             fi
         }
         _CheckAlways_() {
+            if [ -z "$BASH_SETTINGS_FILE" ] ; then
+                echo "warning: variable BASH_SETTINGS_FILE not set!" >&2
+            fi
             if [ -x /usr/local/bin/pacman ] ; then
-                echo "bashrc.min:$FUNCNAME: warning: executable /usr/local/bin/pacman exists!" >&2
+                echo "$BASH_SETTINGS_FILE:$FUNCNAME: warning: executable /usr/local/bin/pacman exists!" >&2
             fi
         }
 
