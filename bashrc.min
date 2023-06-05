@@ -126,13 +126,14 @@ SettingsCommon()
 
     open-anything() { setsid exo-open "$@" 2>/dev/null ; }      # open any file (based on mime stuff)
 
+    # Functions to modify PATH
     PathInsert() { echo "${PATH//:/$'\n'}" | grep "^$1$" >/dev/null || PATH="$1:$PATH" ; }   # adds $1 to begin
     PathAppend() { echo "${PATH//:/$'\n'}" | grep "^$1$" >/dev/null || PATH="$PATH:$1" ; }   # adds $1 to end
     PathRemove() {                                                                           # removed all occurrences of $1
-        PATH=${PATH//$1/}
-        PATH=${PATH//::/:}
-        PATH=${PATH#:}
-        PATH=${PATH%:}
+        PATH=${PATH//$1/}    # remove all occurrences of $1
+        PATH=${PATH//::/:}   # remove all ::
+        PATH=${PATH#:}       # remove prefix :
+        PATH=${PATH%:}       # remove suffix :
     }
 
     [ -x /bin/chdirex ] && cd() { builtin cd $(/bin/chdirex "$@") ; }
