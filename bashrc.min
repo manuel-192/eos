@@ -128,8 +128,6 @@ SettingsCommon()
 
     [ -x /bin/chdirex ] && cd() { builtin cd $(/bin/chdirex "$@") ; }
 
-    ccat() { /bin/ccat "$@" | /bin/less -F ; }
-
     lsd()   { find . -type d -exec ls -ld {} \; ; }
 
     drw()   {
