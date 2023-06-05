@@ -431,6 +431,10 @@ SettingsCommon()
     }
     _Check_CDPATH_ARR
 
+    xfce4-terminal() {
+        /bin/xfce4-terminal --geometry=150x25 "$@"
+    }
+
     sudofuncs fstrim mount umount
 
 
