@@ -591,6 +591,8 @@ SettingsCommon()
     }
     AppsToFuncsMaker
     unset -f AppsToFuncsMaker
+
+    [ -f ~/unison.log ] && rm -i ~/unison.log
 }
 
 
