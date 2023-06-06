@@ -312,11 +312,18 @@ SettingsCommon()
         local f=${surr::1}                    # first
         local l=${surr: -1}                   # last
         local time="$(date +%a\ %H:%M.%S)"
+        local rarrow1=$'\u2773'                # nice rightwards arrows, https://en.wikipedia.org/wiki/Arrow_(symbol)#Unicode
+        local larrow1=$'\u2772'
+        local rarrow="$rarrow1"
+        local larrow="$larrow1"
+        local here=$'\u2ba9'
+
+        pwd="$larrow$pwd$rarrow"
 
         if [ ${#pwd} -gt $((COLUMNS / 2)) ] ; then
-            printf -v PS1 "%s%s%s\n%s> " "$f" "$pwd" "$l" "$time"    # two line prompt
+            printf -v PS1 "%s\n%s %s "  "$pwd" "$time" "$here"   # two line prompt
         else
-            printf -v PS1 "%11s %s> " "$time" "$pwd"                 # one line prompt
+            printf -v PS1 "%11s %s %s " "$time" "$pwd" "$here"   # one line prompt
         fi
     }
 
