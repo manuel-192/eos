@@ -64,6 +64,18 @@ SettingsCommon()
     }
     Unalias() { unalias "$1" 2>/dev/null ; }
 
+    WaitForConnection() {     # wait at most given seconds (or 10), then return 0=connection OK or 1=connection fail
+        local seconds="$1"
+        [ -n "$seconds" ] || seconds=10
+        local ix
+        for ix in $(seq $seconds) ; do
+            eos-connection-checker && { echo " done." >&2 ; return 0 ; }
+            printf "." >&2
+            sleep 1
+        done
+        return 1
+    }
+
     sou() {                            # allow parameters to ~/.bashrc
         while true ; do
             case "$1" in
@@ -618,17 +630,28 @@ bashrc() { # load updated bash settings
     case "$1" in
         --update)
             NextInfo2 "Updating settings ..."
-            for _ix in {1..10} ; do
-                if eos-connection-checker ; then
-                    pushd $(dirname "$BASH_SOURCE") >/dev/null && git pull >/dev/null
-                    popd >/dev/null
-                    echo " done." >&2
-                    return
-                fi
-                printf "."
-                sleep 1
-            done
-            printf "\n==> Sorry, no internet connection, update failed.\n" >&2
+            if WaitForConnection 10 ; then
+                pushd $(dirname "$BASH_SOURCE") >/dev/null && git pull >/dev/null
+                popd >/dev/null
+                echo " done." >&2
+                return
+            else
+                printf "\n==> Sorry, no internet connection, update failed.\n" >&2
+            fi
+
+            if false ; then
+                for _ix in {1..10} ; do
+                    if eos-connection-checker ; then
+                        pushd $(dirname "$BASH_SOURCE") >/dev/null && git pull >/dev/null
+                        popd >/dev/null
+                        echo " done." >&2
+                        return
+                    fi
+                    printf "."
+                    sleep 1
+                done
+                printf "\n==> Sorry, no internet connection, update failed.\n" >&2
+            fi
             ;;
         --plain)
             _COMMON_SETTINGS_VERBOSE=no           # common verbosity
