@@ -308,9 +308,6 @@ SettingsCommon()
         # Show one or two line prompt (folder, time) after trying to slightly shorten the folder name.
 
         local pwd=${PWD/$HOME/\~}             # shorten for $HOME
-        local surr="[]"                       # surrounding folder name in two line prompt
-        local f=${surr::1}                    # first
-        local l=${surr: -1}                   # last
         local time="$(date +%a\ %H:%M.%S)"
         local rarrow1=$'\u2773'                # nice rightwards arrows, https://en.wikipedia.org/wiki/Arrow_(symbol)#Unicode
         local larrow1=$'\u2772'
