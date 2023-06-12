@@ -327,6 +327,8 @@ SettingsCommon()
         local larrow="$larrow1"
         local here=$'\u2ba9'
 
+        [ -n "$HERE_ARROW" ] && here="$HERE_ARROW"
+
         pwd="$larrow$pwd$rarrow"
 
         if [ ${#pwd} -gt $((COLUMNS / 2)) ] ; then
