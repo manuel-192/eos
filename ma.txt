@@ -214,7 +214,7 @@ EOF
     CheckWithWarning chown "$new_user:$new_user" "$file"
 
     case "$this_rig" in
-        l1 | l2)
+        l1 | l2 | l3)
             # prepare for acpilight
             file=/etc/udev/rules.d/90-blacklight.rules
             cat <<EOF > "$file"
@@ -427,15 +427,15 @@ Blacklist() {
 }
 
 ThisRig() {
-    if [ -n "$(echo "$graphics" | grep "8086:0046")" ] && [ -n "$(echo "$graphics" | grep "10de:0a2b")" ] ; then
-        this_rig=l1   # vanha
-    elif [ -n "$(echo "$graphics" | grep "8086:5917")" ] && [ -n "$(echo "$graphics" | grep "1002:6660")" ] ; then
-        this_rig=l2   # uudempi
-    elif [ -n "$(echo "$graphics" | grep "10de:1d01")" ] ; then
-        this_rig=p1
-    elif [ -n "$(echo "$graphics" | grep "15ad:0405")" ] ; then
-        this_rig=v1
-    fi
+    local id=$(echo "$graphics" | sed -E 's|.*\[([0-9a-f]+:[0-9a-f]+)\].*|\1|')
+
+    case "$id" in
+        "8086:0046") this_rig=l1 ;;   # tosi vanha
+        "8086:5917") this_rig=l2 ;;   # uudempi
+        "8086:46a6") this_rig=l3 ;;   # uusin
+        "10de:1d01") this_rig=p1 ;;   # iso
+        "15ad:0405") this_rig=v1 ;;   # vb?
+    esac
 }
 
 DriverSettings() {
@@ -453,6 +453,12 @@ DriverSettings() {
             # prepare for acpilight
             Check pacman -S --needed --noconfirm acpilight
             CheckWithWarning usermod -aG video $new_user
+            ;;
+        l3)
+            GrubDefaults
+            Check pacman -S --needed --noconfirm acpilight
+            CheckWithWarning usermod -aG video $new_user
+            # kernel param: i915.enable_dpcd_backlight=3
             ;;
         p1) Blacklist nouveau,i915
             GrubDefaults
