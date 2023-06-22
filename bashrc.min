@@ -19,7 +19,13 @@ SettingsCommon()
     esac
     shopt -s autocd
 
-    
+    EDITOR=emacs
+    PAGER=less
+
+    # Set in local ~/.bashrc:
+    # ROOTDIR_EOS
+    # ROOTDIR_MAN
+
 
     #############################################################
     # functions
