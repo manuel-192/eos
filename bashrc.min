@@ -327,13 +327,16 @@ SettingsCommon()
 
         local pwd=${PWD/$HOME/\~}             # shorten for $HOME
         local time="$(date +%a\ %H:%M.%S)"
-        local rarrow1=$'\u2773'                # nice rightwards arrows, https://en.wikipedia.org/wiki/Arrow_(symbol)#Unicode
-        local larrow1=$'\u2772'
-        local rarrow="$rarrow1"
-        local larrow="$larrow1"
-        local here=$'\u2ba9'
 
-        [ -n "$HERE_ARROW" ] && here="$HERE_ARROW"
+        if [ -n "$HERE_ARROW" ] ; then
+            local rarrow=')'
+            local larrow='('
+            local here="$HERE_ARROW"
+        else
+            local rarrow=$'\u2773'            # nice delimiters, https://en.wikipedia.org/wiki/Arrow_(symbol)#Unicode
+            local larrow=$'\u2772'
+            local here=$'\u2ba9'
+        fi
 
         pwd="$larrow$pwd$rarrow"
 
