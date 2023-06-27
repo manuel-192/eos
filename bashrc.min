@@ -416,6 +416,92 @@ SettingsCommon()
         echo "$banner" >&2
     }
 
+    R() {
+        # If needed, build packages.
+
+        local repodir=""
+        local op=""
+        local dir1 dir2 dirs
+
+        while [ -n "$1" ] ; do
+            case "$1" in
+                -h | --help)
+                    cat <<EOF >&2
+
+Build packages if needed.
+
+Usage: $FUNCNAME [options]
+
+Options:
+    -h, --help        This help.
+    -n, ""            Check if build is needed, using local packages.
+    -nn               Check if build is needed, using remote packages.
+    -b                Directly try to build packages.
+EOF
+                    return
+                    ;;
+                -*) op="$1" ;;
+                *)  repodir="$1" ;;
+            esac
+            shift
+        done
+
+        for dir1 in "${CDPATH_ARR[@]}" ; do
+            case "$dir1" in
+                */_BUILD_)
+                    dirs=("$dir1"/*)
+                    for dir2 in "${dirs[@]}" ; do
+                        case "$repodir" in
+                            "" | .) repodir="$PWD" ;;
+                        esac
+                        case "$repodir" in
+                            /*)
+                                if [ "$repodir" -ef "$dir2" ] ; then
+                                    repodir="$dir2"
+                                    break 2
+                                fi
+                                ;;
+                            *)
+                                case "$dir2" in
+                                    */"$repodir")
+                                        repodir="$dir2"
+                                        break 2
+                                        ;;
+                                esac
+                                ;;
+                        esac
+                    done
+                    ;;
+            esac
+        done
+        case "$op" in
+            "") op="-n" ;;                # ""  = check local
+            -n | -nn) ;;                  # -n  = check local
+                                          # -nn = check remote
+            -b) op="" ;;                  # -b  = build
+            *)
+                echo "$FUNCNAME: wrong option!" >&2
+                $FUNCNAME -h
+                return 1
+                ;;
+        esac
+
+        local cwd="$PWD"
+        local exit_code=0
+
+        if [ -n "$repodir" ] ; then
+            cd $repodir || return 1
+        fi
+        assets.make $op
+        exit_code=$?
+        cd "$cwd"
+        case $exit_code in
+            100 | 0) ;;
+            *)       return $exit_code ;;
+        esac
+    }
+
+    if false ; then
     rc() {
         local cmd="$1"    # default: -n
         local dir="$2"    # default: .
@@ -434,6 +520,7 @@ SettingsCommon()
         cd "$dir"
         assets.make $cmd
     }
+    fi
 
     _Check_CDPATH_ARR() {  # CDPATH_ARR should contain unique folders
         local arrout=()
@@ -553,7 +640,7 @@ SettingsCommon()
     #              new cmdname          pkgname     completion func
     LoadCompletion pacman-sudo-internal pacman      _pacman
     LoadCompletion p                    pacman-ext  _pacman-ext_
-    LoadCompletion rc                   pkgcheck    _pkgcheck_
+    LoadCompletion R                   pkgcheck    _pkgcheck_
 
 
     [ -r ~/.dircolors ] && eval "$(dircolors ~/.dircolors)"
