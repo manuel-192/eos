@@ -412,25 +412,44 @@ SettingsCommon()
         $basecmd "${args[@]}"
     }
 
+    IsNum() { [ -n "$1" ] && [ -z "${1//[0-9]/}" ] ; }
+
     rate-mirrors-arch() {
-        local seconds="$1"
-        [ -n "$seconds" ] || seconds=70
+        local delay=70        # --delay=Y
+        local count=2         # --count=X
+
+        while [ -n "$1" ] ; do
+            case "$1" in
+                --count=* | -c=*) count=${1#*=} ;;
+                --count   | -c  ) count="$2"; shift ;;
+                --delay=* | -d=*) delay=${1#*=} ;;
+                --delay   | -d  ) delay="$2"; shift ;;
+                *) echo "$FUNCNAME: parameter '$1' unrecognized" >&2; return 1 ;;
+            esac
+            shift
+        done
+
+        IsNum "$delay" || { echo "$FUNCNAME: parameter '$delay' of --delay unrecognized" >&2; return 1; }
+        IsNum "$count" || { echo "$FUNCNAME: parameter '$count' of --count unrecognized" >&2; return 1; }
+
         local cmd=(
             rate-mirrors
-            #--disable-comments-in-file
-            --protocol https --save /tmp/mirrorlist
+            #--disable-comments
+            --disable-comments-in-file
+            --protocol https
+            --save /tmp/mirrorlist
             --entry-country DE
-            --country-test-mirrors-per-country 2
+            --country-test-mirrors-per-country $count
             --country-neighbors-per-country 0
             arch
-            --max-delay=$seconds
+            --max-delay=$delay
         )
         "${cmd[@]}" | grep -v "^Server = "
         printf "\n" >&2
-        local banner=$(BannerLine '~' 70)
+        local banner=$(BannerLine 70 '~')
         echo "$banner" >&2
         grep "^# ARGS: " /tmp/mirrorlist
-        less -F /tmp/mirrorlist
+        cat /tmp/mirrorlist
         echo "$banner" >&2
     }
 
