@@ -313,11 +313,29 @@ SettingsCommon()
         echo "$result"
     }
 
-    man() {                                                               # 'man' extended for some external apps
-        /bin/man "$@" && return                                           # try normal man first
+    man() {                                                        # 'man' extended for some external apps
+        man-eos-apps-info-helper() {
+            #echo "==> $FUNCNAME:" >&2
+            which eos-apps-info-helper &> /dev/null || return 1
+            eos-apps-info-helper "$@"
+        }
+        man-plain-help() {
+            if which "$1" &> /dev/null ; then
+                echo "==> $FUNCNAME:" >&2
+                "$@" --help
+            else
+                echo "$FUNCNAME: no info about '$1'." >&2
+            fi
+        }
+
+        /bin/man "$@" && return                                    # try normal man first
         case "$?" in
-            16) echo "==> eos-apps-info-helper:" >&2                      # man failed, handle exit code 16 for unknown app
-                eos-apps-info-helper "$@"
+            16)
+                man-eos-apps-info-helper "$@"                      # man failed, handle exit code 16 for unknown app
+                case "$?" in
+                    0) ;;
+                    *) man-plain-help "$@" ;;
+                esac
                 ;;
         esac
     }
