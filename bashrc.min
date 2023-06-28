@@ -70,6 +70,8 @@ SettingsCommon()
     }
     Unalias() { unalias "$1" 2>/dev/null ; }
 
+    command_not_found_handle() { [ -f "$1" ] && exo-open "$@" 2>/dev/null ; }
+
     WaitForConnection() {     # wait at most given seconds (or 10), then return 0=connection OK or 1=connection fail
         local seconds="$1"
         [ -n "$seconds" ] || seconds=10
