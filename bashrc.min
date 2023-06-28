@@ -412,6 +412,8 @@ SettingsCommon()
         $basecmd "${args[@]}"
     }
 
+    #pf() { pgrep -a "$@" ; } # list processes
+
     IsNum() { [ -n "$1" ] && [ -z "${1//[0-9]/}" ] ; }
 
     rate-mirrors-arch() {
