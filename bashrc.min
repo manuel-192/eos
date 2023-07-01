@@ -620,7 +620,6 @@ EOF
     Alias cls                "clear"
     Alias curly              "curl --remote-name-all"
     Alias df                 "LANG=C df -hT"
-    #Alias eos-rankmirrors    "eos-rankmirrors --list-only"
     Alias forum              "firefox https://forum.endeavouros.com/login"
     Alias h                  "history | fzf --tac --no-separator --no-info"
     Alias history-del        "history -c && history -w"
@@ -634,11 +633,11 @@ EOF
     Alias pp                 "p -j"
     Alias pacdiff            "eos-pacdiff"
     Alias paq                "sudo paq"
-    #Alias rc                 "pkgcheck"
     Alias ramsleep           "Power-routines suspend"
     Alias welcome            "setsid eos-welcome --once"
 
-    AliasIf grub-mkconfig  update-grub "sudo grub-mkconfig -o /boot/grub/grub.cfg"
+    AliasIf grub-mkconfig  grub.cfg    "sudo grub-mkconfig -o /boot/grub/grub.cfg"
+    AliasIf grub-mkconfig  update-grub grub.cfg
     AliasIf meld-rcs       meld        "setsid meld-rcs"
 
     if true ; then
