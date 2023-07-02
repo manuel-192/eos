@@ -209,6 +209,8 @@ SettingsCommon()
     _AdHocChecks_() {
         _DailyCheck_() {
             _SimpleUpdateCheck() {
+                return    # 'checkupdates' may cause problems...
+
                 NextInfo2 "Checking updates ... "
                 local updates
                 updates=$(checkupdates)
