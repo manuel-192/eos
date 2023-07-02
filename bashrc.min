@@ -73,7 +73,7 @@ SettingsCommon()
     command_not_found_handle() {
         if [ -f "$1" ] ; then
             exo-open "$@" 2>/dev/null
-        elif cd "$1" ; then
+        elif cd "$@" ; then
             echo "$FUNCNAME: did you mean 'cd $*'?" >&2    # cd is not working here...
         else
             echo "$FUNCNAME: '$*' not recognized." >&2
