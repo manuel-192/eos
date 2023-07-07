@@ -552,26 +552,18 @@ EOF
         esac
     }
 
-    if false ; then
-    rc() {
-        local cmd="$1"    # default: -n
-        local dir="$2"    # default: .
-
-        [ -n "$dir" ] || dir=.
-
-        case "$cmd" in
-            "" | -n | -nl | --dryrun-local) cmd="--dryrun-local" ;;
-            -nn | -nr | --dryrun)           cmd="--dryrun" ;;
-            --build)                        cmd="" ;;
-            --repoup | --aurdiff | -ad | --allow.downgrade) ;;
-            *)
-                echo "$FUNCNAME: error: unsupported parameter '$cmd'" >&2
-                return 1 ;;
+    us() {
+        local reporootdir="$1"
+        case "$reporootdir" in
+            MAN) ;;
+            EOS) ;;
+            *) reporootdir=MAN ;;
         esac
-        cd "$dir"
-        assets.make $cmd
+        pushd $reporootdir >/dev/null
+        UpdateSources
+        popd >/dev/null
     }
-    fi
+
 
     _Check_CDPATH_ARR() {  # CDPATH_ARR should contain unique folders
         local arrout=()
@@ -639,10 +631,12 @@ EOF
     Alias ls                 "ls --color=auto -F"
     Alias nano               "nano -l"
     Alias o                  "open-anything"
-    Alias package-sizes      "expac -HM -Q '%m|%n' | column -t -s'|' | sort -nr | less"  # M is reasonable now, later G might be too
+    Alias package-sizes      "expac -HM -Q '%m|%n' | column -t -s'|' | sort -nr | less"
+                             # M is reasonable now, later G might be too
     Alias pp                 "p -j"
     Alias pacdiff            "eos-pacdiff"
     Alias paq                "sudo paq"
+    Alias pb                 R
     Alias ramsleep           "Power-routines suspend"
     Alias welcome            "setsid eos-welcome --once"
 
@@ -690,7 +684,8 @@ EOF
     #              new cmdname          pkgname     completion func
     LoadCompletion pacman-sudo-internal pacman      _pacman
     LoadCompletion p                    pacman-ext  _pacman-ext_
-    LoadCompletion R                   pkgcheck    _pkgcheck_
+    LoadCompletion R                    pkgcheck    _pkgcheck_
+    LoadCompletion pb                   pkgcheck    _pkgcheck_
 
 
     [ -r ~/.dircolors ] && eval "$(dircolors ~/.dircolors)"
