@@ -333,7 +333,7 @@ SettingsCommon()
         }
         man-plain-help() {
             if which "$1" &> /dev/null ; then
-                echo "==> $FUNCNAME:" >&2
+                echo "==> $* --help:" >&2
                 "$@" --help
             else
                 echo "$FUNCNAME: no info about '$1'." >&2
