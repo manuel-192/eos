@@ -451,7 +451,7 @@ SettingsCommon()
             #--disable-comments
             --disable-comments-in-file
             --protocol https
-            --save /tmp/mirrorlist
+            --save-to-file /tmp/mirrorlist
             --entry-country DE
             --country-test-mirrors-per-country $count
             --country-neighbors-per-country 0
