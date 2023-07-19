@@ -164,7 +164,7 @@ SettingsCommon()
         PATH=${PATH%:}       # remove suffix :
     }
 
-    [ -x /bin/chdirex ] && cd() { builtin cd $(/bin/chdirex "$@") ; }
+    [ -x /bin/chdirex ] && cd() { builtin cd "$(/bin/chdirex "$@")" ; }
 
     lsd()   { find . -type d -exec ls -ld {} \; ; }
 
