@@ -452,6 +452,12 @@ SettingsCommon()
         /bin/xfce4-terminal --geometry=150x25 "$@"
     }
 
+    m-aur()                   { cd "${FUNCNAME[0]}" ; }
+    m-m()                     { cd "${FUNCNAME[0]}" ; }
+    m-more2()                 { cd "${FUNCNAME[0]}" ; }
+    endeavouros()             { cd "${FUNCNAME[0]}" ; }
+    endeavouros-testing-dev() { cd "${FUNCNAME[0]}" ; }
+
     command_not_found_handle() {
         if [ -f "$1" ] ; then
             exo-open "$@" 2>/dev/null
