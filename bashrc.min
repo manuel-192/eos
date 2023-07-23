@@ -70,16 +70,6 @@ SettingsCommon()
     }
     Unalias() { unalias "$1" 2>/dev/null ; }
 
-    command_not_found_handle() {
-        if [ -f "$1" ] ; then
-            exo-open "$@" 2>/dev/null
-        elif cd "$@" ; then
-            echo "$FUNCNAME: did you mean 'cd $*'?" >&2    # cd is not working here...
-        else
-            echo "$FUNCNAME: '$*' not recognized." >&2
-        fi
-    }
-
     WaitForConnection() {     # wait at most given seconds (or 10), then return 0=connection OK or 1=connection fail
         local seconds="$1"
         [ -n "$seconds" ] || seconds=10
@@ -122,36 +112,6 @@ SettingsCommon()
         esac
     }
 
-    -() { cd - ; }   # make plain - the same as "cd -"
-
-    ..()
-    {
-        # cd to one of the parent folders, given number of levels (zero or more)
-        # Example: .. 5
-
-        local levels="$1"
-        local -r levels_max=10000
-        case "$levels" in
-            "")
-                levels=1
-                ;;
-            # [0-9] | [1-9]*([0-9]))     # assumes extglob is enabled! Note: emacs reformatting fails with this...
-            #     ;;
-            [0-9] | [1-9][0-9])
-                if [ $levels -gt $levels_max ] ; then
-                    echo "number of levels '$levels' must be less than $levels_max" >&2
-                    return 1
-                fi
-                ;;
-            *)
-                echo "invalid number of levels: '$levels'" >&2
-                return 1
-                ;;
-        esac
-        local dir=$(seq $levels | awk '{printf "../"}')
-        cd $dir
-    }
-
     open-anything() { setsid exo-open "$@" 2>/dev/null ; }      # open any file (based on mime stuff)
 
     # Functions to modify PATH
@@ -163,8 +123,6 @@ SettingsCommon()
         PATH=${PATH#:}       # remove prefix :
         PATH=${PATH%:}       # remove suffix :
     }
-
-    [ -x /bin/chdirex ] && cd() { builtin cd "$(/bin/chdirex "$@")" ; }
 
     lsd()   { find . -type d -exec ls -ld {} \; ; }
 
@@ -492,6 +450,39 @@ SettingsCommon()
 
     xfce4-terminal() {
         /bin/xfce4-terminal --geometry=150x25 "$@"
+    }
+
+    command_not_found_handle() {
+        if [ -f "$1" ] ; then
+            exo-open "$@" 2>/dev/null
+        elif cd "$@" ; then
+            echo "$FUNCNAME: did you mean 'cd $*'?" >&2    # cd is not working here...
+        else
+            echo "$FUNCNAME: '$*' not recognized." >&2
+        fi
+    }
+
+    [ -x /bin/chdirex ] && cd() { builtin cd "$(/bin/chdirex "$@")" ; }
+
+    -() { builtin cd - ; }   # make plain - the same as "cd -"
+
+    ..() {
+        # cd to one of the parent folders, given number of levels (zero or more)
+        # Examples:
+        #    ..
+        #    .. 5
+
+        local levels="$1"
+
+        case "$levels" in
+            [0-9] | [1-9]*([0-9])) ;;    # assumes extglob is enabled! Note: emacs formatting fails badly after this line...
+            "") levels=1 ;;
+            *)  echo "invalid number of levels: '$levels'" >&2
+                return 1
+                ;;
+        esac
+        local dir=$(seq $levels | awk '{printf "../"}')
+        builtin cd $dir
     }
 
     sudofuncs fstrim mount umount
