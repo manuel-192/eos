@@ -521,7 +521,7 @@ SettingsCommon()
     Alias cls                "clear"
     Alias curly              "curl --remote-name-all"
     Alias df                 "LANG=C df -hT"
-    Alias forum              "firefox https://forum.endeavouros.com/login"
+    Alias forum              "firefox https://forum.endeavouros.com/latest"
     Alias h                  "history | fzf --tac --no-separator --no-info"
     Alias history-del        "history -c && history -w"
     Alias hlp                "eos-apps-info-helper"
