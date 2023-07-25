@@ -456,6 +456,93 @@ SettingsCommon()
         /bin/xfce4-terminal --geometry=150x25 "$@"
     }
 
+    paccache() {
+        # Changes to official paccache:
+        # 1. check if sudo is needed
+        # 2. be verbose always
+
+        paccache-options() {
+            local opts
+            local sopts="a:c:dfhi:k:m:rquvVz"
+            local lopts="dryrun,move:,remove,arch:,cachedir:,force,help,ignore:,keep:"
+            lopts+=",min-atime:,min-mtime:,nocolor,quiet,uninstalled,verbose,version"
+
+            opts="$(/usr/bin/getopt -o=$sopts --longoptions $lopts --name "$progname" -- "$@")" || {
+                #$FUNCNAME --help
+                return 1
+            }
+
+            eval set -- "$opts"
+
+            while true ; do
+                case "$1" in
+                    --dryrun | -d)      ;;
+                    --move | -m)        sudo=sudo; shift ;;
+                    --remove | -r)      sudo=sudo ;;
+                    --arch | -a)        shift ;;
+                    --cachedir | -c)    shift ;;
+                    --force | -f)       ;;
+                    --ignore | -i)      shift ;;
+                    --keep | -k)        shift ;;
+                    --min-atime)        shift ;;
+                    --min-mtime)        shift ;;
+                    --nocolor)          ;;
+                    --null | -z)        ;;
+                    --quiet | -q)       ;;
+                    --uninstalled | -u) ;;
+                    --verbose | -v)     verbose+=" $1" ;;
+                    --version | -V)     ;;
+                    --help | -h)        ;;
+
+                    --) shift ; break ;;
+                esac
+                shift
+            done
+        }
+
+        local progname="$FUNCNAME"
+        local sudo=""
+        local verbose="-v"
+
+        paccache-options "$@" || return
+        $sudo /bin/paccache $verbose "$@"
+    }
+
+    EmacsConfig() {
+        [ -e ~/.emacs ] && return
+        [ -x /bin/emacs ] || return
+
+        echo "==> $FUNCNAME: configuring emacs" >&2
+
+        cat <<EOF > ~/.emacs
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(c-guess-guessed-basic-offset 2 t)
+ '(column-number-mode t)
+ '(cua-mode t nil (cua-base))
+ '(gdb-many-windows t)
+ '(global-display-line-numbers-mode t)
+ '(indent-tabs-mode nil)
+ '(inhibit-startup-screen t)
+ '(make-backup-files nil)
+ '(next-line-add-newlines nil)
+; '(package-selected-packages '(realgud))
+ '(require-final-newline t)
+ '(scroll-step 1)
+ '(select-enable-clipboard t)
+ '(tool-bar-mode nil)
+ '(tool-bar-position 'right)
+ '(vc-follow-symlinks t)
+ '(x-select-enable-clipboard-manager nil)
+)
+EOF
+        chown $LOGNAME:$LOGNAME ~/.emacs
+    }
+    EmacsConfig
+
     m-aur()                   { cd "${FUNCNAME[0]}" ; }
     m-m()                     { cd "${FUNCNAME[0]}" ; }
     m-more2()                 { cd "${FUNCNAME[0]}" ; }
