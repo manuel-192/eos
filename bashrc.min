@@ -709,6 +709,8 @@ EOF
         fi
     }
 
+    qute() { setsid qtcreator -client "$@" &> /dev/null ; }
+
     AppsToFuncsMaker() {
         local apps=(
             adie                             # lightning fast editor
@@ -733,7 +735,7 @@ EOF
             # notepadqq
             pamac-manager
             parole
-            "qtcreator -client"
+            # "qtcreator -client"
             qterminal
             ristretto
             soffice
