@@ -697,6 +697,8 @@ EOF
         local firstpara="$2"
         shift
 
+        echo "==> $app $@" >&2
+
         if [ -x /bin/$app ]; then
             case "$firstpara" in 
                 -h | --help*) /bin/$app "$@" 2> /dev/null ;;
@@ -731,7 +733,7 @@ EOF
             # notepadqq
             pamac-manager
             parole
-            qtcreator
+            "qtcreator -client"
             qterminal
             ristretto
             soffice
@@ -752,12 +754,13 @@ EOF
         )
 
         if [ ${#apps[@]} -gt 0 ] ; then
-            local pr
+            local pr pr1
             local tmpfile=$(mktemp)
 
             for pr in "${apps[@]}" ; do
-                Unalias $pr
-                which $pr &> /dev/null && echo "$pr() { NiceFuncRun $pr \"\$@\" ; }"
+                pr1=${pr%% *}
+                Unalias $pr1
+                which $pr1 &> /dev/null && echo "$pr1() { NiceFuncRun $pr \"\$@\" ; }"
             done >> $tmpfile
 
             # shellcheck disable=SC1090
