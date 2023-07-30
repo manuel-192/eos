@@ -731,6 +731,7 @@ EOF
             # notepadqq
             pamac-manager
             parole
+            qtcreator
             qterminal
             ristretto
             soffice
