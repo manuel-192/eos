@@ -288,12 +288,12 @@ SettingsCommon()
     }
 
     man() {                                                        # 'man' extended for some external apps
-        man-eos-apps-info-helper() {
+        _man-eos-apps-info-helper() {
             #echo "==> $FUNCNAME:" >&2
             which eos-apps-info-helper &> /dev/null || return 1
             eos-apps-info-helper "$@"
         }
-        man-plain-help() {
+        _man-plain-help() {
             if which "$1" &> /dev/null ; then
                 echo "==> $* --help:" >&2
                 "$@" --help
@@ -303,16 +303,30 @@ SettingsCommon()
         }
 
         /bin/man "$@" && return                                    # try normal man first
+        
         case "$?" in
             16)
-                man-eos-apps-info-helper "$@"                      # man failed, handle exit code 16 for unknown app
+                
+                local item="" arg
+
+                for arg in "$@" ; do
+                    case "$arg" in
+                        -*) ;;
+                        *) item="$arg" ;;
+                    esac
+                done
+
+                [ -n "$item" ] || return 1
+
+                _man-eos-apps-info-helper "$item"                      # man failed, handle exit code 16 for unknown app
                 case "$?" in
                     0) ;;
-                    *) man-plain-help "$@" ;;
+                    *) _man-plain-help "$item" ;;
                 esac
                 ;;
         esac
     }
+    manx() { man -H "$@" ; }
 
     my_prompt_command() {
         # Show one or two line prompt (folder, time) after trying to slightly shorten the folder name.
