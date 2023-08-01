@@ -226,6 +226,38 @@ SettingsCommon()
     }
     _AdHocChecks_
 
+    eos_icon_path() {
+        # on success, echo full icon path and return 0
+        # on failure, return 1
+
+        local -r type="$1"
+        local -r name="$2"
+        local icon family
+
+        case "$type" in
+            actions|animations|apps|categories|devices|emblems|emotes|filesystems|intl|mimetypes|places|status|stock) ;;
+            *) return 1 ;;
+        esac
+        case "$name" in
+            "") return 1 ;;
+        esac
+
+        # use Qogir as default, then try other icons
+        local prefs="${EOS_ICON_SETS_PREFERENCE[@]/Qogir-dark/}"
+        prefs="${EOS_ICON_SETS_PREFERENCE[@]/Qogir/}"
+
+        for family in Qogir "${prefs[@]}"
+        do
+            family=${family##*/}
+            icon="/usr/share/icons/$family/scalable/$type/$name.svg"
+            if [ -e "$icon" ] ; then
+                echo "$icon"
+                return 0
+            fi
+        done
+        return 1
+    }
+
     icons() {
         find /usr/share/icons -name $1.\* 2> /dev/null | grep scalable | less -F
         # find /usr/share/icons -name $1.\* 2> /dev/null | less -F
