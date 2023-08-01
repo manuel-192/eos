@@ -227,7 +227,8 @@ SettingsCommon()
     _AdHocChecks_
 
     icons() {
-        find /usr/share/ -name $1.\* 2> /dev/null | grep scalable | less -F
+        find /usr/share/icons -name $1.\* 2> /dev/null | grep scalable | less -F
+        # find /usr/share/icons -name $1.\* 2> /dev/null | less -F
     }
 
     git_kuulas() {
