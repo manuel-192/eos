@@ -82,6 +82,15 @@ SettingsCommon()
         return 1
     }
 
+    arch-audit() {
+        local header="PACKAGE NAME|SEVERITY|TYPE"
+        local underline="${header//[A-Z ]/\~}"
+        {
+            printf "%s\n%s\n" "$header" "$underline"
+            /bin/arch-audit -f '%n|%s|%t' "$@"
+        } | /bin/column -t -s'|'
+    }
+
     sou() {                            # allow parameters to ~/.bashrc
         while true ; do
             case "$1" in
