@@ -6,6 +6,8 @@ NextInfo2() { printf "==> %s" "$1" >&2 ; }  # shows info about the next operatio
 
 SettingsCommon()
 {
+    local APP_PATH=/usr/bin
+
     [ $_COMMON_SETTINGS_VERBOSE = yes ] && echo "==> $FUNCNAME" >&2
     case "$-" in
         *i*)
@@ -87,8 +89,8 @@ SettingsCommon()
         local underline="${header//[A-Z ]/\~}"
         {
             printf "%s\n%s\n" "$header" "$underline"
-            /bin/arch-audit -f '%n|%s|%t' "$@" # | tr '[:upper:]' '[:lower:]'
-        } | /bin/column -t -s'|'
+            $APP_PATH/arch-audit -f '%n|%s|%t' "$@" # | tr '[:upper:]' '[:lower:]'
+        } | column -t -s'|'
     }
 
     kb() {   # knowledge base
@@ -117,8 +119,8 @@ EOF
         local tmpfile=$(mktemp)
         local name
         for name in "$@" ; do
-            if [ -x /bin/$name ] ; then
-                echo "$name() { sudo /bin/$name \"\$@\" ; }" >> $tmpfile
+            if [ -x $APP_PATH/$name ] ; then
+                echo "$name() { sudo $APP_PATH/$name \"\$@\" ; }" >> $tmpfile
             fi
         done
         source $tmpfile
@@ -187,7 +189,7 @@ EOF
 
     lsblk() {
         local width=300
-        local lsblk="/usr/bin/lsblk -w$width"
+        local lsblk="$APP_PATH/lsblk -w$width"
 
         if [ -z "$1" ] ; then
             $lsblk -f -o+SIZE
@@ -335,7 +337,7 @@ EOF
 
                 if [ -n "$(printf "%s\n" "$@" | grep "^PKGBUILD$")" ] ; then
                     if [ -r PKGBUILD ] && [ -w PKGBUILD ] && grep -P "^sha.*sums=|^md5sums=|^b2sums=" PKGBUILD >& /dev/null ; then
-                        if [ "$(/usr/bin/ls -a1tr --ignore=. --ignore=.. | tail -n1)" != PKGBUILD ] ; then
+                        if [ "$($APP_PATH/ls -a1tr --ignore=. --ignore=.. | tail -n1)" != PKGBUILD ] ; then
                             read -p "Update checksums (Y/n)? " >&2
                             case "$REPLY" in
                                 "" | [yY]*) updpkgsums ;;
@@ -345,7 +347,7 @@ EOF
                 fi
                 ;;
         esac
-        /usr/bin/git "$@"
+        $APP_PATH/git "$@"
     }
 
     linktype() {
@@ -384,7 +386,7 @@ EOF
             fi
         }
 
-        /bin/man "$@" && return                                    # try normal man first
+        $APP_PATH/man "$@" && return                                    # try normal man first
         
         case "$?" in
             16)
@@ -449,7 +451,7 @@ EOF
         local prog
         for prog in ghostwriter # vscodium code-oss code
         do
-            if [ -x /bin/$prog ] ; then
+            if [ -x $APP_PATH/$prog ] ; then
                 echo "opening with ghostwriter..." >&2
                 $prog "$file"
                 return
@@ -457,7 +459,7 @@ EOF
         done
 
         # output viewer is a browser
-        if [ -x /bin/pandoc ] ; then
+        if [ -x $APP_PATH/pandoc ] ; then
             echo "converting with pandoc..." >&2
             local tmp="$(mktemp /tmp/tmp.$(basename "$file").XXXXX.html)"
             pandoc -f gfm -t html "$file" > "$tmp" || return 1
@@ -549,8 +551,16 @@ EOF
     _Check_CDPATH_ARR
 
     xfce4-terminal() {
-        /bin/xfce4-terminal --geometry=150x25 "$@"
+        $APP_PATH/xfce4-terminal --geometry=150x25 "$@"
     }
+
+    if [ -x $APP_PATH/grub-install ] ; then
+        original-grub-install-parameters-f() {
+            local out=$(sudo grep 'grub-install' /var/log/{Calamares,endeavour-install}.log 2>/dev/null)
+            echo "$out" | sed -E -e 's|.*Running \(||' -e 's|"([^"]+)"[,)]*|\1|g' | head -n1
+        }
+        Alias original-grub-install-parameters original-grub-install-parameters-f
+    fi
 
     paccache() {
         # Changes to official paccache:
@@ -563,7 +573,7 @@ EOF
             local lopts="dryrun,move:,remove,arch:,cachedir:,force,help,ignore:,keep:"
             lopts+=",min-atime:,min-mtime:,nocolor,quiet,uninstalled,verbose,version"
 
-            opts="$(/usr/bin/getopt -o=$sopts --longoptions $lopts --name "$progname" -- "$@")" || {
+            opts="$(getopt -o=$sopts --longoptions $lopts --name "$progname" -- "$@")" || {
                 #$FUNCNAME --help
                 return 1
             }
@@ -601,12 +611,12 @@ EOF
         local verbose="-v"
 
         paccache-options "$@" || return
-        $sudo /bin/paccache $verbose "$@"
+        $sudo $APP_PATH/paccache $verbose "$@"
     }
 
     EmacsConfig() {
         [ -e ~/.emacs ] && return
-        [ -x /bin/emacs ] || return
+        [ -x $APP_PATH/emacs ] || return
 
         echo "==> $FUNCNAME: configuring emacs" >&2
 
@@ -655,7 +665,7 @@ EOF
         fi
     }
 
-    [ -x /bin/chdirex ] && cd() { builtin cd "$(/bin/chdirex "$@")" ; }
+    [ -x $APP_PATH/chdirex ] && cd() { builtin cd "$($APP_PATH/chdirex "$@")" ; }
 
     sudofuncs fstrim mount umount powertop
 
@@ -704,7 +714,7 @@ EOF
     Alias welcome            "setsid eos-welcome --once"
 
     AliasIf grub-mkconfig  update-grub  "sudo grub-mkconfig -o /boot/grub/grub.cfg"
-    AliasIf grub-mkconfig  grub.cfg     "update-grub"
+    # AliasIf grub-mkconfig  grub.cfg     "update-grub"                                   # needed ???
     AliasIf meld-rcs       meld         "setsid meld-rcs"
 
     if true ; then
@@ -773,10 +783,10 @@ EOF
 
         echo "==> $app $@" >&2
 
-        if [ -x /bin/$app ]; then
+        if [ -x $APP_PATH/$app ]; then
             case "$firstpara" in 
-                -h | --help*) /bin/$app "$@" 2> /dev/null ;;
-                *)            setsid /bin/$app "$@" &> /dev/null ;;
+                -h | --help*) $APP_PATH/$app "$@" 2> /dev/null ;;
+                *)            $APP_PATH/setsid $APP_PATH/$app "$@" &> /dev/null ;;
             esac
         else
             command $app
