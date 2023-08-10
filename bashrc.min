@@ -720,6 +720,7 @@ EOF
         sleep 2
         bash -c "$cmd"
     }
+
     if which logstuff &> /dev/null ; then
         Reboot()   { _dispatch_my_cmd "logstuff off && sync && Power-routines -s reboot" ; }
         Poweroff() { _dispatch_my_cmd "logstuff off && sync && Power-routines -s poweroff" ; }
