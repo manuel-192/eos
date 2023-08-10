@@ -137,7 +137,15 @@ EOF
         esac
     }
 
-    open-anything() { setsid exo-open "$@" 2>/dev/null ; }      # open any file (based on mime stuff)
+    open-anything() {                             # open any file (based on mime stuff)
+        local app
+        for app in exo-open kde-open xdg-open ; do
+            if [ -x $APP_PATH/$app ] ; then
+                setsid $app "$@" &>/dev/null
+                return
+            fi
+        done
+    }
 
     # Functions to modify variables like PATH
 
@@ -464,8 +472,8 @@ EOF
             local tmp="$(mktemp /tmp/tmp.$(basename "$file").XXXXX.html)"
             pandoc -f gfm -t html "$file" > "$tmp" || return 1
             if [ -r "$tmp" ] ; then
-                exo-open "file://$tmp" &>/dev/null
-                sleep 5   # must wait because exo-open does not
+                open-anything "file://$tmp"
+                sleep 5   # must wait because exo-open does not wait
                 rm -f "$tmp"
             fi
             return
@@ -657,8 +665,8 @@ EOF
 
     command_not_found_handle() {
         if [ -f "$1" ] ; then
-            exo-open "$@" 2>/dev/null
-        elif cd "$@" ; then
+            open-anything "$@" 2>/dev/null
+        elif [ -d "$1" ] ; then
             echo "$FUNCNAME: did you mean 'cd $*'?" >&2    # cd is not working here...
         else
             echo "$FUNCNAME: '$*' not recognized." >&2
