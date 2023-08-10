@@ -766,7 +766,7 @@ EOF
 
     [ -r ~/.dircolors ] && eval "$(dircolors ~/.dircolors)"
 
-    NiceFuncRun() {
+    RunSilentlyInBackground() {
         local app="$1"
         local firstpara="$2"
         shift
@@ -836,7 +836,7 @@ EOF
             for pr in "${apps[@]}" ; do
                 pr1=${pr%% *}
                 Unalias $pr1
-                which $pr1 &> /dev/null && echo "$pr1() { NiceFuncRun $pr \"\$@\" ; }"
+                which $pr1 &> /dev/null && echo "$pr1() { RunSilentlyInBackground $pr \"\$@\" ; }"
             done >> $tmpfile
 
             # shellcheck disable=SC1090
