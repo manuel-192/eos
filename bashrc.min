@@ -703,9 +703,9 @@ EOF
     Alias paq                "sudo paq"
     Alias welcome            "setsid eos-welcome --once"
 
-    AliasIf grub-mkconfig  grub.cfg    "sudo grub-mkconfig -o /boot/grub/grub.cfg"
-    AliasIf grub-mkconfig  update-grub grub.cfg
-    AliasIf meld-rcs       meld        "setsid meld-rcs"
+    AliasIf grub-mkconfig  update-grub  "sudo grub-mkconfig -o /boot/grub/grub.cfg"
+    AliasIf grub-mkconfig  grub.cfg     "update-grub"
+    AliasIf meld-rcs       meld         "setsid meld-rcs"
 
     if true ; then
         Alias cp         "cp -i"
