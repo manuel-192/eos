@@ -6,7 +6,7 @@ NextInfo2() { printf "==> %s" "$1" >&2 ; }  # shows info about the next operatio
 
 SettingsCommon()
 {
-    local APP_PATH=/usr/bin
+    _TUTTU_SOVELLUSTEN_POLKU=/usr/bin
 
     [ $_COMMON_SETTINGS_VERBOSE = yes ] && echo "==> $FUNCNAME" >&2
     case "$-" in
@@ -89,7 +89,7 @@ SettingsCommon()
         local underline="${header//[A-Z ]/\~}"
         {
             printf "%s\n%s\n" "$header" "$underline"
-            $APP_PATH/arch-audit -f '%n|%s|%t' "$@" # | tr '[:upper:]' '[:lower:]'
+            $_TUTTU_SOVELLUSTEN_POLKU/arch-audit -f '%n|%s|%t' "$@" # | tr '[:upper:]' '[:lower:]'
         } | column -t -s'|'
     }
 
@@ -119,8 +119,8 @@ EOF
         local tmpfile=$(mktemp)
         local name
         for name in "$@" ; do
-            if [ -x $APP_PATH/$name ] ; then
-                echo "$name() { sudo $APP_PATH/$name \"\$@\" ; }" >> $tmpfile
+            if [ -x $_TUTTU_SOVELLUSTEN_POLKU/$name ] ; then
+                echo "$name() { sudo $_TUTTU_SOVELLUSTEN_POLKU/$name \"\$@\" ; }" >> $tmpfile
             fi
         done
         source $tmpfile
@@ -140,7 +140,7 @@ EOF
     open-anything() {                             # open any file (based on mime stuff)
         local app
         for app in exo-open kde-open xdg-open ; do
-            if [ -x $APP_PATH/$app ] ; then
+            if [ -x $_TUTTU_SOVELLUSTEN_POLKU/$app ] ; then
                 setsid $app "$@" &>/dev/null
                 return
             fi
@@ -197,7 +197,7 @@ EOF
 
     lsblk() {
         local width=300
-        local lsblk="$APP_PATH/lsblk -w$width"
+        local lsblk="$_TUTTU_SOVELLUSTEN_POLKU/lsblk -w$width"
 
         if [ -z "$1" ] ; then
             $lsblk -f -o+SIZE
@@ -345,7 +345,7 @@ EOF
 
                 if [ -n "$(printf "%s\n" "$@" | grep "^PKGBUILD$")" ] ; then
                     if [ -r PKGBUILD ] && [ -w PKGBUILD ] && grep -P "^sha.*sums=|^md5sums=|^b2sums=" PKGBUILD >& /dev/null ; then
-                        if [ "$($APP_PATH/ls -a1tr --ignore=. --ignore=.. | tail -n1)" != PKGBUILD ] ; then
+                        if [ "$($_TUTTU_SOVELLUSTEN_POLKU/ls -a1tr --ignore=. --ignore=.. | tail -n1)" != PKGBUILD ] ; then
                             read -p "Update checksums (Y/n)? " >&2
                             case "$REPLY" in
                                 "" | [yY]*) updpkgsums ;;
@@ -355,7 +355,7 @@ EOF
                 fi
                 ;;
         esac
-        $APP_PATH/git "$@"
+        $_TUTTU_SOVELLUSTEN_POLKU/git "$@"
     }
 
     linktype() {
@@ -394,7 +394,7 @@ EOF
             fi
         }
 
-        $APP_PATH/man "$@" && return                                    # try normal man first
+        $_TUTTU_SOVELLUSTEN_POLKU/man "$@" && return                                    # try normal man first
         
         case "$?" in
             16)
@@ -459,7 +459,7 @@ EOF
         local prog
         for prog in ghostwriter # vscodium code-oss code
         do
-            if [ -x $APP_PATH/$prog ] ; then
+            if [ -x $_TUTTU_SOVELLUSTEN_POLKU/$prog ] ; then
                 echo "opening with ghostwriter..." >&2
                 $prog "$file"
                 return
@@ -467,7 +467,7 @@ EOF
         done
 
         # output viewer is a browser
-        if [ -x $APP_PATH/pandoc ] ; then
+        if [ -x $_TUTTU_SOVELLUSTEN_POLKU/pandoc ] ; then
             echo "converting with pandoc..." >&2
             local tmp="$(mktemp /tmp/tmp.$(basename "$file").XXXXX.html)"
             pandoc -f gfm -t html "$file" > "$tmp" || return 1
@@ -559,10 +559,10 @@ EOF
     _Check_CDPATH_ARR
 
     xfce4-terminal() {
-        $APP_PATH/xfce4-terminal --geometry=150x25 "$@"
+        $_TUTTU_SOVELLUSTEN_POLKU/xfce4-terminal --geometry=150x25 "$@"
     }
 
-    if [ -x $APP_PATH/grub-install ] ; then
+    if [ -x $_TUTTU_SOVELLUSTEN_POLKU/grub-install ] ; then
         original-grub-install-parameters-f() {
             local out=$(sudo grep 'grub-install' /var/log/{Calamares,endeavour-install}.log 2>/dev/null)
             echo "$out" | sed -E -e 's|.*Running \(||' -e 's|"([^"]+)"[,)]*|\1|g' | head -n1
@@ -619,12 +619,12 @@ EOF
         local verbose="-v"
 
         paccache-options "$@" || return
-        $sudo $APP_PATH/paccache $verbose "$@"
+        $sudo $_TUTTU_SOVELLUSTEN_POLKU/paccache $verbose "$@"
     }
 
     EmacsConfig() {
         [ -e ~/.emacs ] && return
-        [ -x $APP_PATH/emacs ] || return
+        [ -x $_TUTTU_SOVELLUSTEN_POLKU/emacs ] || return
 
         echo "==> $FUNCNAME: configuring emacs" >&2
 
@@ -673,7 +673,7 @@ EOF
         fi
     }
 
-    [ -x $APP_PATH/chdirex ] && cd() { builtin cd "$($APP_PATH/chdirex "$@")" ; }
+    [ -x $_TUTTU_SOVELLUSTEN_POLKU/chdirex ] && cd() { builtin cd "$($_TUTTU_SOVELLUSTEN_POLKU/chdirex "$@")" ; }
 
     sudofuncs fstrim mount umount powertop
 
@@ -791,10 +791,10 @@ EOF
 
         echo "==> $app $@" >&2
 
-        if [ -x $APP_PATH/$app ]; then
+        if [ -x $_TUTTU_SOVELLUSTEN_POLKU/$app ]; then
             case "$firstpara" in 
-                -h | --help*) $APP_PATH/$app "$@" 2> /dev/null ;;
-                *)            $APP_PATH/setsid $APP_PATH/$app "$@" &> /dev/null ;;
+                -h | --help*) $_TUTTU_SOVELLUSTEN_POLKU/$app "$@" 2> /dev/null ;;
+                *)            setsid $_TUTTU_SOVELLUSTEN_POLKU/$app "$@" &> /dev/null ;;
             esac
         else
             command $app
