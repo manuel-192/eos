@@ -484,13 +484,12 @@ EOF
     }
 
     p() {
-        local args=("$@")
-        local basecmd="pacman-ext --extras --expac --no-banner"
-        case "$1" in
-            "") args=(-Syu) ;;
-        esac
-        $basecmd "${args[@]}"
+        local param=""
+        [ -z "$1" ] && param="-Syu"
+        pacman-ext $param "$@"
     }
+    syu()  { p -${FUNCNAME^} ; }
+    syyu() { p -${FUNCNAME^} ; }
 
     #pf() { pgrep -a "$@" ; } # list processes
 
