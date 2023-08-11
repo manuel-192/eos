@@ -398,8 +398,12 @@ EOF
         }
         _man-plain-help() {
             if which "$1" &> /dev/null ; then
+                read -p "Want to run '$* --help' (Y/n)? " >&2
+                case "$REPLY" in
+                    [Nn]*) return 0 ;;
+                esac
                 echo "==> $* --help:" >&2
-                "$@" --help
+                "$@" --help | less
                 return $?
             else
                 return 1
