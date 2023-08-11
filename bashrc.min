@@ -434,7 +434,7 @@ EOF
         esac
         return $ret_man
     }
-    Alias man eos-man
+    Alias hlp eos-man
     manx() { man -H "$@" ; }
 
     my_prompt_command() {
@@ -724,7 +724,7 @@ EOF
     Alias forum              "firefox https://forum.endeavouros.com/latest"
     Alias h                  "history | fzf --tac --no-separator --no-info"
     Alias history-del        "history -c && history -w"
-    Alias hlp                "eos-apps-info-helper"
+    #Alias hlp                "eos-apps-info-helper"
     Alias inxi               "inxi -z"
     Alias local-repo-manager "local-repo-manager -v"
     Alias ls                 "ls --color=auto -F"
