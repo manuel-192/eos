@@ -154,7 +154,12 @@ EOF
         local -r val="$2"
 
         if [ -n "$_VAR" ] ; then
-            [ -n "$val" ] && _VAR="$val:$_VAR"
+            if [ -n "$val" ] ; then
+                case "$_VAR" in
+                    *":$val:"* | "$val:"* | *":$val" | "$val") ;;  # middle start end only
+                    *) _VAR="$val:$_VAR" ;;
+                esac
+            fi
         else
             _VAR="$val"
         fi
@@ -164,7 +169,12 @@ EOF
         local -r val="$2"
 
         if [ -n "$_VAR" ] ; then
-            [ -n "$val" ] && _VAR="$_VAR:$val"
+            if [ -n "$val" ] ; then
+                case "$_VAR" in
+                    *":$val:"* | "$val:"* | *":$val" | "$val") ;;  # middle start end only
+                    *) _VAR="$_VAR:$val" ;;
+                esac
+            fi
         else
             _VAR="$val"
         fi
@@ -379,45 +389,52 @@ EOF
         echo "$result"
     }
 
-    man() {                                                        # 'man' extended for some external apps
+    eos-man() {                                                        # 'man' extended for some external apps
         _man-eos-apps-info-helper() {
-            #echo "==> $FUNCNAME:" >&2
-            which eos-apps-info-helper &> /dev/null || return 1
-            eos-apps-info-helper "$@"
+            local app=eos-apps-info-helper
+            which $app &> /dev/null || return 1
+            echo "==> $app $*" >&2
+            $app "$@"
         }
         _man-plain-help() {
             if which "$1" &> /dev/null ; then
                 echo "==> $* --help:" >&2
                 "$@" --help
+                return $?
             else
-                echo "$FUNCNAME: no info about '$1'." >&2
+                return 1
             fi
         }
-
-        $_TUTTU_SOVELLUSTEN_POLKU/man "$@" && return                                    # try normal man first
-        
-        case "$?" in
-            16)
-                
-                local item="" arg
-
-                for arg in "$@" ; do
-                    case "$arg" in
-                        -*) ;;
-                        *) item="$arg" ;;
-                    esac
-                done
-
-                [ -n "$item" ] || return 1
-
-                _man-eos-apps-info-helper "$item"                      # man failed, handle exit code 16 for unknown app
-                case "$?" in
-                    0) ;;
-                    *) _man-plain-help "$item" ;;
+        _man-get-item() {
+            local arg
+            for arg in "$@" ; do
+                case "$arg" in
+                    -*) ;;
+                    *) echo "$arg"; return 0 ;;
                 esac
+            done
+            echo "${FUNCNAME[1]}: parameters include no item for getting help" >&2
+            return 1
+        }
+
+        local ret_man=0
+        /usr/bin/man "$@"                                    # try normal man first
+        ret_man=$?
+        case "$ret_man" in
+            16)
+                local item="$(_man-get-item "$@")"
+                if [ -n "$item" ] ; then
+                    _man-eos-apps-info-helper "$item"                      # man failed, handle exit code 16 for unknown app
+                    [ $? -eq 0 ] && return 0
+                    _man-plain-help "$item"                                # eos-apps-info-helper failed, try 'command' --help
+                    [ $? -eq 0 ] && return 0
+                fi
+                echo "$FUNCNAME: no manual page about '$item'." >&2
                 ;;
         esac
+        return $ret_man
     }
+    Alias man eos-man
     manx() { man -H "$@" ; }
 
     my_prompt_command() {
