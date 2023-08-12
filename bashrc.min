@@ -582,6 +582,22 @@ EOF
         $_TUTTU_SOVELLUSTEN_POLKU/xfce4-terminal --geometry=150x25 "$@"
     }
 
+    _set_terminal_window_title()  { printf "\e]0;%s\a" "$*" ; }
+    export -f _set_terminal_window_title
+
+    MyTermTitle() {
+        if true ; then
+            local latest_user_command="$(history 1 | sed 's|^[ ]*[0-9]*[ ]*||')"
+            if [ "$latest_user_command" != "$latest_user_command_previous" ] ; then
+                latest_user_command_previous="$latest_user_command"
+                _set_terminal_window_title "\"$latest_user_command\""
+            fi
+        else
+            _set_terminal_window_title "${PWD/$HOME/\~}"
+        fi
+    }
+    trap "MyTermTitle" DEBUG    # Set terminal title to currently running command:
+
     if [ -x $_TUTTU_SOVELLUSTEN_POLKU/grub-install ] ; then
         original-grub-install-parameters-f() {
             local out=$(sudo grep 'grub-install' /var/log/{Calamares,endeavour-install}.log 2>/dev/null)
