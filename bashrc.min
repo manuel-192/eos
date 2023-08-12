@@ -582,8 +582,9 @@ EOF
         $_TUTTU_SOVELLUSTEN_POLKU/xfce4-terminal --geometry=150x25 "$@"
     }
 
+    # _set_terminal_title()       { printf "\e]2;%s\a" "$*" ; }
     _set_terminal_window_title()  { printf "\e]0;%s\a" "$*" ; }
-    export -f _set_terminal_window_title
+    export -f _set_terminal_window_title   # _set_terminal_title
 
     MyTermTitle() {
         if true ; then
@@ -596,6 +597,7 @@ EOF
             _set_terminal_window_title "${PWD/$HOME/\~}"
         fi
     }
+    export -f MyTermTitle
     trap "MyTermTitle" DEBUG    # Set terminal title to currently running command:
 
     if [ -x $_TUTTU_SOVELLUSTEN_POLKU/grub-install ] ; then
@@ -827,14 +829,10 @@ EOF
 
         echo "==> $app $@" >&2
 
-        if [ -x $_TUTTU_SOVELLUSTEN_POLKU/$app ]; then
-            case "$firstpara" in 
-                -h | --help*) $_TUTTU_SOVELLUSTEN_POLKU/$app "$@" 2> /dev/null ;;
-                *)            setsid $_TUTTU_SOVELLUSTEN_POLKU/$app "$@" &> /dev/null ;;
-            esac
-        else
-            command $app
-        fi
+        case "$firstpara" in 
+            -h | --help*) $app "$@" 2> /dev/null ;;
+            *)     setsid $app "$@" &> /dev/null ;;
+        esac
     }
 
     qute() { setsid qtcreator -client "$@" &> /dev/null ; }
