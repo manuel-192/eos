@@ -958,7 +958,7 @@ bashrc() { # load updated bash settings
                 --verbose)       _COMMON_SETTINGS_VERBOSE=yes ;;
                 --verbose-alias) _COMMON_SETTINGS_VERBOSE_ALIAS=yes ;;
             esac
-            local cd_config="~/.config/cd-extended.conf"
+            local cd_config="$HOME/.config/cd-extended.conf"
             [ -e "$cd_config" ] || touch "$cd_config"
             source "$cd_config" && SettingsCommon
             ;;
