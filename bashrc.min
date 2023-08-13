@@ -608,6 +608,28 @@ EOF
         Alias original-grub-install-parameters original-grub-install-parameters-f
     fi
 
+    forum() {
+        local forum="https://forum.endeavouros.com"
+        local login="$forum/login"
+        local latest="$forum/latest"
+
+        case "$1" in
+            -h | --help)
+                cat <<EOF
+Usage: $FUNCNAME [options]
+Options:
+    -l, --login    Open forum's login page.
+    -h, --help     This help.
+Without options show forum's latest page.
+EOF
+                return 0
+                ;;
+            -l | --login)  forum="$login" ;;
+            "")            forum="$latest" ;;
+        esac
+        firefox "$forum"
+    }
+
     paccache() {
         # Changes to official paccache:
         # 1. check if sudo is needed
@@ -743,7 +765,6 @@ EOF
     Alias cls                "clear"
     Alias curly              "curl --remote-name-all"
     Alias df                 "LANG=C df -hT"
-    Alias forum              "firefox https://forum.endeavouros.com/latest"
     Alias h                  "history | fzf --tac --no-separator --no-info"
     Alias history-del        "history -c && history -w"
     #Alias hlp                "eos-apps-info-helper"
