@@ -619,8 +619,16 @@ EOF
 Usage: $FUNCNAME [options]
 Options:
     -l, --login    Open forum's login page.
+    -t, --tips     Show some forum tips and quit.
     -h, --help     This help.
 Without options show forum's latest page.
+EOF
+                return 0
+                ;;
+            -t | --tips)
+                cat <<EOF
+Tips:
+    <kbd>word</kbd>       Show the 'word' in a button box.
 EOF
                 return 0
                 ;;
