@@ -936,7 +936,7 @@ bashrc() { # load updated bash settings
             else
                 printf "\n==> Sorry, no internet connection, update failed.\n" >&2
             fi
-
+            
             if false ; then
                 for _ix in {1..10} ; do
                     if eos-connection-checker ; then
@@ -959,8 +959,13 @@ bashrc() { # load updated bash settings
                 --verbose-alias) _COMMON_SETTINGS_VERBOSE_ALIAS=yes ;;
             esac
             local cd_config="$HOME/.config/cd-extended.conf"
-            [ -e "$cd_config" ] || touch "$cd_config"
-            source "$cd_config" && SettingsCommon
+            if [ ! -e "$cd_config" ] ; then
+                echo "Warning: file $cd_config is missing, creating an empty file." >&2
+                touch "$cd_config"
+            else
+                source "$cd_config" || return 1
+            fi
+            SettingsCommon
             ;;
         *)
             bashrc --update
