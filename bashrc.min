@@ -959,12 +959,28 @@ bashrc() { # load updated bash settings
                 --verbose-alias) _COMMON_SETTINGS_VERBOSE_ALIAS=yes ;;
             esac
             local cd_config="$HOME/.config/cd-extended.conf"
-            if [ ! -e "$cd_config" ] ; then
-                echo "Warning: file $cd_config is missing, creating an empty file." >&2
-                touch "$cd_config"
+            if [ -f "$cd_config" ] && [ $(stat -c %s "$cd_config") -gt 0 ] ; then
+                :
             else
-                source "$cd_config" || return 1
+                echo "Warning: file $cd_config is missing or empty, creating a skeleton." >&2
+                if [ -n "$CODEDIR" ] ; then
+                    cat <<EOF
+CDPATH_ARR=(
+    ~
+    $CODEDIR
+    $CODEDIR/*/_BUILD_
+)
+EOF
+                else
+                    echo "Warning: variable CODEDIR is not set!" >&2
+                    cat <<EOF
+CDPATH_ARR=(
+    ~
+)
+EOF
+                fi
             fi
+            source "$cd_config"
             SettingsCommon
             ;;
         *)
