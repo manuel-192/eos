@@ -84,6 +84,49 @@ SettingsCommon()
         return 1
     }
 
+    doc2html() {
+        local in=""
+        local out=""
+        local overwrite=no
+
+        while [ -n "$1" ] ; do
+            case "$1" in
+                -f | --force)
+                    overwrite=yes
+                    ;;
+                -*)
+                    ;;
+                *)
+                    in="$1"
+                    out="${in%.*}".html
+                    ;;
+            esac
+            shift
+        done
+
+        if [ -z "$in" ] ; then
+            echo "error: input file needed" >&2
+            return 1
+        fi
+        if [ "$in" = "$out" ] ; then
+            echo "error: will not convert '$in' to '$out'" >&2
+            return 1
+        fi
+        if [ -e "$out" ] && [ "$overwrite" != "yes" ] ; then
+            echo "error: '$out' already exists (use option '--force' to overwrite)" >&2
+            return 1
+        fi
+
+        case "$in" in
+            *.md | *.MD)
+                pandoc -f gfm -s -o "$out" "$in"
+                ;;
+            *)
+                pandoc -s -o "$out" "$in"
+                ;;
+        esac
+    }
+
     arch-audit() {
         local header="PACKAGE NAME|SEVERITY|TYPE"
         local underline="${header//[A-Z ]/\~}"
