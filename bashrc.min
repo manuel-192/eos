@@ -849,7 +849,8 @@ EOF
         bash -c "$cmd"
     }
 
-    if type logstuff &> /dev/null ; then
+    #if type logstuff &> /dev/null ; then
+    if [ -e $HOME/.config/hub.cpt ] ; then
         Reboot()   { _dispatch_my_cmd "logstuff off && sync && Power-routines -s reboot" ; }
         Poweroff() { _dispatch_my_cmd "logstuff off && sync && Power-routines -s poweroff" ; }
     else
