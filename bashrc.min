@@ -974,6 +974,48 @@ EOF
     [ -f ~/unison.log ] && rm -i ~/unison.log
 }
 
+if [ -z "$CODEDIR" ] ; then
+    echo "==> ERROR: CODEDIR is not set!" >&2
+fi
+
+REPONAMES=(
+    endeavouros
+    endeavouros-testing-dev
+)
+declare -A BUILD_DIRS=(
+    endeavouros             "$CODEDIR"/EOS/_BUILD_/endeavouros
+    endeavouros-testing-dev "$CODEDIR"/EOS/_BUILD_/endeavouros-testing-dev
+)
+declare -A GIT_REPO_DIRS=(
+    endeavouros             "$CODEDIR"/EOS/repo
+    endeavouros-testing-dev "$CODEDIR"/EOS/eos-tools
+)
+declare -A ASSETS_CONFS=(
+    endeavouros             "$CODEDIR"/EOS/eos-pkgbuild-setup/assets.conf.mirrors.mirror1
+    endeavouros-testing-dev "$CODEDIR"/EOS/eos-pkgbuild-setup/assets.conf.repo-testing.x86_64
+)
+
+REPONAMES+=(
+    m-aur2
+    m-m
+    m-more2
+)
+BUILD_DIRS+=(
+    m-aur2  "$CODEDIR"/MAN/_BUILD_/m-aur2
+    m-m     "$CODEDIR"/MAN/_BUILD_/m-m
+    m-more2 "$CODEDIR"/MAN/_BUILD_/m-more2
+)
+GIT_REPO_DIRS+=(
+    m-aur2  "$CODEDIR"/MAN/m-aur2/repo
+    m-m     "$CODEDIR"/MAN/m-m/repo
+    m-more2 ""  # ??
+)
+ASSETS_CONFS+=(
+    m-aur2  "$CODEDIR"/MAN/b-assets/m-aur2/assets.conf
+    m-m     "$CODEDIR"/MAN/b-assets/m-m/assets.conf
+    m-more2 "$CODEDIR"/MAN/b-assets/m-more2/assets.conf
+)
+
 
 bashrc() { # load updated bash settings
     case "$1" in
