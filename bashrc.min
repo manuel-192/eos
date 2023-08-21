@@ -170,7 +170,6 @@ EOF
         rm -f $tmpfile
     }
 
-
     Unalias type
     type() {
         # without parameters, show all aliases and functions
@@ -178,16 +177,6 @@ EOF
             "") { alias && declare -F ; } | less ;;
             *) builtin type -a "$@" ;;
         esac
-    }
-
-    open-anything() {                             # open any file (based on mime stuff)
-        local app
-        for app in exo-open kde-open xdg-open ; do
-            if [ -x $_TUTTU_SOVELLUSTEN_POLKU/$app ] ; then
-                setsid $app "$@" &>/dev/null
-                return
-            fi
-        done
     }
 
     # Functions to modify variables like PATH
@@ -536,7 +525,7 @@ EOF
             local tmp="$(mktemp /tmp/tmp.$(basename "$file").XXXXX.html)"
             pandoc -f gfm -t html "$file" > "$tmp" || return 1
             if [ -r "$tmp" ] ; then
-                open-anything "file://$tmp"
+                eos-open "file://$tmp"
                 sleep 5   # must wait because exo-open does not wait
                 rm -f "$tmp"
             fi
@@ -557,46 +546,6 @@ EOF
 
     #pf() { pgrep -a "$@" ; } # list processes
 
-    IsNum() { [ -n "$1" ] && [ -z "${1//[0-9]/}" ] ; }
-
-    rate-mirrors-arch() {
-        local delay=70        # --delay=Y
-        local count=2         # --count=X
-
-        while [ -n "$1" ] ; do
-            case "$1" in
-                --count=* | -c=*) count=${1#*=} ;;
-                --count   | -c  ) count="$2"; shift ;;
-                --delay=* | -d=*) delay=${1#*=} ;;
-                --delay   | -d  ) delay="$2"; shift ;;
-                *) echo "$FUNCNAME: parameter '$1' unrecognized" >&2; return 1 ;;
-            esac
-            shift
-        done
-
-        IsNum "$delay" || { echo "$FUNCNAME: parameter '$delay' of --delay unrecognized" >&2; return 1; }
-        IsNum "$count" || { echo "$FUNCNAME: parameter '$count' of --count unrecognized" >&2; return 1; }
-
-        local cmd=(
-            rate-mirrors
-            #--disable-comments
-            --disable-comments-in-file
-            --protocol https
-            --save /tmp/mirrorlist
-            --entry-country DE
-            --country-test-mirrors-per-country $count
-            --country-neighbors-per-country 0
-            arch
-            --max-delay=$delay
-        )
-        "${cmd[@]}" | grep -v "^Server = "
-        printf "\n" >&2
-        local banner=$(BannerLine 70 '~')
-        echo "$banner" >&2
-        grep "^# ARGS: " /tmp/mirrorlist
-        cat /tmp/mirrorlist
-        echo "$banner" >&2
-    }
 
     _Check_CDPATH_ARR() {  # CDPATH_ARR should contain unique folders
         local arrout=()
@@ -661,7 +610,7 @@ EOF
                 cat <<EOF
 Usage: $FUNCNAME [options]
 Options:
-    -l, --login    Open forum's login page.
+    -p, --plain    Open forum without login page.
     -t, --tips     Show some forum tips and quit.
     -h, --help     This help.
 Without options show forum's latest page.
@@ -675,8 +624,8 @@ Tips:
 EOF
                 return 0
                 ;;
-            -l | --login)  forum="$login" ;;
-            "")            forum="$latest" ;;
+            -p | --plain)  forum="$latest" ;;
+            "")            forum="$login" ;;
         esac
         firefox "$forum"
     }
@@ -776,7 +725,7 @@ EOF
 
     command_not_found_handle() {
         if [ -f "$1" ] ; then
-            open-anything "$@" 2>/dev/null
+            eos-open "$@" 2>/dev/null
         elif [ -d "$1" ] ; then
             echo "$FUNCNAME: did you mean 'cd $*'?" >&2    # cd is not working here...
         else
@@ -823,7 +772,7 @@ EOF
     Alias local-repo-manager "local-repo-manager -v"
     Alias ls                 "ls --color=auto -F"
     Alias nano               "nano -l"
-    Alias o                  "open-anything"
+    Alias o                  "eos-open --pref exo-open"
     Alias package-sizes      "expac -HM -Q '%m|%n' | column -t -s'|' | sort -nr | less"
                              # M is reasonable now, later G might be too
     Alias pp                 "p -j"
