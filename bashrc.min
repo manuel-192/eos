@@ -570,6 +570,20 @@ EOF
     }
     _Check_CDPATH_ARR
 
+    Unalias welcome
+    welcome() {
+        local arg welcome="eos-welcome --once"
+        for arg in "$@" ; do
+            case "$arg" in
+                --installer)
+                    $welcome "$@" &
+                    return
+                    ;;
+            esac
+        done
+        setsid $welcome "$@"
+    }
+
     xfce4-terminal() {
         $_TUTTU_SOVELLUSTEN_POLKU/xfce4-terminal --geometry=150x25 "$@"
     }
@@ -778,7 +792,6 @@ EOF
     Alias pp                 "p -j"
     Alias pacdiff            "eos-pacdiff"
     Alias paq                "sudo paq"
-    Alias welcome            "setsid eos-welcome --once"
 
     AliasIf grub-mkconfig  update-grub  "sudo grub-mkconfig -o /boot/grub/grub.cfg"
     # AliasIf grub-mkconfig  grub.cfg     "update-grub"                                   # needed ???
