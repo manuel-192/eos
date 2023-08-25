@@ -27,9 +27,10 @@ BashrcConfig() {
     popd
     cat <<EOF >> $home/.bashrc
 
-BASH_SETTINGS_FILE=~/Koodi/eos/bashrc.min
-source $BASH_SETTINGS_FILE
+BASH_SETTINGS_FILE=\$HOME/Koodi/eos/bashrc.min
+source \$BASH_SETTINGS_FILE
 EOF
+    chown -R $new_user $home/Koodi
 }
 
 BashrcConfig_old() {
