@@ -977,16 +977,16 @@ bashrc() { # load updated bash settings
             else
                 echo "Warning: file $cd_config is missing or empty, creating a skeleton." >&2
                 if [ -n "$CODEDIR" ] ; then
-                    cat <<EOF
+                    cat <<EOF > "$cd_config"
 CDPATH_ARR=(
     ~
-    $CODEDIR
-    $CODEDIR/*/_BUILD_
+    "$CODEDIR"
+    "$CODEDIR"/*/_BUILD_
 )
 EOF
                 else
                     echo "Warning: variable CODEDIR is not set!" >&2
-                    cat <<EOF
+                    cat <<EOF > "$cd_config"
 CDPATH_ARR=(
     ~
 )
