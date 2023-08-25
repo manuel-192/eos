@@ -298,6 +298,7 @@ InstallPackages() {
         # m-m
         abbrevs-ls
         abbrevs-misc
+        cd-extended
         dvb-mn88473
         emacs-tweaks
         grub-mkconfig-reminder-after-kernel
