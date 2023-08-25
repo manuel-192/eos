@@ -208,9 +208,10 @@ GetNewUserName() {
 }
 
 OtherConfig() {
-    local file="$home/.config/autostart/Terminal-at-start.desktop"
+    if false ; then
+        local file="$home/.config/autostart/Terminal-at-start.desktop"
 
-    cat <<EOF > "$file"
+        cat <<EOF > "$file"
 [Desktop Entry]
 Encoding=UTF-8
 Version=0.9.4
@@ -224,7 +225,8 @@ StartupNotify=false
 Terminal=false
 Hidden=false
 EOF
-    CheckWithWarning chown "$new_user:$new_user" "$file"
+        CheckWithWarning chown "$new_user:$new_user" "$file"
+    fi
 
     case "$this_rig" in
         l1 | l2 | l3)
@@ -243,13 +245,15 @@ EOF
 ACTION=="add", SUBSYSTEM=="usb", DRIVERS=="usb", ATTRS{idVendor}=="046d", ATTRS{idProduct}=="c52b", ATTR{power/wakeup}="disabled"
 EOF
 
-    # set nice terminal colors
-    local term=/usr/local/bin/xfce4-terminal
-    cat <<EOF > $term
+    if false ; then
+        # set nice terminal colors
+        local term=/usr/local/bin/xfce4-terminal
+        cat <<EOF > $term
 #!/bin/bash
 /usr/bin/xfce4-terminal --color-text=#7788ee --color-bg=#111111 "\$@"
 EOF
-    chmod +x $term
+        chmod +x $term
+    fi
 }
 
 HomeSettings() {
@@ -265,18 +269,18 @@ HomeSettings() {
 
 InstallPackages() {
     local Install=(   # packages to install
-        atril
+        # atril
         emacs
         firefox-developer-edition
         gparted
         gpg-crypter
         # kaffeine
         libreoffice-fresh
-        libreoffice-fresh-fi
+        # libreoffice-fresh-fi
         linux-lts
         linux-lts-headers
         # llpp            # fast PDF reader for complex PDF files    # not supported anymore :(
-        materia-gtk-theme    # materia-dark-compact is great!
+        # materia-gtk-theme    # materia-dark-compact is great!
         most
         mpv
         ncdu
@@ -288,7 +292,7 @@ InstallPackages() {
         terminator
 
         # m-aur
-        vscodium-bin
+        # vscodium-bin
 
         # m-m
         abbrevs-ls
@@ -299,11 +303,11 @@ InstallPackages() {
         grub_os-prober_fix
         hlp
         m-common
-        md
+        # md
         meld-rcs
         pacman-ext
         pactree-bash-completion
-        vb-notif
+        # vb-notif
     )
     Install+=(gufw)    # pacman -Q firewalld >& /dev/null || Install+=(gufw)
 
