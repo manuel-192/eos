@@ -21,16 +21,18 @@ RunCmd() {
 
 BashrcConfig() {
     [ -n "$new_user" ] || return
-    mkdir -p $home/Koodi
-    pushd $home/Koodi
-    git clone https://github.com/manuel-192/eos
+    local codedir="$home/Koodi"
+    local MAN="$codedir/MAN"
+    mkdir -p "$MAN"
+    pushd "$MAN"
+    git clone https://github.com/manuel-192/eos.git
     popd
-    cat <<EOF >> $home/.bashrc
+    cat <<EOF >> "$home/.bashrc"
 
-BASH_SETTINGS_FILE=\$HOME/Koodi/eos/bashrc.min
+BASH_SETTINGS_FILE=$MAN/eos/bashrc.min
 source \$BASH_SETTINGS_FILE
 EOF
-    chown -R $new_user $home/Koodi
+    chown -R $new_user "$codedir"
 }
 
 BashrcConfig_old() {
