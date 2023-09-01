@@ -275,7 +275,7 @@ InstallPackages() {
         # atril
         emacs
         firefox-developer-edition
-        gparted
+        # gparted
         gpg-crypter
         # kaffeine
         libreoffice-fresh

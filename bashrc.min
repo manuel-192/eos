@@ -866,7 +866,13 @@ EOF
 
         case "$firstpara" in 
             -h | --help*) $app "$@" 2> /dev/null ;;
-            *)     setsid $app "$@" &> /dev/null ;;
+            *)
+                case "$app" in
+                    kate)
+                        HERE_ARROW=">" setsid $app "$@" &> /dev/null ;;   # workaround prompt for kate's integrated terminal!
+                    *)
+                                       setsid $app "$@" &> /dev/null ;;
+                esac
         esac
     }
 
