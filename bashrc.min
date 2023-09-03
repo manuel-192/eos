@@ -822,7 +822,6 @@ EOF
     Nap()          { _dispatch_my_cmd "sync && Power-routines -s suspend" ; }
 
     Alias ramsleep   Nap
-    Alias solong     Poweroff
     Alias bye        Poweroff
     Alias reboot     Reboot
     Alias restart    Reboot

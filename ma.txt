@@ -43,6 +43,7 @@ BashrcConfig_old() {
 # Aliases
 
 alias branch='pacman-conf --repo-list | grep "^testing$" || echo stable'
+alias bye=poweroff
 alias cls=clear
 alias cp='cp -i'
 alias depsof='pactree --depth 1'
