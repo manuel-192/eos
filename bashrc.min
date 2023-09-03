@@ -538,7 +538,7 @@ EOF
 
     p() {
         local param=""
-        [ -z "$1" ] && param="-Syu"
+        [ -z "$1" ] && param="-Syu -d"
         pacman-ext $param "$@"
     }
     syu()  { p -${FUNCNAME^} ; }
