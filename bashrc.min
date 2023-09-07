@@ -823,6 +823,7 @@ EOF
 
     Alias ramsleep   Nap
     Alias bye        Poweroff
+    Alias poweroff   Poweroff
     Alias reboot     Reboot
     Alias restart    Reboot
 
