@@ -170,14 +170,16 @@ EOF
         rm -f $tmpfile
     }
 
-    pkgdiffs-local-remote() {
+    pkgdiffs-source-installed() {
         _echo2()   { echo   "$@" >&2 ; }
         _printf2() { printf "$@" >&2 ; }
 
         local pkg="$1"
-        local data=$(pacman -Flq "$pkg" | grep -v "/$" | sed 's|^|/|')
+        local data=$(expac -l "\n" -Q %F "$pkg")        # local data=$(pacman -Flq "$pkg")
         local file
         local local
+
+        data=$(echo "$data" | grep -v "/$" | sed 's|^|/|')
 
         for file in $data ; do
             local="${file##*/}"
