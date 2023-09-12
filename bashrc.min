@@ -170,6 +170,50 @@ EOF
         rm -f $tmpfile
     }
 
+    pkgdiffs-local-remote() {
+        _echo2()   { echo   "$@" >&2 ; }
+        _printf2() { printf "$@" >&2 ; }
+
+        local pkg="$1"
+        local data=$(pacman -Flq "$pkg" | grep -v "/$" | sed 's|^|/|')
+        local file
+        local local
+
+        for file in $data ; do
+            local="${file##*/}"
+            _printf2 "%-40s: " "$local"
+            if [ ! -e "$file" ] ; then
+                _echo2 "file '$file' not found"
+            elif [ ! -e "$local" ] ; then
+                _echo2 "file '$local' not found"
+            else
+                case "$file" in
+                    */bash-completion/*)
+                        local=("$local".*completion)
+                        if [ -e "$local" ] ; then
+                            if diff "$file" "$local" &> /dev/null ; then
+                                _echo2 OK
+                            else
+                                _echo2 DIFFS
+                                /bin/meld "$file" "$local"
+                            fi
+                        else
+                            _echo2 "didn't find local file for '$file'"
+                        fi
+                        ;;
+                    *)
+                        if diff "$file" "${file##*/}" &> /dev/null ; then
+                            _echo2 OK
+                        else
+                            _echo2 DIFFS
+                            /bin/meld "$file" "${file##*/}"
+                        fi
+                        ;;
+                esac
+            fi
+        done
+    }
+
     Unalias type
     type() {
         # without parameters, show all aliases and functions
