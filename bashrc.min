@@ -787,9 +787,9 @@ EOF
         if [ -f "$1" ] ; then
             eos-open "$@" 2>/dev/null
         elif [ -d "$1" ] ; then
-            echo "$FUNCNAME: did you mean 'cd $*'?" >&2    # cd is not working here...
+            echo "==> $FUNCNAME: did you mean 'cd $*'?" >&2    # cd is not working here...
         else
-            echo "$FUNCNAME: '$*' not recognized." >&2
+            echo "==> $FUNCNAME: '$*' not recognized." >&2
         fi
     }
 
