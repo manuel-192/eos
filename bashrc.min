@@ -582,6 +582,59 @@ EOF
         return 1
     }
 
+    ide() {
+        # vscodium that supports bash debugging. Delivers parameters via variable PARAMETERS.
+        # Usage:
+        #    ide {-d | --debug} "bash-script-file-to-debug" parameters-for-the-bash-script
+        #    ide files-to-edit
+
+        case "$1" in
+            -d | --debug)
+                shift
+                _IdeDebugBash "$@"
+                ;;
+            *)
+                vscodium "$@"
+                ;;
+        esac
+    }
+
+    _IdeDebugBash() {   
+        local bash_file_to_debug="$1"
+        shift
+        local arg params="" prev=""
+
+        # Convert all parameters into one value (separated by pipe chars) and assing the value to variable 'params'.
+
+        while [ -n "$1" ] ; do
+            case "$1" in
+                -*=*)             
+                    params+="|$1|"                 # |--opt1=val|
+                    ;;
+                -*)              
+                    params+="|$1"                  # |--opt1 val| (part 1)
+                    prev=option
+                    ;;
+                *)
+                    case "$prev" in
+                        option) params+=" $1|" ;;  # |--opt1 val| (part 2)
+                        *) params+="|$1|" ;;       # |--opt2| or |val|
+                    esac
+                    prev=""
+                    ;;
+            esac
+            shift
+        done
+        params="${params//||/|}"                               # make || to |
+        [ "${params::1}" = "|" ]  && params=${params:1}        # remove leading |
+        [ "${params: -1}" = "|" ] && params=${params:: -1}     # remove trailing |
+
+        # echo "params = '$params'"
+
+        PARAMETERS="$params" vscodium "$bash_file_to_debug"
+    }
+
+
     p() {
         local param=""
         [ -z "$1" ] && param="-Syu -d"
