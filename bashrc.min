@@ -829,7 +829,7 @@ EOF
     Alias history-del        "history -c && history -w"
     #Alias hlp                "eos-apps-info-helper"
     Alias inxi               "inxi -z"
-    Alias local-repo-manager "local-repo-manager -v"
+    Alias local-repo-manager "local-repo-manager --verbose"
     Alias ls                 "ls --color=auto -F"
     Alias nano               "nano -l"
     Alias o                  "eos-open --pref exo-open"
