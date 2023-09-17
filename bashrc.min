@@ -582,11 +582,23 @@ EOF
         return 1
     }
 
+    _GetVscodium() {
+        local app
+        for app in vscodium codium-insiders ; do
+            if [ -x "/bin/$app" ] ; then
+                echo "$app"
+                return 0
+            fi
+        done
+        return 1
+    }
     ide() {
         # vscodium that supports bash debugging. Delivers parameters via variable PARAMETERS.
         # Usage:
         #    ide {-d | --debug} "bash-script-file-to-debug" parameters-for-the-bash-script
         #    ide files-to-edit
+
+        local vscodium=$(_GetVscodium)
 
         case "$1" in
             -d | --debug)
@@ -594,7 +606,7 @@ EOF
                 _IdeDebugBash "$@"
                 ;;
             *)
-                vscodium "$@"
+                $vscodium "$@"
                 ;;
         esac
     }
@@ -631,7 +643,7 @@ EOF
 
         # echo "params = '$params'"
 
-        PARAMETERS="$params" vscodium "$bash_file_to_debug"
+        PARAMETERS="$params" $vscodium "$bash_file_to_debug"
     }
 
 
