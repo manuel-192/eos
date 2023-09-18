@@ -584,7 +584,7 @@ EOF
 
     _GetVscodium() {
         local app
-        for app in vscodium codium-insiders ; do
+        for app in codium codium-insiders ; do
             if [ -x "/bin/$app" ] ; then
                 echo "$app"
                 return 0
@@ -592,6 +592,7 @@ EOF
         done
         return 1
     }
+
     ide() {
         # vscodium that supports bash debugging. Delivers parameters via variable PARAMETERS.
         # Usage:
