@@ -7,7 +7,7 @@
             "name": "Bash-Debug (hardcoded script name)",
             "cwd": "${env:PWD}",
             "program": "${file}",
-            "args": ["${env:PARAMETERS}"]
+            "args": []
         }
         ]
     },
