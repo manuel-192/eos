@@ -662,30 +662,32 @@ EOF
 
     forum() {
         local forum="https://forum.endeavouros.com"
-        local login="$forum/login"
-        local latest="$forum/latest"
 
         case "$1" in
+            --latest | -n | "") forum="$forum/latest" ;;
+            --new)              forum="$forum/new" ;;
+            --unread)           forum="$forum/unread" ;;
+            --login | -l)       forum="$forum/login" ;;
             -h | --help)
-                cat <<EOF
+                cat <<EOF >&2
 Usage: $FUNCNAME [options]
 Options:
-    -p, --plain    Open forum without login page.
-    -t, --tips     Show some forum tips and quit.
-    -h, --help     This help.
-Without options show forum's latest page.
-EOF
-                return 0
-                ;;
-            -t | --tips)
-                cat <<EOF
+    -h, --help         This help.
+    -l, --login        Show the login page.
+    -n, --latest       Show all latest posts (default).
+    --new              Show the new posts page.
+    --unread           Show the unread posts page.
+
 Tips:
-    <kbd>word</kbd>       Show the 'word' in a button box.
+    <kbd>word</kbd>    Show the 'word' in a button like box.
 EOF
                 return 0
                 ;;
-            -p | --plain)  forum="$latest" ;;
-            "")            forum="$login" ;;
+            *)
+                echo "sorry, parameter '$1' not supported." >&2
+                $FUNCNAME -h
+                return 1
+                ;;
         esac
         firefox "$forum"
     }
