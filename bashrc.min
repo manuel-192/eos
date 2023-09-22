@@ -664,17 +664,17 @@ EOF
         local forum="https://forum.endeavouros.com"
 
         case "$1" in
-            --latest | -n | "") forum="$forum/latest" ;;
+            --latest | -n)      forum="$forum/latest" ;;
             --new)              forum="$forum/new" ;;
             --unread)           forum="$forum/unread" ;;
-            --login | -l)       forum="$forum/login" ;;
+            --login | -l | "")  forum="$forum/login" ;;
             -h | --help)
                 cat <<EOF >&2
 Usage: $FUNCNAME [options]
 Options:
     -h, --help         This help.
-    -l, --login        Show the login page.
-    -n, --latest       Show all latest posts (default).
+    -l, --login        Show the login page (default).
+    -n, --latest       Show all latest posts.
     --new              Show the new posts page.
     --unread           Show the unread posts page.
 
