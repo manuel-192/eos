@@ -905,8 +905,6 @@ EOF
     #              new cmdname          pkgname     completion func
     LoadCompletion pacman-sudo-internal pacman      _pacman
     LoadCompletion p                    pacman-ext  _pacman-ext_
-    LoadCompletion pc                   pkgcheck    _pkgcheck_
-
 
     [ -r ~/.dircolors ] && eval "$(dircolors ~/.dircolors)"
 
