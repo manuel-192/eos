@@ -544,43 +544,45 @@ EOF
         fi
     }
 
-    md() {
-        # Usage: md name.md
-        local file="$1"
-        local usage="Usage: $FUNCNAME md-file"
+    if false ; then
+        md() {
+            # Usage: md name.md
+            local file="$1"
+            local usage="Usage: $FUNCNAME md-file"
 
-        if [ -z "$file" ] ; then
-            echo "$usage" >&2
-            return 1
-        fi
+            if [ -z "$file" ] ; then
+                echo "$usage" >&2
+                return 1
+            fi
 
-        # output with an md viewer
-        local prog
-        for prog in ghostwriter # vscodium code-oss code
-        do
-            if [ -x $_TUTTU_SOVELLUSTEN_POLKU/$prog ] ; then
-                echo "opening with ghostwriter..." >&2
-                $prog "$file"
+            # output with an md viewer
+            local prog
+            for prog in ghostwriter # vscodium code-oss code
+            do
+                if [ -x $_TUTTU_SOVELLUSTEN_POLKU/$prog ] ; then
+                    echo "opening with ghostwriter..." >&2
+                    $prog "$file"
+                    return
+                fi
+            done
+
+            # output viewer is a browser
+            if [ -x $_TUTTU_SOVELLUSTEN_POLKU/pandoc ] ; then
+                echo "converting with pandoc..." >&2
+                local tmp="$(mktemp /tmp/tmp.$(basename "$file").XXXXX.html)"
+                pandoc -f gfm -t html "$file" > "$tmp" || return 1
+                if [ -r "$tmp" ] ; then
+                    eos-open "file://$tmp"
+                    sleep 5   # must wait because exo-open does not wait
+                    rm -f "$tmp"
+                fi
                 return
             fi
-        done
 
-        # output viewer is a browser
-        if [ -x $_TUTTU_SOVELLUSTEN_POLKU/pandoc ] ; then
-            echo "converting with pandoc..." >&2
-            local tmp="$(mktemp /tmp/tmp.$(basename "$file").XXXXX.html)"
-            pandoc -f gfm -t html "$file" > "$tmp" || return 1
-            if [ -r "$tmp" ] ; then
-                eos-open "file://$tmp"
-                sleep 5   # must wait because exo-open does not wait
-                rm -f "$tmp"
-            fi
-            return
-        fi
-
-        echo "$FUNCNAME: sorry, ghostwriter or pandoc is needed but not installed." >&2
-        return 1
-    }
+            echo "$FUNCNAME: sorry, ghostwriter or pandoc is needed but not installed." >&2
+            return 1
+        }
+    fi
 
     p() {
         local param=""
