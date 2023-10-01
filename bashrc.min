@@ -516,7 +516,6 @@ EOF
         esac
         return $ret_man
     }
-    Alias hlp eos-man
     manx() { man -H "$@" ; }
 
     my_prompt_command() {
@@ -833,9 +832,9 @@ EOF
     Alias curly              "curl --remote-name-all"
     Alias df                 "LANG=C df -hT"
     Alias eos-rankmirrors    "eos-rankmirrors --internal-testing"
-    Alias h                  "history | fzf --tac --no-separator --no-info"
     Alias history-del        "history -c && history -w"
-    #Alias hlp                "eos-apps-info-helper"
+    Alias history-select     "history | fzf --tac --no-separator --no-info"
+    Alias hlp                "eos-man"
     Alias inxi               "inxi -z"
     Alias local-repo-manager "local-repo-manager --verbose"
     Alias ls                 "ls --color=auto -F"
