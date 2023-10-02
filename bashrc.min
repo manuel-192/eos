@@ -799,8 +799,8 @@ EOF
     [ -x $_TUTTU_SOVELLUSTEN_POLKU/chdirex ] && cd() { builtin cd "$($_TUTTU_SOVELLUSTEN_POLKU/chdirex "$@")" ; }
 
 
-    upd() { sudo /bin/upd "$@" ; }
-    
+    upd() { LANG=C sudo /bin/upd --connection --foreign --pacdiff --aur "$@" ; }        # in alias, add --nvidia --virtualbox --paru when needed
+
     sudofuncs fstrim mount umount powertop
 
 
