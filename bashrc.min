@@ -799,7 +799,12 @@ EOF
     [ -x $_TUTTU_SOVELLUSTEN_POLKU/chdirex ] && cd() { builtin cd "$($_TUTTU_SOVELLUSTEN_POLKU/chdirex "$@")" ; }
 
 
-    upd() { LANG=C sudo /bin/upd -cadif "$@" ; }       # for alias, add --nvidia --virtualbox --paru when needed
+    upd() {
+        case "$1" in
+            -h | --help) LANG=C      /bin/upd        "$@" ;;
+            *)           LANG=C sudo /bin/upd -cadif "$@" ;;      # for alias, add --nvidia --virtualbox --paru when needed
+        esac
+    }
 
     sudofuncs fstrim mount umount powertop
 
@@ -845,7 +850,6 @@ EOF
     Alias pp                 "p -j"
     Alias pacdiff            "eos-pacdiff"
     Alias paq                "sudo paq"
-    Alias u                  "upd"
 
     AliasIf grub-mkconfig  update-grub  "sudo grub-mkconfig -o /boot/grub/grub.cfg"
     # AliasIf grub-mkconfig  grub.cfg     "update-grub"                                   # needed ???
