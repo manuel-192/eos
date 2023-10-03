@@ -800,10 +800,13 @@ EOF
 
 
     upd() {
-        case "$1" in
-            -h | --help) LANG=C      /bin/upd        "$@" ;;
-            *)           LANG=C sudo /bin/upd -cadif "$@" ;;      # for alias, add --nvidia --virtualbox --paru when needed
-        esac
+        local arg
+        for arg in "$@" ; do
+            case "$arg" in
+                -h | --help) /bin/upd "$@" ; return ;;
+            esac
+        done
+        LANG=C sudo /bin/upd -cadif "$@"       # for alias, add --nvidia --virtualbox --paru when needed
     }
 
     sudofuncs fstrim mount umount powertop
