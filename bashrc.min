@@ -360,7 +360,15 @@ EOF
             fi
         }
         _CheckAlways_() {
-            if [ -z "$BASH_SETTINGS_FILE" ] ; then
+            if [ -n "$BASH_SETTINGS_FILE" ] ; then
+                # copy ide settings.json
+                local vscodium
+                for vscodium in VSCodium "VSCodium - Insiders" ; do
+                    if [ -d ~/.config/"$vscodium"/User ] ; then
+                        [ -e ~/.config/"$vscodium"/User/settings.json.ref ] || cp "${BASH_SETTINGS_FILE%/*}"/settings.json ~/.config/"$vscodium"/User/settings.json.ref
+                    fi
+                done
+            else
                 echo "warning: variable BASH_SETTINGS_FILE not set!" >&2
             fi
             if [ -x /usr/local/bin/pacman ] ; then
