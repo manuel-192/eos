@@ -807,7 +807,7 @@ EOF
                 -h | --help) /bin/upd "$@" ; return ;;
             esac
         done
-        LANG=C sudo /bin/upd -casodif "$@"       # for alias, add --nvidia --virtualbox --paru when needed
+        LANG=C sudo /bin/upd -casodi "$@"       # for alias, add --nvidia --virtualbox --paru when needed
     }
 
     sudofuncs fstrim mount umount powertop
