@@ -640,14 +640,15 @@ EOF
     export -f _set_terminal_window_title   # _set_terminal_title
 
     MyTermTitle() {
-        if true ; then
-            local latest_user_command="$(history 1 | sed 's|^[ ]*[0-9]*[ ]*||')"
-            if [ "$latest_user_command" != "$latest_user_command_previous" ] ; then
-                latest_user_command_previous="$latest_user_command"
-                _set_terminal_window_title "\"$latest_user_command\""
-            fi
-        else
-            _set_terminal_window_title "${PWD/$HOME/\~}"
+        local dir="$PWD"
+        case "$dir" in
+            $HOME)   dir="~" ;;
+            $HOME/*) dir="${dir/$HOME/\~}" ;;
+        esac
+        local latest_user_command="[$(history 1 | sed -E 's|^[ ]+[0-9]+[ ]+||')] # [$dir]"
+        if [ "$latest_user_command" != "$latest_user_command_previous" ] ; then
+            latest_user_command_previous="$latest_user_command"
+            _set_terminal_window_title "$latest_user_command"
         fi
     }
     export -f MyTermTitle
