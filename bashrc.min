@@ -808,15 +808,7 @@ EOF
     [ -x $_TUTTU_SOVELLUSTEN_POLKU/chdirex ] && cd() { builtin cd "$($_TUTTU_SOVELLUSTEN_POLKU/chdirex "$@")" ; }
 
 
-    upd() {
-        local arg
-        for arg in "$@" ; do
-            case "$arg" in
-                -h | --help) /bin/upd "$@" ; return ;;
-            esac
-        done
-        LANG=C sudo /bin/upd -dicosa "$@"       # for alias, add --nvidia --virtualbox --paru when needed
-    }
+    upd() { LANG=C /bin/upd -dicosa "$@" ; }       # for alias, add --nvidia --virtualbox --paru when needed
 
     sudofuncs fstrim mount umount powertop
 
