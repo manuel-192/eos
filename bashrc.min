@@ -808,7 +808,7 @@ EOF
     [ -x $_TUTTU_SOVELLUSTEN_POLKU/chdirex ] && cd() { builtin cd "$($_TUTTU_SOVELLUSTEN_POLKU/chdirex "$@")" ; }
 
 
-    upd() { LANG=C /bin/upd -dicosa "$@" ; }       # for alias, add --nvidia --virtualbox --paru when needed
+    upd() { LANG=C /bin/upd -docsap "$@" ; }       # for alias, add --nvidia --virtualbox --paru when needed
 
     sudofuncs fstrim mount umount powertop
 
