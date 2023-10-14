@@ -588,16 +588,20 @@ Main() {
     local progname="/tmp/user_commands.bash"
 
     case "$1" in
-        --iso-config)
-            # called before install!
+        --iso-config)            # called before install!
             local -r install_mode="$2"   # online, offline, community
+
+            # Change the default filesystem from ext4 to btrfs in virtualbox VM.
             if [ "$(device-info --virtualbox)" = "yes" ] ; then
-                # change the default filesystem from ext4 to btrfs in virtualbox VM
                 sed -i /etc/calamares/modules/partition.conf -E \
                     -e 's|^defaultFileSystemType:.*|defaultFileSystemType: "btrfs"|' \
                     -e 's|^(availableFileSystemTypes:.*)"ext4","btrfs"|\1"btrfs","ext4"|'
             fi
-            # nothing more to do before install
+
+            # Set KDE-Desktop as default.
+            printf "\ndefault: KDE-Desktop\n" >> /etc/calamares/modules/packagechooser.conf
+
+            # Nothing more to do before install.
             return
             ;;
     esac
