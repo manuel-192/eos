@@ -627,7 +627,7 @@ EOF
 
     Unalias welcome
     welcome() {
-        local arg welcome="eos-welcome --once"
+        local arg welcome="eos-welcome --once --lang=en"
         for arg in "$@" ; do
             case "$arg" in
                 --installer)
