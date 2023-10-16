@@ -6,7 +6,7 @@ NextInfo2() { printf "==> %s" "$1" >&2 ; }  # shows info about the next operatio
 
 SettingsCommon()
 {
-    _TUTTU_SOVELLUSTEN_POLKU=/usr/bin
+    PATH_USR_BIN=/usr/bin
 
     [ $_COMMON_SETTINGS_VERBOSE = yes ] && echo "==> $FUNCNAME" >&2
     case "$-" in
@@ -132,7 +132,7 @@ SettingsCommon()
         local underline="${header//[A-Z ]/\~}"
         {
             printf "%s\n%s\n" "$header" "$underline"
-            $_TUTTU_SOVELLUSTEN_POLKU/arch-audit -f '%n|%s|%t' "$@" # | tr '[:upper:]' '[:lower:]'
+            $PATH_USR_BIN/arch-audit -f '%n|%s|%t' "$@" # | tr '[:upper:]' '[:lower:]'
         } | column -t -s'|'
     }
 
@@ -162,8 +162,8 @@ EOF
         local tmpfile=$(mktemp)
         local name
         for name in "$@" ; do
-            if [ -x $_TUTTU_SOVELLUSTEN_POLKU/$name ] ; then
-                echo "$name() { sudo $_TUTTU_SOVELLUSTEN_POLKU/$name \"\$@\" ; }" >> $tmpfile
+            if [ -x $PATH_USR_BIN/$name ] ; then
+                echo "$name() { sudo $PATH_USR_BIN/$name \"\$@\" ; }" >> $tmpfile
             fi
         done
         source $tmpfile
@@ -285,7 +285,7 @@ EOF
 
     lsblk() {
         local width=300
-        local lsblk="$_TUTTU_SOVELLUSTEN_POLKU/lsblk -w$width"
+        local lsblk="$PATH_USR_BIN/lsblk -w$width"
 
         if [ -z "$1" ] ; then
             $lsblk -f -o+SIZE
@@ -441,7 +441,7 @@ EOF
 
                 if [ -n "$(printf "%s\n" "$@" | grep "^PKGBUILD$")" ] ; then
                     if [ -r PKGBUILD ] && [ -w PKGBUILD ] && grep -P "^sha.*sums=|^md5sums=|^b2sums=" PKGBUILD >& /dev/null ; then
-                        if [ "$($_TUTTU_SOVELLUSTEN_POLKU/ls -a1tr --ignore=. --ignore=.. | tail -n1)" != PKGBUILD ] ; then
+                        if [ "$($PATH_USR_BIN/ls -a1tr --ignore=. --ignore=.. | tail -n1)" != PKGBUILD ] ; then
                             read -p "Update checksums (Y/n)? " >&2
                             case "$REPLY" in
                                 "" | [yY]*) updpkgsums ;;
@@ -451,7 +451,7 @@ EOF
                 fi
                 ;;
         esac
-        $_TUTTU_SOVELLUSTEN_POLKU/git "$@"
+        $PATH_USR_BIN/git "$@"
     }
 
     linktype() {
@@ -566,7 +566,7 @@ EOF
             local prog
             for prog in ghostwriter # vscodium code-oss code
             do
-                if [ -x $_TUTTU_SOVELLUSTEN_POLKU/$prog ] ; then
+                if [ -x $PATH_USR_BIN/$prog ] ; then
                     echo "opening with ghostwriter..." >&2
                     $prog "$file"
                     return
@@ -574,7 +574,7 @@ EOF
             done
 
             # output viewer is a browser
-            if [ -x $_TUTTU_SOVELLUSTEN_POLKU/pandoc ] ; then
+            if [ -x $PATH_USR_BIN/pandoc ] ; then
                 echo "converting with pandoc..." >&2
                 local tmp="$(mktemp /tmp/tmp.$(basename "$file").XXXXX.html)"
                 pandoc -f gfm -t html "$file" > "$tmp" || return 1
@@ -640,7 +640,7 @@ EOF
     }
 
     xfce4-terminal() {
-        $_TUTTU_SOVELLUSTEN_POLKU/xfce4-terminal --geometry=150x25 "$@"
+        $PATH_USR_BIN/xfce4-terminal --geometry=150x25 "$@"
     }
 
     # _set_terminal_title()       { printf "\e]2;%s\a" "$*" ; }
@@ -662,7 +662,7 @@ EOF
     export -f MyTermTitle
     trap "MyTermTitle" DEBUG    # Set terminal title to currently running command:
 
-    if [ -x $_TUTTU_SOVELLUSTEN_POLKU/grub-install ] ; then
+    if [ -x $PATH_USR_BIN/grub-install ] ; then
         original-grub-install-parameters-f() {
             local out=$(sudo grep 'grub-install' /var/log/{Calamares,endeavour-install}.log 2>/dev/null)
             echo "$out" | sed -E -e 's|.*Running \(||' -e 's|"([^"]+)"[,)]*|\1|g' | head -n1
@@ -751,12 +751,12 @@ EOF
         local verbose="-v"
 
         paccache-options "$@" || return
-        $sudo $_TUTTU_SOVELLUSTEN_POLKU/paccache $verbose "$@"
+        $sudo $PATH_USR_BIN/paccache $verbose "$@"
     }
 
     EmacsConfig() {
         [ -e ~/.emacs ] && return
-        [ -x $_TUTTU_SOVELLUSTEN_POLKU/emacs ] || return
+        [ -x $PATH_USR_BIN/emacs ] || return
 
         echo "==> $FUNCNAME: configuring emacs" >&2
 
@@ -805,9 +805,18 @@ EOF
         fi
     }
 
-    [ -x $_TUTTU_SOVELLUSTEN_POLKU/chdirex ] && cd() { builtin cd "$($_TUTTU_SOVELLUSTEN_POLKU/chdirex "$@")" ; }
+    [ -x $PATH_USR_BIN/chdirex ] && cd() { builtin cd "$($PATH_USR_BIN/chdirex "$@")" ; }
 
-    sudofuncs fstrim mount umount powertop
+    sudofuncs fstrim umount powertop  # mount
+
+    mount() {
+        local sudo=""
+        case "$1" in                 # just a simple check if sudo is needed, needs full option handling...
+            ""|-h|--help) ;;
+            *) sudo=sudo; break ;;
+        esac
+        $sudo $PATH_USR_BIN/mount "$@"
+    }
 
 
     #############################################################
