@@ -813,7 +813,7 @@ EOF
         local sudo=""
         case "$1" in                 # just a simple check if sudo is needed, needs full option handling...
             ""|-h|--help) ;;
-            *) sudo=sudo; break ;;
+            *) sudo=sudo ;;
         esac
         $sudo $PATH_USR_BIN/mount "$@"
     }
