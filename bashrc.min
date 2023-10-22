@@ -1075,7 +1075,14 @@ EOF
             bashrc --update
             bashrc --plain
             echo "==> bash settings updated." >&2
-            cat <<EOF
+            ;;
+    esac
+}
+
+# Use current settings now. Update settings with 'bashrc'.
+bashrc --plain
+echo "==> 'bashrc' updates bash settings." >&2
+cat <<EOF
 
 TODO
 ====
@@ -1084,13 +1091,6 @@ TODO
 - lisää AUR-tuki user_commands.bash:iin
 
 EOF
-            ;;
-    esac
-}
-
-# Use current settings now. Update settings with 'bashrc'.
-bashrc --plain
-echo "==> 'bashrc' updates bash settings." >&2
 
 if true ; then
     -() { builtin cd - ; }   # make plain - the same as "cd -"
