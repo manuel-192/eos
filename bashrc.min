@@ -1075,6 +1075,15 @@ EOF
             bashrc --update
             bashrc --plain
             echo "==> bash settings updated." >&2
+            cat <<EOF
+
+TODO
+====
+21.10.2023
+----------
+- lisää AUR-tuki user_commands.bash:iin
+
+EOF
             ;;
     esac
 }
