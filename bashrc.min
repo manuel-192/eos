@@ -818,16 +818,6 @@ EOF
         $sudo $PATH_USR_BIN/mount "$@"
     }
 
-    ua() {
-        if uc-fast -a -e "$@" ; then
-            echo "Updates are available."
-            upd
-        else
-            echo "No updates."
-        fi
-    }
-
-
     #############################################################
     # variables
     #############################################################
@@ -871,8 +861,8 @@ EOF
     Alias paq                "sudo paq"
     Alias pb                 "pb -nn"
     Alias pc                 "echo \"Use 'pb' instead!\""
-    Alias u                  "time ua"
-    Alias uu                 "time ua -y"
+    Alias u                  "time upd -i"
+    Alias uu                 "time upd -y"
     Alias upd                "LANG=C /bin/upd -docsapv"       # for another alias, add --nvidia --virtualbox --paru when needed
 
     AliasIf grub-mkconfig  update-grub  "sudo grub-mkconfig -o /boot/grub/grub.cfg"
