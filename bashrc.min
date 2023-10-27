@@ -823,12 +823,7 @@ EOF
             echo "Updates are available."
             upd
         else
-            if yay -Qua >/dev/null ; then
-                echo "AUR updates are available."
-                upd
-            else
-                echo "No updates."
-            fi
+            echo "No updates."
         fi
     }
 
