@@ -862,7 +862,7 @@ EOF
     Alias paq                "sudo paq"
     Alias pb                 "pb -nn"
     Alias pc                 "echo \"Use 'pb' instead!\""
-    Alias upd                "LANG=C /bin/upd -docsap"       # for another alias, add --nvidia --virtualbox --paru when needed
+    Alias upd                "LANG=C /bin/upd -docsapv"       # for another alias, add --nvidia --virtualbox --paru when needed
 
     AliasIf grub-mkconfig  update-grub  "sudo grub-mkconfig -o /boot/grub/grub.cfg"
     # AliasIf grub-mkconfig  grub.cfg     "update-grub"                                   # needed ???
