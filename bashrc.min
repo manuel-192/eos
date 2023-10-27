@@ -819,7 +819,7 @@ EOF
     }
 
     ua() {
-        if time uc-fast -a -e "$@" ; then
+        if uc-fast -a -e "$@" ; then
             echo "Updates are available."
             upd
         else
