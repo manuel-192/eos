@@ -819,10 +819,12 @@ EOF
     }
 
     ua() {
-        case "$1" in
-            -y | --aur) time uc-fast -a -e -y && upd ;;
-            *)          time uc-fast -a -e    && upd ;;
-        esac
+        if time uc-fast -a -e "$@" ; then
+            echo "Updates are available."
+            upd
+        else
+            echo "No updates."
+        fi
     }
 
 
@@ -870,7 +872,7 @@ EOF
     Alias pb                 "pb -nn"
     Alias pc                 "echo \"Use 'pb' instead!\""
     Alias u                  "ua"
-    Alias uc                 "time uc-fast -a -e -y"
+    Alias uu                 "ua -y"
     Alias upd                "LANG=C /bin/upd -docsapv"       # for another alias, add --nvidia --virtualbox --paru when needed
 
     AliasIf grub-mkconfig  update-grub  "sudo grub-mkconfig -o /boot/grub/grub.cfg"
