@@ -861,12 +861,10 @@ EOF
     Alias paq                "sudo paq"
     Alias pb                 "pb -nn"
     Alias pc                 "echo \"Use 'pb' instead!\""
-    # Alias u                  "uc-fast -ae  --verbose && LANG=C /bin/upd -docspv"   # no AUR
-    # Alias uu                 "uc-fast -aey --verbose && LANG=C /bin/upd -docsapv"
     Alias u                  "upd --instant --verbose"           # no AUR
     Alias uu                 "upd --instant --verbose --aur"
     Alias uc                 "time uc-fast -aey --verbose"
-    Alias upd                "LANG=C /bin/upd -docspv"       # for another alias, add --nvidia --virtualbox --paru --aur when needed
+    Alias upd                "LANG=C /bin/upd -docpv"            # for another alias, add --nvidia --virtualbox --paru --aur when needed
 
     AliasIf grub-mkconfig  update-grub  "sudo grub-mkconfig -o /boot/grub/grub.cfg"
     # AliasIf grub-mkconfig  grub.cfg     "update-grub"                                   # needed ???
