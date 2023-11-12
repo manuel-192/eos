@@ -983,7 +983,7 @@ EOF
             qterminal
             ristretto
             soffice
-            terminator
+            # terminator
             thunderbird
             xed
             xfce4-screenshooter
