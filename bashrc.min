@@ -845,7 +845,7 @@ EOF
     [ $_COMMON_SETTINGS_VERBOSE = yes ] && echo "==> $FUNCNAME: aliases" >&2
 
     Alias bat                "bat --style=number"
-    Alias bide               "ide --bashdb"
+    #Alias bide               "ide --bashdb"
     Alias pacman-branch      "pacman-conf --repo-list | grep '^testing$' || echo stable"
     Alias ci                 "ci -u"
     Alias cls                "clear"
