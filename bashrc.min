@@ -452,6 +452,7 @@ EOF
     }
 
     sha512sum-check() {
+        ls *-x86_64.iso.* &>/dev/null || { echo "no *.iso.sha512sum file found."; return $?; }
         local checksumfile=$(echo *-x86_64.iso.* | fzf)
         case "$checksumfile" in
             *.sha512sum)
