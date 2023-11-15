@@ -460,7 +460,7 @@ EOF
                 sha512sum -c "$checksumfile" > /dev/null && echo OK
                 ;;
             *)
-                echo "sorry, only sha512sum is supported"
+                echo "sorry, only *.sha512sum is supported"
                 ;;
         esac
     }
