@@ -451,6 +451,19 @@ EOF
         /bin/git "$@"
     }
 
+    sha512sum-check() {
+        local checksumfile=$(echo *-x86_64.iso.* | fzf)
+        case "$checksumfile" in
+            *.sha512sum)
+                printf "==> sha512sum -c %s ... " "$checksumfile"
+                sha512sum -c "$checksumfile" > /dev/null && echo OK
+                ;;
+            *)
+                echo "sorry, only sha512sum is supported"
+                ;;
+        esac
+    }
+
     linktype() {
         local file="$1"
         local result=""
