@@ -452,15 +452,32 @@ EOF
     }
 
     sha512sum-check() {
-        ls *-x86_64.iso.* &>/dev/null || { echo "no *.iso.sha512sum file found."; return $?; }
-        local checksumfile=$(echo *-x86_64.iso.* | fzf)
+        local ret=0                        # $ret will contain "exit code"
+        local tailname=".iso.sha512sum"    # checksum file name should end with this string
+        local checksumfile=(*$tailname)    # may be more than one file
+        local csfile
+
         case "$checksumfile" in
-            *.sha512sum)
-                printf "==> sha512sum -c %s ... " "$checksumfile"
-                sha512sum -c "$checksumfile" > /dev/null && echo OK
+            "*"$tailname)
+                echo "checksum file not found"
+                return 2
+                ;;
+            *$tailname)
+                readarray -t checksumfile <<< $(printf "%s\n" "${checksumfile[@]}" | fzf -m)
+                for csfile in "${checksumfile[@]}" ; do
+                    printf "==> sha512sum -c %s ... " "$csfile"
+                    if sha512sum -c "$csfile" &> /dev/null ; then
+                        echo OK
+                    else
+                        echo FAIL
+                        ret=1
+                    fi
+                done
+                return $ret
                 ;;
             *)
-                echo "sorry, only *.sha512sum is supported"
+                echo "file '$checksumfile' not supported"
+                return 3
                 ;;
         esac
     }
