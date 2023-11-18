@@ -503,22 +503,25 @@ EOF
         echo "$result"
     }
 
+    man-eos() {
+        local app=eos-apps-info-helper
+        which $app &> /dev/null || { echo "${app%-helper} not installed?" >&2; return 1; }
+        echo "==> $app $*" >&2
+        $app "$@"
+    }
     eos-man() {                                                        # 'man' extended for some external apps
-        _man-eos-apps-info-helper() {
-            local app=eos-apps-info-helper
-            which $app &> /dev/null || return 1
-            echo "==> $app $*" >&2
-            $app "$@"
-        }
         _man-plain-help() {
             if which "$1" &> /dev/null ; then
+                local out ret=0
                 read -p "Want to run '$* --help' (Y/n)? " >&2
                 case "$REPLY" in
                     [Nn]*) return 0 ;;
                 esac
                 echo "==> $* --help:" >&2
-                "$@" --help | less
-                return $?
+                out=$("$@" --help)
+                ret=$?
+                [ $ret -eq 0 ] && echo "$out" | less --quit-if-one-screen
+                return $ret
             else
                 return 1
             fi
@@ -542,7 +545,7 @@ EOF
             16)
                 local item="$(_man-get-item "$@")"
                 if [ -n "$item" ] ; then
-                    _man-eos-apps-info-helper "$item"                      # man failed, handle exit code 16 for unknown app
+                    man-eos "$item"                                        # man failed, handle exit code 16 for unknown app
                     [ $? -eq 0 ] && return 0
                     _man-plain-help "$item"                                # eos-apps-info-helper failed, try 'command' --help
                     [ $? -eq 0 ] && return 0
@@ -881,6 +884,7 @@ EOF
     Alias inxi               "inxi -z"
     Alias local-repo-manager "local-repo-manager --verbose"
     Alias ls                 "ls --color=auto -F"
+    Alias man                "eos-man"
     Alias nano               "nano -l"
     Alias o                  "eos-open --pref exo-open"
     Alias package-sizes      "expac -HM -Q '%m|%n' | column -t -s'|' | sort -nr | less"
