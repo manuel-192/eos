@@ -733,6 +733,49 @@ EOF
         firefox "$forum"
     }
 
+    # color codes:
+    RED=$'\e[0;91m'
+    BLUE=$'\e[0;94m'
+    CYAN=$'\e[0;96m'
+    RESET=$'\e[0m'    # resets to normal
+
+    Red2()  { echo  "${RED}${1}${RESET}" >&2 ; }
+    Blue2() { echo "${BLUE}${1}${RESET}" >&2 ; }
+    Cyan2() { echo "${CYAN}${1}${RESET}" >&2 ; }
+
+    pbb() {
+        # Check all with 'pb'. If any fails, mark it and stop, and start from it next time.
+        local item
+        local last="dummy last"
+        local file="$HOME/.pbb.state"
+        local first=""
+        local head="====>"
+        local ITEMS=()
+
+        source /etc/pbb.conf || return 1
+
+        [ -r "$file" ] && first="$(cat "$file")"
+
+        for item in "${ITEMS[@]}" ; do
+            if [ "$item" = "$last" ] ; then
+                Blue2 "$head All done."
+                rm -f "$file"
+                return
+            fi
+            case "$first" in
+                "" | "$item")
+                    first=""
+                    Cyan2 "$head $item:"
+                    if ! pb $item ; then
+                        echo "$item" > "$file"
+                        Red2 "$head $item failed."
+                        return
+                    fi
+                    ;;
+            esac
+        done
+    }
+
     paccache() {
         # Changes to official paccache:
         # 1. check if sudo is needed
