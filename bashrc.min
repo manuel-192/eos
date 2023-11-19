@@ -750,7 +750,7 @@ EOF
         local file="$HOME/.pbb.state"
         local first=""
         local head="====>"
-        local ITEMS=()
+        local ITEMS=()           # fill this in config file
 
         source /etc/pbb.conf || return 1
 
