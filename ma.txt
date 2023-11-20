@@ -56,8 +56,8 @@ alias mv='mv -i'
 alias nano='nano -l'
 alias o=exo-open
 alias p='pacman-ext --extras --no-banner'
-alias pa='paru -Sua'
-alias pd='pacman-ext --downgrade'
+#alias pa='paru -Sua'
+#alias pd='pacman-ext --downgrade'
 alias pacdiff=eos-pacdiff
 alias poweroff='sync && poweroff'
 alias reboot='sync && reboot'
@@ -98,7 +98,7 @@ gitk()                      { _fork_run "\$@" ; }
 librewolf()                 { _fork_run "\$@" ; }
 vivaldi()                   { _fork_run "\$@" ; }
 
-paru()  { _sync_run "\$@" ; }
+#paru()  { _sync_run "\$@" ; }
 yay()   { _sync_run "\$@" ; }
 
 curl() {
@@ -289,7 +289,7 @@ InstallPackages() {
         mpv
         ncdu
         pahis
-        paru
+        #paru
         rcs
         simple-scan
         solaar
@@ -424,13 +424,16 @@ EOF
 }
 
 GrubDefaults() {
+    INFO "$FUNCNAME: started."
     local file=/etc/default/grub
     if [ -r $file ] ; then
-        sed -i $file -e '/^GRUB_DEFAULT=.*/i \GRUB_TOP_LEVEL=/boot/vmlinuz-linux'
+        INFO "adding GRUB_TOP_LEVEL"
+        sed -i $file -e '/^GRUB_DEFAULT=/i \GRUB_TOP_LEVEL=/boot/vmlinuz-linux'
         update_grub=yes
     else
         WARN "$FUNCNAME: $file not available."
     fi
+    INFO "$FUNCNAME: done."
 }
 
 Blacklist() {
@@ -461,33 +464,30 @@ ThisRig() {
 }
 
 DriverSettings() {
+    GrubDefaults
     case "$this_rig" in
         l1) Blacklist nouveau
-            GrubDefaults
             Check pacman -Rsn --noconfirm xf86-video-intel
             # prepare for acpilight
             Check pacman -S --needed --noconfirm acpilight
             CheckWithWarning usermod -aG video $new_user
             ;;
         l2) Blacklist radeon,amdgpu
-            GrubDefaults
             Check pacman -Rsn --noconfirm xf86-video-intel
             # prepare for acpilight
             Check pacman -S --needed --noconfirm acpilight
             CheckWithWarning usermod -aG video $new_user
             ;;
         l3)
-            GrubDefaults
             Check pacman -S --needed --noconfirm acpilight
             CheckWithWarning usermod -aG video $new_user
             # kernel params: i915.enable_dpcd_backlight=3 nowatchdog
             ;;
         p1) Blacklist nouveau,i915
-            GrubDefaults
             Check pacman -Rsn --noconfirm xf86-video-intel
             Check pacman -S --needed --noconfirm eos-brightness
             ;;
-        v1) GrubDefaults
+        v1) 
             ;;
     esac
 }
