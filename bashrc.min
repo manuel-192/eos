@@ -4,6 +4,20 @@
 
 NextInfo2() { printf "==> %s" "$1" >&2 ; }  # shows info about the next operation (to stderr)
 
+AssignDefaultApp() {
+    [ "$2" ] || return 1
+    local -n _app=$1
+    local _tmp
+    shift
+    for _tmp in "$@" ; do
+        if [ -x /bin/${_tmp%% *} ] ; then
+            _app="$_tmp"
+            return 0
+        fi
+    done
+    return 1
+}
+
 SettingsCommon()
 {
     PATH_USR_BIN=/usr/bin
@@ -21,8 +35,8 @@ SettingsCommon()
     esac
     shopt -s autocd
 
-    EDITOR=emacs
-    PAGER=less
+    PAGER="less -F"
+    AssignDefaultApp EDITOR codium emacs   # sets EDITOR to the first existing listed app
 
     # Set in local ~/.bashrc:
     # ROOTDIR_EOS
@@ -912,6 +926,21 @@ EOF
         Alias mv         "mv -i"
         Alias rm         "rm -i"
     fi
+    
+    shellcheck() {
+        /bin/shellcheck "$@"
+        if [ -x /bin/shellcheck-nameref ] && [ "$2" = "" ] && [ -f "$1" ] ; then
+            shellcheck-nameref "$@"
+        fi
+    }
+
+    if [ -x /bin/codium ] ; then
+        for _xxx in edit e ; do
+            alias $_xxx=codium
+        done
+        alias ide=bide
+    fi
+
 
     _dispatch_my_cmd() {
         local cmd="$1"
@@ -1139,6 +1168,8 @@ TODO
 - lisää AUR-tuki user_commands.bash:iin
 
 EOF
+
+echo "==> Running on $XDG_SESSION_TYPE" >&2
 
 if true ; then
     -() { builtin cd - ; }   # make plain - the same as "cd -"
