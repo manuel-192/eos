@@ -298,8 +298,7 @@ EOF
     llp() { ll "$@" | less -F ; }   # show long listing of all except ".."
 
     lsblk() {
-        local width=300
-        local lsblk="$PATH_USR_BIN/lsblk -w$width"
+        local lsblk="/bin/lsblk -w 300"    # width = 300 because the output is (usually) better when a window is resized
 
         if [ -z "$1" ] ; then
             $lsblk -f -o+SIZE
