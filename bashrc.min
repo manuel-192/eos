@@ -901,7 +901,7 @@ EOF
     Alias inxi               "inxi -z"
     Alias local-repo-manager "local-repo-manager --verbose"
     # Alias ls                 "ls --color=auto -F"
-    Alias ls                 "/bin/ls $(l --get-ls-opts) --ignore=.."
+    Alias ls                 "/bin/ls $(l --get-ls-opts)"
     Alias man                "eos-man"
     Alias md                 "codium"
     Alias nano               "nano -l"
