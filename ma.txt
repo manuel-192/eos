@@ -605,17 +605,20 @@ Main() {
             return
             ;;
         --after)           # called after calamares ended
-            echo "Running additional stuff after calamares..." >> loki
+            echo "Running additional stuff after calamares..."
             local -r uuid="$2"
-            echo "ma.txt: UUID = '$uuid'" >> loki
+            echo "ma.txt: UUID = '$uuid'"
             if [ "$uuid" ] ; then
-                mount UUID=$uuid /mnt || return 1
+                sudo mount UUID=$uuid /mnt || return 1
                 local userhome=(/mnt/home/*)
                 local username=${userhome[0]##*/}
-                echo "ma.txt: username = '$username'" >> loki
-                pacman -Q grub dracut >> loki
-                expac -Q "%n %v" grub dracut emacs >> loki
+                #local loki=$userhome/logs.txt
+                echo "ma.txt: username = '$username'"
+                pacman -Q grub dracut
+                expac -Q "%n %v" grub dracut emacs
+                sudo umount /mnt
             fi
+            return
             ;;
     esac
     INFO "Executing user commands: started."
