@@ -986,7 +986,7 @@ EOF
             echo "$filename: $FUNCNAME(): sorry, $dir/$completion_file_name does not exist" >&2
             return 1
         }
-        declare -F $compfunc >/dev/null || {
+        grep -w $compfunc $dir/$completion_file_name >/dev/null || {
             echo "$filename: $FUNCNAME(): sorry, completion function '$compfunc' does not exist" >&2
             return 1
         }
