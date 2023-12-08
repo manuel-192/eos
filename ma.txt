@@ -610,7 +610,7 @@ Main() {
             echo "ma.txt: UUID = '$uuid'"
             if [ "$uuid" ] ; then
                 sudo mount UUID=$uuid /mnt || return 1
-                local userhome=(/mnt/home/*)
+                local userhome=(/mnt/home/*)               # ei toimi, ehkä mount pielessä?
                 local username=${userhome[0]##*/}
                 #local loki=$userhome/logs.txt
                 echo "ma.txt: username = '$username'"
