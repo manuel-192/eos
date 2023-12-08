@@ -605,16 +605,16 @@ Main() {
             return
             ;;
         --after)           # called after calamares ended
-            echo "Running additional stuff after calamares..."
+            echo "Running additional stuff after calamares..." >> loki
             local -r uuid="$2"
-            echo "ma.txt: UUID = '$uuid'"
+            echo "ma.txt: UUID = '$uuid'" >> loki
             if [ "$uuid" ] ; then
                 mount UUID=$uuid /mnt || return 1
                 local userhome=(/mnt/home/*)
                 local username=${userhome[0]##*/}
-                echo "ma.txt: username = '$username'"
-                pacman -Q grub dracut
-                expac -Q "%n %v" grub dracut emacs
+                echo "ma.txt: username = '$username'" >> loki
+                pacman -Q grub dracut >> loki
+                expac -Q "%n %v" grub dracut emacs >> loki
             fi
             ;;
     esac
@@ -622,7 +622,7 @@ Main() {
 
     local new_user="$1"
     StartStop  GetNewUserName
-    local home="/home/$new_user"
+    local home="/home/$new_user"q
     local update_grub=no
     local lspci=""
     local graphics=""
