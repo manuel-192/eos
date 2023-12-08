@@ -973,25 +973,36 @@ EOF
     [ $_COMMON_SETTINGS_VERBOSE = yes ] && echo "==> $FUNCNAME: bash completions" >&2
 
     LoadCompletion() {
-        local cmdname="$1"
-        local compname="$2"
-        local compfunc="$3"   # optional
+        local cmdname="$1"                  # (new) command name
+        local completion_file_name="$2"     # in /usr/share/bash-completion/completions/
+        local compfunc="$3"                 # optional
+        local -r dir=/usr/share/bash-completion/completions
 
-        [ -r /usr/share/bash-completion/completions/$compname ] || return 1
+        local filename="${BASH_SOURCE[0]}"
 
-        [ -n "$compfunc" ] || compfunc="_${compname}_"
+        [ -n "$compfunc" ] || compfunc="_${completion_file_name}_"
+
+        [ -r $dir/$completion_file_name ] || {
+            echo "$filename: $FUNCNAME(): sorry, $dir/$completion_file_name does not exist" >&2
+            return 1
+        }
+        declare -F $compfunc >/dev/null || {
+            echo "$filename: $FUNCNAME(): sorry, completion function '$compfunc' does not exist" >&2
+            return 1
+        }
 
         complete | grep "\-F" | grep " $cmdname$" >/dev/null || {
             # echo "loading $compfunc completion" >&2
-            source /usr/share/bash-completion/completions/$compname
+            source $dir/$completion_file_name
             complete -F $compfunc $cmdname
         }
     }
 
-    #              new cmdname          pkgname     completion func
-    LoadCompletion pacman-sudo-internal pacman      _pacman
-    LoadCompletion p                    pacman-ext  _pacman-ext_
-    LoadCompletion u                    upd         _pe_upd_
+    #              cmdname              compfilename     completion func name
+    LoadCompletion pacman-sudo-internal pacman           _pacman
+    LoadCompletion p                    pacman-ext       _pacman-ext_
+    LoadCompletion u                    upd              _pe_upd_
+    LoadCompletion pp                   pb               _pb_a
 
     [ -r ~/.dircolors ] && eval "$(dircolors ~/.dircolors)"
 
