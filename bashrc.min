@@ -1002,7 +1002,7 @@ EOF
     LoadCompletion pacman-sudo-internal pacman           _pacman
     LoadCompletion p                    pacman-ext       _pacman-ext_
     LoadCompletion u                    upd              _pe_upd_
-    LoadCompletion pp                   pb               _pb_a
+    LoadCompletion pp                   pb               _pb_
 
     [ -r ~/.dircolors ] && eval "$(dircolors ~/.dircolors)"
 
