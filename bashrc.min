@@ -886,7 +886,7 @@ EOF
 
     [ $_COMMON_SETTINGS_VERBOSE = yes ] && echo "==> $FUNCNAME: aliases" >&2
 
-    Alias Build_asdeps       "Build --pacman='--asdeps'"
+    Alias Build-asdeps       "Build --pacman='--asdeps'"
     Alias bat                "bat --style=number"
     Alias pacman-branch      "pacman-conf --repo-list | grep '^testing$' || echo stable"
     Alias ci                 "ci -u"
