@@ -146,7 +146,7 @@ SettingsCommon()
         local underline="${header//[A-Z ]/\~}"
         {
             printf "%s\n%s\n" "$header" "$underline"
-            $PATH_USR_BIN/arch-audit -f '%n|%s|%t' "$@" # | tr '[:upper:]' '[:lower:]'
+            /bin/arch-audit -f '%n|%s|%t' "$@" # | tr '[:upper:]' '[:lower:]'
         } | column -t -s'|'
     }
 
