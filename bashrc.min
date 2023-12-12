@@ -176,8 +176,8 @@ EOF
         local tmpfile=$(mktemp)
         local name
         for name in "$@" ; do
-            if [ -x $PATH_USR_BIN/$name ] ; then
-                echo "$name() { sudo $PATH_USR_BIN/$name \"\$@\" ; }" >> $tmpfile
+            if [ -x /bin/$name ] ; then
+                echo "$name() { sudo /bin/$name \"\$@\" ; }" >> $tmpfile
             fi
         done
         source $tmpfile
@@ -644,7 +644,7 @@ EOF
     }
 
     xfce4-terminal() {
-        $PATH_USR_BIN/xfce4-terminal --geometry=150x25 "$@"
+        /bin/xfce4-terminal --geometry=150x25 "$@"
     }
 
     # _set_terminal_title()       { printf "\e]2;%s\a" "$*" ; }
@@ -666,7 +666,7 @@ EOF
     export -f MyTermTitle
     trap "MyTermTitle" DEBUG    # Set terminal title to currently running command:
 
-    if [ -x $PATH_USR_BIN/grub-install ] ; then
+    if [ -x /bin/grub-install ] ; then
         original-grub-install-parameters-f() {
             local out=$(sudo grep 'grub-install' /var/log/{Calamares,endeavour-install}.log 2>/dev/null)
             echo "$out" | sed -E -e 's|.*Running \(||' -e 's|"([^"]+)"[,)]*|\1|g' | head -n1
@@ -798,12 +798,12 @@ EOF
         local verbose="-v"
 
         paccache-options "$@" || return
-        $sudo $PATH_USR_BIN/paccache $verbose "$@"
+        $sudo /bin/paccache $verbose "$@"
     }
 
     EmacsConfig() {
         [ -e ~/.emacs ] && return
-        [ -x $PATH_USR_BIN/emacs ] || return
+        [ -x /bin/emacs ] || return
 
         echo "==> $FUNCNAME: configuring emacs" >&2
 
@@ -852,7 +852,7 @@ EOF
         fi
     }
 
-    [ -x $PATH_USR_BIN/chdirex ] && cd() { builtin cd "$($PATH_USR_BIN/chdirex "$@")" ; }
+    [ -x /bin/chdirex ] && cd() { builtin cd "$(/bin/chdirex "$@")" ; }
 
     sudofuncs fstrim umount powertop  # mount
 
@@ -862,7 +862,7 @@ EOF
             ""|-h|--help) ;;
             *) sudo=sudo ;;
         esac
-        $sudo $PATH_USR_BIN/mount "$@"
+        $sudo /bin/mount "$@"
     }
 
     #############################################################

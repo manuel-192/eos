@@ -1,0 +1,18 @@
+    ,
+    "editor.minimap.enabled":            false,
+    "editor.fontFamily":                 "'Liberation Mono', 'Droid Sans Mono', 'monospace', monospace",
+    "editor.fontSize":                   12,
+    "editor.inlineSuggest.enabled":      false,
+    "files.autoSave":                    "afterDelay",
+    "git.openRepositoryInParentFolders": "never",
+    "diffEditor.diffAlgorithm":          "advanced",
+    "diffEditor.maxComputationTime":     5000,
+    "workbench.startupEditor":           "none",
+        "editor.unicodeHighlight.allowedCharacters": {
+        "å": true,
+        "ä": true,
+        "ö": true,
+        "Å": true,
+        "Ä": true,
+        "Ö": true
+    }
