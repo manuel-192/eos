@@ -7,8 +7,9 @@
     "git.openRepositoryInParentFolders": "never",
     "diffEditor.diffAlgorithm":          "advanced",
     "diffEditor.maxComputationTime":     5000,
+    "bashIde.explainshellEndpoint":      "http://localhost:5000",
     "workbench.startupEditor":           "none",
-        "editor.unicodeHighlight.allowedCharacters": {
+    "editor.unicodeHighlight.allowedCharacters": {
         "å": true,
         "ä": true,
         "ö": true,
