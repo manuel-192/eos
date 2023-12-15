@@ -935,12 +935,24 @@ EOF
         fi
     }
 
-    if [ -x /bin/codium ] ; then
-        for _xxx in edit e ; do
-            alias $_xxx=codium
+    _VisualStudioSet_() {
+        local _xxx
+        for _xxx in codium code ; do
+            if [ -x /bin/$_xxx ] ; then
+                Alias ide=$_xxx
+                break
+            fi
         done
-        alias ide=bide
-    fi
+    }
+    _VisualStudioSet_
+    unset -f _VisualStudioSet_
+
+    #if [ -x /bin/codium ] ; then
+    #    for _xxx in edit e ; do
+    #        alias $_xxx=codium
+    #    done
+    #    alias ide=bide
+    #fi
 
 
     _dispatch_my_cmd() {
