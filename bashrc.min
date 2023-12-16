@@ -296,6 +296,18 @@ EOF
 
     lp()  { l  "$@" | less -F ; }   # show long listing but no hidden dotfiles except "."
     llp() { ll "$@" | less -F ; }   # show long listing of all except ".."
+    less() {
+        local -r YELLOW=$'\e[0;93m'
+        local -r RESET=$'\e[0m'          # back to normal colors
+
+        _less_advert() { echo -e "${YELLOW}==> $1${RESET}" >&2 ; }
+        _less_advert "'less': lines in reverse order with option '-å'."
+
+        case "$1" in
+            -å) shift; tac "$@" | /bin/less ;;
+            *)  /bin/less "$@" ;;
+        esac
+    }
 
     lsblk() {
         local lsblk="/bin/lsblk -w 300"    # width = 300 because the output is (usually) better when a window is resized
