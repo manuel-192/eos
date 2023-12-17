@@ -924,10 +924,10 @@ EOF
     Alias paq                "sudo paq"
     Alias pb                 "pb -nn"
     Alias pp                 "pb"
-    Alias u                  "upd --instant --verbose"           # no AUR
+    Alias u                  "upd"
     Alias uu                 "upd --instant --verbose --aur"
     Alias uc                 "time uc-fast -aey --verbose"
-    Alias upd                "LANG=C /bin/upd -docpv"            # for another alias, add --nvidia --virtualbox --paru --aur when needed
+    Alias upd                "LANG=C /bin/upd -dopv"            # for another alias, add --connection --nvidia --virtualbox --paru --aur when needed
 
     AliasIf grub-mkconfig  update-grub  "sudo grub-mkconfig -o /boot/grub/grub.cfg"
     # AliasIf grub-mkconfig  grub.cfg     "update-grub"                                   # needed ???
