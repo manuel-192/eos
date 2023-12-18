@@ -296,17 +296,37 @@ EOF
 
     lp()  { l  "$@" | less -F ; }   # show long listing but no hidden dotfiles except "."
     llp() { ll "$@" | less -F ; }   # show long listing of all except ".."
+
     less() {
-        local -r YELLOW=$'\e[0;93m'
-        local -r RESET=$'\e[0m'          # back to normal colors
+        # Like 'less' but shows the lines of /var/log/pacman.log from last to first.
+        #
+        # Note: this implementation may separate an option from its value if  '=' is not used (so use e.g. --buffers=<n>).
+        # Note2: use single character options separated.
 
-        _less_advert() { echo -e "${YELLOW}==> $1${RESET}" >&2 ; }
-        _less_advert "'less': lines in reverse order with option '-å'."
+        local opts=()
+        local others=()
+        local para
+        local -r pager=/bin/less
 
-        case "$1" in
-            -å) shift; tac "$@" | /bin/less ;;
-            *)  /bin/less "$@" ;;
-        esac
+        for para in "$@" ; do
+            case "$para" in
+                -* | +*) opts+=("$para") ;;
+                *)       others+=("$para") ;;
+            esac
+        done
+
+        if [ ${#others[@]} -gt 0 ] ; then
+            for para in "${others[@]}" ; do
+                case "$(realpath "$para")" in
+                    /var/log/pacman.log)
+                        tac "$para" | $pager "${opts[@]}" ;;
+                    *)
+                        $pager "${opts[@]}" "$para" ;;
+                esac
+            done
+        else
+            $pager "${opts[@]}"
+        fi
     }
 
     lsblk() {
