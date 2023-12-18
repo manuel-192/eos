@@ -947,7 +947,7 @@ EOF
     Alias u                  "upd --instant --verbose"
     Alias uu                 "upd"
     Alias uuu                "upd --instant --verbose --aur"
-    Alias uc                 "time uc-fast -aey --verbose"
+    #Alias uc                 "time uc-fast -aey --verbose"
     Alias upd                "LANG=C /bin/upd -dopv"            # for another alias, add --connection --nvidia --virtualbox --paru --aur when needed
 
     AliasIf grub-mkconfig  update-grub  "sudo grub-mkconfig -o /boot/grub/grub.cfg"
