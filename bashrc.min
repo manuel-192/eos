@@ -1225,6 +1225,22 @@ TODO
 EOF
 
 echo "==> Running on $XDG_SESSION_TYPE" >&2
+_Nvidia() {
+    local driver=$(lspci -vnn | grep -PA10 "VGA compatible" | grep "Kernel driver in use" | awk '{print $NF}')
+    case "$driver" in
+        nouveau)
+            if expac -Q %n xf86-video-nouveau >/dev/null ; then
+                echo "==> GPU driver: xf86-video-nouveau"
+            else
+                echo "==> GPU $(echo $(lspci -vnn | grep -PA10 "VGA compatible" | grep "Kernel driver in use"))"
+            fi
+            ;;
+        nvidia)
+            echo "==> GPU driver: nvidia"
+            ;;
+    esac
+}
+_Nvidia
 
 if true ; then
     -() { builtin cd - ; }   # make plain - the same as "cd -"
