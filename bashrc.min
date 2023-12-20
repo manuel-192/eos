@@ -1220,9 +1220,7 @@ cat <<EOF
 
 TODO
 ====
-21.10.2023
-----------
-- lisää AUR-tuki user_commands.bash:iin
+21.10.2023 - lisää AUR-tuki user_commands.bash:iin
 
 EOF
 
