@@ -952,7 +952,19 @@ EOF
 
     AliasIf grub-mkconfig  update-grub  "sudo grub-mkconfig -o /boot/grub/grub.cfg"
     # AliasIf grub-mkconfig  grub.cfg     "update-grub"                                   # needed ???
-    AliasIf meld-rcs       meld         "setsid meld-rcs"
+    # AliasIf meld-rcs       meld         "setsid meld-rcs"
+
+    meld() {
+        if [ -x /bin/meld-rcs ] ; then
+            if ps -C meld,meld-rcs >/dev/null ; then
+                echo "Sorry, 'meld' is already running." >&2
+                return 1
+            fi
+            setsid meld-rcs "$@"
+        else
+            /bin/meld "$@"
+        fi
+    }
 
     if true ; then
         Alias cp         "cp -i"
