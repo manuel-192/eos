@@ -952,7 +952,7 @@ EOF
     Alias uu                 "upd"
     Alias uuu                "upd --instant --verbose --aur"
     #Alias uc                 "time uc-fast -aey --verbose"
-    Alias upd                "LANG=C /bin/upd -dopv"            # for another alias, add --connection --nvidia --virtualbox --paru --aur when needed
+    #Alias upd                "LANG=C /bin/upd -dopv"   # for another alias, add --connection --nvidia --virtualbox --paru --aur when needed
 
     AliasIf grub-mkconfig  update-grub  "sudo grub-mkconfig -o /boot/grub/grub.cfg"
     # AliasIf grub-mkconfig  grub.cfg     "update-grub"                                   # needed ???
@@ -968,6 +968,14 @@ EOF
         else
             /bin/meld "$@"
         fi
+    }
+
+    upd() {
+        if true && expac -Q %n minizip >/dev/null ; then
+            sudo pacman -Rdd --noconfirm minizip
+            sudo pacman -S   --noconfirm minizip-ng-ex
+        fi
+        LANG=C /bin/upd -dopv "$@"
     }
 
     if true ; then
