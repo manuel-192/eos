@@ -971,7 +971,7 @@ EOF
     }
 
     upd() {
-        if true && expac -Q %n minizip >/dev/null ; then
+        if false && expac -Q %n minizip >/dev/null ; then
             echo "==> Changing minizip to minizip-ng:" >&2
             sudo pacman -Rdd --noconfirm minizip
             sudo pacman -S   --noconfirm minizip-ng-ex
