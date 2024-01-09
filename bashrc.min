@@ -752,6 +752,8 @@ EOF
     Blue2() { echo "${BLUE}${1}${RESET}" >&2 ; }
     Cyan2() { echo "${CYAN}${1}${RESET}" >&2 ; }
 
+    upd() { LANG=C /bin/upd -dopv "$@" ; }
+
     pbb() {
         # Check all with 'pb'. If any fails, mark it and stop, and start from it next time.
         local item
@@ -968,15 +970,6 @@ EOF
         else
             /bin/meld "$@"
         fi
-    }
-
-    upd() {
-        if false && expac -Q %n minizip >/dev/null ; then
-            echo "==> Changing minizip to minizip-ng:" >&2
-            sudo pacman -Rdd --noconfirm minizip
-            sudo pacman -S   --noconfirm minizip-ng-ex
-        fi
-        LANG=C /bin/upd -dopv "$@"
     }
 
     if true ; then
