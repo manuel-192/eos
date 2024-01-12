@@ -145,15 +145,6 @@ SettingsCommon()
         esac
     }
 
-    arch-audit() {
-        local header="PACKAGE NAME|SEVERITY|TYPE"
-        local underline="${header//[A-Z ]/\~}"
-        {
-            printf "%s\n%s\n" "$header" "$underline"
-            /bin/arch-audit -f '%n|%s|%t' "$@" # | tr '[:upper:]' '[:lower:]'
-        } | column -t -s'|'
-    }
-
     kb() {   # knowledge base
         case "$1" in
             risks) arch-audit ;;
