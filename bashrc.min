@@ -79,16 +79,21 @@ SettingsCommon()
             $alias
         fi
     }
-    AliasIf() {
+    AliasIfCommon() {
         # make alias only if the app is available
-        if type "$1" &>/dev/null ; then
+        local -r tester="$1"
+        shift
+        local -r app="$1"
+        if $tester "$app" &>/dev/null ; then
             shift
             Alias "$@"
         else
-            [ $_COMMON_SETTINGS_VERBOSE_ALIAS = yes ] && bashrc.min_warning "sorry, program '$1' not found"
+            [ $_COMMON_SETTINGS_VERBOSE_ALIAS = yes ] && bashrc.min_warning "sorry, program '$app' not found"
         fi
     }
-    Unalias() { unalias "$1" 2>/dev/null ; }
+    AliasIfWhich() { AliasIfCommon which "$@" ; }
+    AliasIfType()  { AliasIfCommon type  "$@" ; }
+    Unalias()      { unalias "$1" 2>/dev/null ; }
 
     WaitForConnection() {     # wait at most given seconds (or 10), then return 0=connection OK or 1=connection fail
         local seconds="$1"
@@ -600,20 +605,20 @@ EOF
     my_prompt_command() {
         # Show one or two line prompt (folder, time) after trying to slightly shorten the folder name.
 
-        local pwd=${PWD/$HOME/\~}             # shorten for $HOME
-        local time="$(date +%a\ %H:%M.%S)"
+        # local pwd=${PWD/$HOME/\~}             # shorten for $HOME
+        local -r time="${YELLOW}$(date +%a\ %H:%M.%S)${RESET}"
 
         if [ -n "$HERE_ARROW" ] ; then
-            local rarrow=')'
-            local larrow='('
-            local here="$HERE_ARROW"
+            local -r rarrow=')'
+            local -r larrow='('
+            local -r here="$HERE_ARROW"
         else
-            local rarrow=$'\u2773'            # nice delimiters, https://en.wikipedia.org/wiki/Arrow_(symbol)#Unicode
-            local larrow=$'\u2772'
-            local here=$'\u2ba9'
+            local -r rarrow=$'\u2773'            # nice delimiters, https://en.wikipedia.org/wiki/Arrow_(symbol)#Unicode
+            local -r larrow=$'\u2772'
+            local -r here=$'\u2ba9'
         fi
 
-        pwd="$larrow$pwd$rarrow"
+        local -r pwd="$larrow${GREEN}${PWD/$HOME/\~}${RESET}$rarrow"
 
         if [ ${#pwd} -gt $((COLUMNS / 2)) ] ; then
             printf -v PS1 "%s\n%s %s "  "$pwd" "$time" "$here"   # two line prompt
@@ -734,14 +739,17 @@ EOF
     }
 
     # color codes:
-    RED=$'\e[0;91m'
-    BLUE=$'\e[0;94m'
-    CYAN=$'\e[0;96m'
+    RED=$'\e[1;91m'
+    GREEN=$'\e[1;92m'
+    YELLOW=$'\e[1;93m'
+    BLUE=$'\e[1;94m'
+    MAGENTA=$'\e[1;95m'
+    CYAN=$'\e[1;96m'
     RESET=$'\e[0m'    # resets to normal
 
-    Red2()  { echo  "${RED}${1}${RESET}" >&2 ; }
-    Blue2() { echo "${BLUE}${1}${RESET}" >&2 ; }
-    Cyan2() { echo "${CYAN}${1}${RESET}" >&2 ; }
+    Red2()  { echo -e  "${RED}${1}${RESET}" >&2 ; }
+    Blue2() { echo -e "${BLUE}${1}${RESET}" >&2 ; }
+    Cyan2() { echo -e "${CYAN}${1}${RESET}" >&2 ; }
 
     upd() { LANG=C /bin/upd -dopv "$@" ; }
 
@@ -929,8 +937,7 @@ EOF
     Alias hlp                "eos-man"
     Alias inxi               "inxi -z"
     Alias local-repo-manager "local-repo-manager --verbose"
-    # Alias ls                 "ls --color=auto -F"
-    Alias ls                 "/bin/ls $(l --get-ls-opts)"
+    # Alias ls                 "/bin/ls $(l --get-ls-opts)"
     Alias man                "eos-man"
     Alias md                 "codium"
     Alias nano               "nano -l"
@@ -947,9 +954,11 @@ EOF
     #Alias uc                 "time uc-fast -aey --verbose"
     #Alias upd                "LANG=C /bin/upd -dopv"   # for another alias, add --connection --nvidia --virtualbox --paru --aur when needed
 
-    AliasIf grub-mkconfig  update-grub  "sudo grub-mkconfig -o /boot/grub/grub.cfg"
-    # AliasIf grub-mkconfig  grub.cfg     "update-grub"                                   # needed ???
-    # AliasIf meld-rcs       meld         "setsid meld-rcs"
+    AliasIfType  grub-mkconfig  update-grub  "sudo grub-mkconfig -o /boot/grub/grub.cfg"
+    Unalias l
+    AliasIfWhich l              ls           "/bin/ls $($(which l) --get-ls-opts)"
+    # AliasIfType grub-mkconfig  grub.cfg     "update-grub"                                   # needed ???
+    # AliasIfType meld-rcs       meld         "setsid meld-rcs"
 
     meld() {
         if [ -x /bin/meld-rcs ] ; then
