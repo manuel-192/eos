@@ -585,10 +585,12 @@ StartStop() {
 }
 
 Main() {
-    local progname="/tmp/user_commands.bash"
+    #local progname="/tmp/user_commands.bash"
+    local progname="${0##*/}"
 
     case "$1" in
         --iso-config)            # called before install!
+            INFO "Running user defined ISO config: started."
             local -r install_mode="$2"   # online, offline, community
 
             # Change the default filesystem from ext4 to btrfs in virtualbox VM.
@@ -602,7 +604,16 @@ Main() {
             printf "\ndefault: KDE-Desktop\n" >> /etc/calamares/modules/packagechooser.conf
 
             # Nothing more to do before install.
-            return
+            INFO "Running user defined ISO config: done."
+            exit 0
+            ;;
+        offline | online | community)
+            # Option --iso-config was missing, so assume it.
+            # We don't think $1 was meant to be a user name! ;)
+            # progname=/tmp/user-commands-end.bash
+            INFO "Assuming parameters: --isoconfig $*"
+            ${FUNCNAME[0]} --iso-config "$@"
+            exit 0
             ;;
         --after)           # called after calamares ended
             # THIS DOES NOT WORK JUST YET!!
@@ -619,7 +630,7 @@ Main() {
                 expac -Q "%n %v" grub dracut emacs
                 sudo umount /mnt
             fi
-            return
+            exit 1
             ;;
     esac
     INFO "Executing user commands: started."
