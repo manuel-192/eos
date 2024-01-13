@@ -605,6 +605,7 @@ Main() {
             return
             ;;
         --after)           # called after calamares ended
+            # THIS DOES NOT WORK JUST YET!!
             echo "Running additional stuff after calamares..."
             local -r uuid="$2"
             echo "ma.txt: UUID = '$uuid'"
