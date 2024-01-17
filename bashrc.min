@@ -606,7 +606,8 @@ EOF
         # Show one or two line prompt (folder, time) after trying to slightly shorten the folder name.
 
         # local pwd=${PWD/$HOME/\~}             # shorten for $HOME
-        local -r time="${YELLOW}$(date +%a\ %H:%M.%S)${RESET}"
+        #local -r time="${YELLOW}$(date +%a\ %H:%M.%S)${RESET}"
+        local -r time="$(date +%a\ %H:%M.%S)"
 
         if [ -n "$HERE_ARROW" ] ; then
             local -r rarrow=')'
@@ -618,7 +619,8 @@ EOF
             local -r here=$'\u2ba9'
         fi
 
-        local -r pwd="$larrow${GREEN}${PWD/$HOME/\~}${RESET}$rarrow"           # do color codes cause prompt issues???
+        #local -r pwd="$larrow${GREEN}${PWD/$HOME/\~}${RESET}$rarrow"      # do color codes cause prompt issues??? YES!
+        local -r pwd="$larrow${PWD/$HOME/\~}$rarrow"
 
         if [ ${#pwd} -gt $((COLUMNS / 2)) ] ; then
             printf -v PS1 "%s\n%s %s "  "$pwd" "$time" "$here"   # two line prompt
