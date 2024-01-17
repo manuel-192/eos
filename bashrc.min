@@ -618,7 +618,7 @@ EOF
             local -r here=$'\u2ba9'
         fi
 
-        local -r pwd="$larrow${GREEN}${PWD/$HOME/\~}${RESET}$rarrow"
+        local -r pwd="$larrow${GREEN}${PWD/$HOME/\~}${RESET}$rarrow"           # do color codes cause prompt issues???
 
         if [ ${#pwd} -gt $((COLUMNS / 2)) ] ; then
             printf -v PS1 "%s\n%s %s "  "$pwd" "$time" "$here"   # two line prompt
@@ -908,7 +908,7 @@ EOF
 
     [ -z "$FUNCNEST" ] && export FUNCNEST=100
 
-    PROMPT_COMMAND=(my_prompt_command)
+    PROMPT_COMMAND=my_prompt_command
 
     export HISTCONTROL="erasedups"
     FIGNORE=".o:~"                      # ignored suffixes in filename completion
