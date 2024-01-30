@@ -948,8 +948,6 @@ EOF
                              # M is reasonable now, later G might be too
     Alias pacdiff            "eos-pacdiff"
     Alias paq                "sudo paq"
-    Alias pb                 "pb -nn"
-    Alias pp                 "pb"
     Alias u                  "upd --instant --verbose"
     Alias uu                 "upd"
     Alias uuu                "upd --instant --verbose --aur"
@@ -957,6 +955,9 @@ EOF
     #Alias upd                "LANG=C /bin/upd -dopv"   # for another alias, add --connection --nvidia --virtualbox --paru --aur when needed
 
     AliasIfType  grub-mkconfig  update-grub  "sudo grub-mkconfig -o /boot/grub/grub.cfg"
+    AliasIfWhich pb             pb           "pb -nn"
+    AliasIfWhich pb             pp           "pb -nn"
+
     Unalias l
     AliasIfWhich l              ls           "/bin/ls $($(which l) --get-ls-opts)"
     # AliasIfType grub-mkconfig  grub.cfg     "update-grub"                                   # needed ???
@@ -1038,10 +1039,18 @@ EOF
     [ $_COMMON_SETTINGS_VERBOSE = yes ] && bashrc.min_echo2 "==> $FUNCNAME: bash completions"
 
     LoadCompletion() {
-        local cmdname="$1"                  # (new) command name
-        local completion_file_name="$2"     # in /usr/share/bash-completion/completions/
-        local compfunc="$3"                 # optional
+        local -r cmdname="$1"                  # (new) command name
+        local -r completion_file_name="$2"     # in /usr/share/bash-completion/completions/
+        local compfunc="$3"                    # optional
+        local -r app_required="$4"             # optional
         local -r dir=/usr/share/bash-completion/completions
+
+        if [ "$app_required" ] ; then
+            if [ ! -x "/bin/$app_required" ] ; then
+                bashrc.min_error "sorry, app '$app_required' does not exist"
+                return 1
+            fi
+        fi
 
         local filename="${BASH_SOURCE[0]}"
 
@@ -1063,11 +1072,12 @@ EOF
         }
     }
 
-    #              cmdname              compfilename     completion func name
+    #                                                    optional                optional
+    #              cmdname              compfilename     completion func name    app_required
     LoadCompletion pacman-sudo-internal pacman           _pacman
     LoadCompletion p                    pacman-ext       _pacman-ext_
-    LoadCompletion u                    upd              _pe_upd_
-    LoadCompletion pp                   pb               _pb_
+    LoadCompletion u                    upd              _pe_upd_                upd
+    LoadCompletion pp                   pb               _pb_                    pb
 
     [ -r ~/.dircolors ] && eval "$(dircolors ~/.dircolors)"
 
