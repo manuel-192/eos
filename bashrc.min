@@ -1230,6 +1230,7 @@ EOF
         *)
             bashrc --update
             bashrc --plain
+            [ -e ~/.bashrc ] && source ~/.bashrc
             bashrc.min_echo2 "==> bash settings updated."
             ;;
     esac
