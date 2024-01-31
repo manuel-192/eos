@@ -642,15 +642,27 @@ IsoConfig() {
 Main() {
     local progname="${0##*/}"
 
+    # Parameters for user custom file(s):
+    # Galileo Neo and older (only user_commands.bash):
+    #   1. --iso-config install-mode
+    #   2. username
+    #
+    # After Galileo Neo (both user-commands-before.bash and user_commands.bash):
+    #   1. user-commands-before.bash: install-mode
+    #   2. user_commands.bash:        username
+    #
+    # If both files are present, then
+    #   1. if user_commands.bash has "case .. --iso-config) .. esac", use it instead of user-commands-before.bash
+
     case "$1" in
-        --iso-config)            # called before running calamares
+        --iso-config)                          # for backwards compatibility for Galileo Neo and older
+            # called before running calamares
             shift
             IsoConfig "$@"
             ;;
-        offline | online | community)
-            # Option --iso-config was missing, so assume we are making ISO config.
+        offline | online)      ## | community)
+            # Option --iso-config was missing, so assume we are doing ISO config.
             # We don't think $1 was meant to be a user name! ;)
-            # progname=/tmp/user-commands-end.bash
             IsoConfig "$@"
             ;;
         --after)           # called after calamares ended
