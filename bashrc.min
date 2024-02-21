@@ -150,6 +150,52 @@ SettingsCommon()
         esac
     }
 
+    # BytesInFile() { stat -c %s "$1"; }
+    VB-capacity() {
+        local capacity=$(VBoxManage showmediuminfo disk "$1" | grep "^Capacity:" | awk '{print $2}')  # MBytes
+        capacity=$((capacity * 1024 * 1024))                                                          # Bytes
+        echo "$capacity"
+    }
+
+    Add-50%-to-VB-disk() {
+        echo "NOT WORKING!"
+        return 1
+
+        local -r disk="$1"     # "EndeavourOS test latest official pure.vdi"
+
+        case "$disk" in
+            "")
+                echo "$FUNCNAME: error: please give a disk name." >&2
+                return 1
+                ;;
+            *.vdi)
+                if [ ! -w "$disk" ] ; then
+                    echo "$FUNCNAME: error: given disk ($disk) does not exist or is not writable." >&2
+                    return 1
+                fi
+                ;;
+            *)
+                echo "$FUNCNAME: error: given disk ($disk) must have suffix '.vdi'." >&2
+                return 1
+                ;;
+        esac
+
+        local oldsize=$(VB-capacity "$disk")
+        local newsize=$((oldsize*2 - oldsize/2))   # newsize is 50% more
+
+        echo -en "Create a (time consuming) backup first\n(N/y)? " >&2
+        read
+        case "$REPLY" in
+            [Yy]*) echo -n "please wait... " >&2; rm -f "$disk".bak; cp -a "$disk" "$disk".bak; echo "" >&2 ;;
+        esac
+
+        echo "Resizing $oldsize --> $newsize ..." >&2
+        # VBoxManage modifymedium disk "$disk" --resizebyte=$newsize
+
+        echo "" >&2
+        echo "NOTE: now you must resize the partition inside the VM!" >&2
+    }
+
     kb() {   # knowledge base
         case "$1" in
             risks) arch-audit ;;
