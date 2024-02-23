@@ -411,56 +411,24 @@ EOF
     BannerLine2() { BannerLine "$@" >&2 ; }
 
     _AdHocChecks_() {
-        _DailyCheck_() {
-            _SimpleUpdateCheck() {
-                return    # 'checkupdates' may cause problems...
-
-                NextInfo2 "Checking updates ... "
-                local updates
-                updates=$(checkupdates)
-                case "$?" in
-                    2)  bashrc.min_echo2 "none."
-                        ;;
-                    0)  bashrc.min_echo2 "done:"
-                        local header="Name|vNow|vNew|Description"                                # header item names
-                        local header_ul=$(echo "$header" | sed 's/[^|]/~/g')                     # underlining the above
-                        local _line
-
-                        updates=$(echo "$updates" | sed 's/ -> / /' | tr ' ' '|')                # remove every " ->" and change every ' ' to '|'
-                        updates=$(
-                            echo "$updates" | \
-                                while read _line ; do
-                                    echo "$_line" | sed "s/$/|$(expac -Q %d ${_line%%|*})/"      # append description to each line
-                                done
-                               )
-                        updates="$(echo "$header"; echo "$header_ul"; echo "$updates")"          # add header
-                        updates=$(echo "$updates" | column -t -s'|')                             # 'column' may change longest line length...
-                        local maxlen=$(echo "$updates" | wc -L)                                  # find longest line length (for bannerline)
-                        BannerLine $maxlen
-                        echo "$updates"
-                        BannerLine $maxlen
-                        ;;
-                esac
-            }
-            local daynr=$(date +%j)
-            local daynrfile=$HOME/.daynr
-
-            if [ "$daynr" != "$(cat $daynrfile 2>/dev/null)" ] ; then
-                echo "$daynr" > $daynrfile
-                _SimpleUpdateCheck | sed 's|^|    |'
-            fi
-        }
         _CheckAlways_() {
-            if [ -z "$BASH_SETTINGS_FILE" ] ; then
-                bashrc.min_warning "variable BASH_SETTINGS_FILE not set!"
-            fi
-            if [ -x /usr/local/bin/pacman ] ; then
-                bashrc.min_warning "executable /usr/local/bin/pacman exists!"
-            fi
+            [ -z "$BASH_SETTINGS_FILE" ] && bashrc.min_warning "variable BASH_SETTINGS_FILE not set!"
+            [ -x /usr/local/bin/pacman ] && bashrc.min_warning "executable /usr/local/bin/pacman exists!"
         }
+        _DailyChecks_() {
+            type eu &> /dev/null && eu
+        }
+        _DailyCheck_() {
+            local daynr=$(date +%j)
+            local daynrfile="$HOME/.daynr"
 
-        _CheckAlways_            # check always when terminal is initialized
-        _DailyCheck_             # check once a day, when the first terminal is launched
+            [ "$daynr" = "$(cat "$daynrfile" 2>/dev/null)" ] && return
+            echo "$daynr" > "$daynrfile"
+
+            _DailyChecks_
+        }
+        _CheckAlways_            # check always when a terminal is launched
+        _DailyCheck_             # check once a day, first time a terminal is launched
     }
     _AdHocChecks_
 
