@@ -29,6 +29,8 @@ BashrcConfig() {
     popd
     cat <<EOF >> "$home/.bashrc"
 
+###########################################################################
+
 CODEDIR=$codedir
 BASH_SETTINGS_FILE=\$CODEDIR/MAN/eos/bashrc.min
 source \$BASH_SETTINGS_FILE
