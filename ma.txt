@@ -28,8 +28,9 @@ BashrcConfig() {
     git clone https://github.com/manuel-192/eos.git
     popd
     cat <<EOF >> "$home/.bashrc"
+
 CODEDIR=$codedir
-BASH_SETTINGS_FILE=$MAN/eos/bashrc.min
+BASH_SETTINGS_FILE=\$CODEDIR/MAN/eos/bashrc.min
 source \$BASH_SETTINGS_FILE
 EOF
     chown -R $new_user "$codedir"
@@ -212,8 +213,20 @@ GetNewUserName() {
 }
 
 OtherConfig() {
+    local file=""
+    if true ; then
+        file="$home/.config/cd-extended.conf"
+        cat <<EOF
+CDPATH_ARR=(
+    ~
+    $CODEDIR
+    ${BASH_SETTINGS_FILE%/*}
+)
+EOF
+    fi
+
     if false ; then
-        local file="$home/.config/autostart/Terminal-at-start.desktop"
+        file="$home/.config/autostart/Terminal-at-start.desktop"
 
         cat <<EOF > "$file"
 [Desktop Entry]
