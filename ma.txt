@@ -21,14 +21,14 @@ RunCmd() {
 
 BashrcConfig() {
     [ -n "$new_user" ] || return
-    local codedir="$home/Koodi"
+    local codedir="$home/Code"
     local MAN="$codedir/MAN"
     mkdir -p "$MAN"
     pushd "$MAN"
     git clone https://github.com/manuel-192/eos.git
     popd
     cat <<EOF >> "$home/.bashrc"
-
+CODEDIR=$codedir
 BASH_SETTINGS_FILE=$MAN/eos/bashrc.min
 source \$BASH_SETTINGS_FILE
 EOF
@@ -589,7 +589,7 @@ InstallEnd() {
 
     local new_user="$1"
     StartStop  GetNewUserName
-    local home="/home/$new_user"q
+    local home="/home/$new_user"
     local update_grub=no
     local lspci=""
     local graphics=""
