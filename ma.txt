@@ -327,6 +327,7 @@ InstallPackages() {
         meld-rcs
         pacman-ext
         pactree-bash-completion
+        pkgcheck
         # vb-notif
     )
     Install+=(gufw)    # pacman -Q firewalld >& /dev/null || Install+=(gufw)
