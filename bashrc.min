@@ -648,8 +648,8 @@ EOF
         [ -z "$1" ] && param="-Syu -d"
         pacman-ext $param "$@"
     }
-    syu()  { p -${FUNCNAME^} ; }
-    syyu() { p -${FUNCNAME^} ; }
+    # syu()  { p -${FUNCNAME^} ; }
+    # syyu() { p -${FUNCNAME^} ; }
 
     #pf() { pgrep -a "$@" ; } # list processes
 
@@ -889,11 +889,11 @@ EOF
     }
     EmacsConfig
 
-    m-aur()                   { cd "${FUNCNAME[0]}" ; }
-    m-m()                     { cd "${FUNCNAME[0]}" ; }
-    m-more2()                 { cd "${FUNCNAME[0]}" ; }
-    endeavouros()             { cd "${FUNCNAME[0]}" ; }
-    endeavouros-testing-dev() { cd "${FUNCNAME[0]}" ; }
+    # m-aur()                   { cd "${FUNCNAME[0]}" ; }
+    # m-m()                     { cd "${FUNCNAME[0]}" ; }
+    # m-more2()                 { cd "${FUNCNAME[0]}" ; }
+    # endeavouros()             { cd "${FUNCNAME[0]}" ; }
+    # endeavouros-testing-dev() { cd "${FUNCNAME[0]}" ; }
 
     command_not_found_handle() {
         if [ -f "$1" ] ; then
