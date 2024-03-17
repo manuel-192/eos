@@ -1015,7 +1015,7 @@ EOF
     _VisualStudioSet_
     unset -f _VisualStudioSet_
 
-    if [ "$(device-info --virtualbox)" = "yes" ] ; then
+    if [ "$(device-info --vm)" ] ; then
         _boot_stuff() {
             local -r app="${FUNCNAME[1]}"
             echo "==> sync && $app" >&2
