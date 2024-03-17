@@ -653,6 +653,22 @@ EOF
 
     #pf() { pgrep -a "$@" ; } # list processes
 
+    gpg-verify() {
+        local file
+
+        for file in "$@" ; do
+            case "$file" in
+                *.sig)
+                    bashrc.min_echo2 "$file"
+                    /bin/gpg --verify "$file" |& sed 's|^|    |'
+                    ;;
+                *)
+                    bashrc.min_echo2 "==> $FUNCNAME: sorry, '$file' is likely not a signature file."
+                    ;;
+            esac
+        done
+    }
+
 
     _Check_CDPATH_ARR() {  # CDPATH_ARR should contain unique folders
         local arrout=()
