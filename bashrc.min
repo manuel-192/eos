@@ -562,6 +562,8 @@ EOF
         echo "$result"
     }
 
+    virtualbox-vram() { local -r vmname="$1"; vboxmanage modifyvm "$vmname" --vram 256; }  # set graphics memory to 256 MB
+
     man-eos() {
         local app=eos-apps-info-helper
         which $app &> /dev/null || { bashrc.min_error "${app%-helper} not installed?"; return 1; }
