@@ -107,6 +107,37 @@ SettingsCommon()
         return 1
     }
 
+    dmessages() {                        # show dmesg messages with a given level
+        local -r level="$1"
+        local messages=""
+        local prefix xx
+        local supported_levels=(
+            $(LANG=C dmesg -h | sed -n '/^Supported log levels/,/^$/p' | tail -n +2 | grep -v "^$" | awk '{print $1}' | sed -E 's|(.*)|\1 \1+|')
+            #emerg   alert   crit   err   warn   notice   info   debug
+            #emerg+  alert+  crit+  err+  warn+  notice+  info+  debug+
+        )
+
+        for xx in "${supported_levels[@]}" ; do
+            [ "$xx" = "$level" ] && break
+        done
+        [ "$xx" = "$level" ] || { echo "$FUNCNAME: unsupported level '$level'."; return 1; }
+
+        messages="$(sudo dmesg -l $level |& cat)"
+
+        if [ "$messages" ] ; then
+            clear
+            {
+                echo "############################################################################"
+                echo "####  dmesg messages with level: $level"
+                echo "############################################################################"
+                printf -v prefix "%10s: " "$level"
+                echo "$messages" | sed "s|^|$prefix|"
+            } | less -F
+        else
+            echo "No messages."
+        fi
+    }
+
     doc2html() {
         local in=""
         local out=""
