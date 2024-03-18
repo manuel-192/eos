@@ -562,7 +562,10 @@ EOF
         echo "$result"
     }
 
-    virtualbox-vram() { local -r vmname="$1"; vboxmanage modifyvm "$vmname" --vram 256; }  # set graphics memory to 256 MB
+    virtualbox-vram() {
+        local -r vmname="$1"
+        vboxmanage modifyvm "$vmname" --vram 256                       # set video memory to 256 MB
+    }
 
     man-eos() {
         local app=eos-apps-info-helper
