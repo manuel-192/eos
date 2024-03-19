@@ -95,6 +95,11 @@ SettingsCommon()
     AliasIfType()  { AliasIfCommon type  "$@" ; }
     Unalias()      { unalias "$1" 2>/dev/null ; }
 
+    who-needs() { expac "%n: %E" | grep -w "$1" | grep -vw "^$1:" ; }   # who has this dependency package
+    who-owns()  { pacman -Qo "$1"; }                                    # which package owns this app
+
+
+    
     WaitForConnection() {     # wait at most given seconds (or 10), then return 0=connection OK or 1=connection fail
         local seconds="$1"
         [ -n "$seconds" ] || seconds=10
