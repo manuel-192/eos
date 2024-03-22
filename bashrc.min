@@ -864,7 +864,11 @@ EOF
     Blue2() { echo -e "${BLUE}${1}${RESET}" >&2 ; }
     Cyan2() { echo -e "${CYAN}${1}${RESET}" >&2 ; }
 
-    upd() { LANG=C /bin/upd -dopv "$@" ; }
+    upd() {
+        local opt="-dopv"
+        [ "$(lspci -k | grep " VGA .* NVIDIA ")" ] && opt+="n"
+        LANG=C /bin/upd $opt "$@"
+    }
 
     pbb() {
         # Check all with 'pb'. If any fails, mark it and stop, and start from it next time.
