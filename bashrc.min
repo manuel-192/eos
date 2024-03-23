@@ -556,12 +556,12 @@ EOF
                     case "$arg" in
                         push)
                             case "$(realpath .)" in
-                                /UNI/lisa/repo/*)  Logstuff on ;;
+                                /UNI/lisa/repo/*)  _logstuff on ;;
                             esac
                             ;;
                         pull_NOT-USED)                     # pull disabled for now!
                             case "$(realpath .)" in
-                                /UNI/lisa/repo/*/b-assets) Logstuff on ;;
+                                /UNI/lisa/repo/*/b-assets) _logstuff on ;;
                             esac
                             ;;
                         add)
@@ -1087,7 +1087,7 @@ EOF
                 bashrc.min_warning "sorry, 'meld' is already running."
                 return 1
             fi
-            setsid meld-rcs "$@"
+            meld-rcs "$@"
         else
             /bin/meld "$@"
         fi
