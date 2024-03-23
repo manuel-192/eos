@@ -546,6 +546,8 @@ EOF
     }
 
     git() {        # preparations for doing a git command
+        _logstuff() { which logstuff &>/dev/null && logstuff "$@"; }
+
         local arg
         for arg in "$@" ; do
             case "$arg" in
@@ -554,12 +556,12 @@ EOF
                     case "$arg" in
                         push)
                             case "$(realpath .)" in
-                                /UNI/lisa/repo/*)  logstuff on ;;
+                                /UNI/lisa/repo/*)  Logstuff on ;;
                             esac
                             ;;
                         pull_NOT-USED)                     # pull disabled for now!
                             case "$(realpath .)" in
-                                /UNI/lisa/repo/*/b-assets) logstuff on ;;
+                                /UNI/lisa/repo/*/b-assets) Logstuff on ;;
                             esac
                             ;;
                         add)
@@ -583,6 +585,7 @@ EOF
                     ;;
             esac
         done
+        unset -f _logstuff
         /bin/git "$@"
     }
 
@@ -727,7 +730,7 @@ EOF
     p() {
         local param=""
         [ -z "$1" ] && param="-Syu -d"
-        pacman-ext $param "$@"
+        pacman-ext --no-banner $param "$@"
     }
     # syu()  { p -${FUNCNAME^} ; }
     # syyu() { p -${FUNCNAME^} ; }
