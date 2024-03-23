@@ -492,16 +492,16 @@ EOF
             [ -x /usr/local/bin/pacman ] && bashrc.min_warning "executable /usr/local/bin/pacman exists!"
         }
         _DailyChecks_() {
-            type eu &> /dev/null && eu
+            : #type eu &> /dev/null && eu
         }
         _DailyCheck_() {
             local daynr=$(date +%j)
             local daynrfile="$HOME/.daynr"
 
-            [ "$daynr" = "$(cat "$daynrfile" 2>/dev/null)" ] && return
-            echo "$daynr" > "$daynrfile"
-
-            _DailyChecks_
+            if [ "$daynr" != "$(cat "$daynrfile" 2>/dev/null)" ] ; then
+                echo "$daynr" > "$daynrfile"
+                _DailyChecks_
+            fi
         }
         _CheckAlways_            # check always when a terminal is launched
         _DailyCheck_             # check once a day, first time a terminal is launched
