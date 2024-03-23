@@ -503,7 +503,13 @@ DriverSettings() {
             Check pacman -Rsn --noconfirm xf86-video-intel
             Check pacman -S --needed --noconfirm eos-brightness
             ;;
-        v1) 
+        v1)
+            case "$(device-info --vm)" in
+                virtualbox)
+                    # prevent wayland in virtuabox
+                    Check mv /usr/share/wayland-sessions/plasma.desktop /usr/share/wayland-sessions/plasma.desktop.foo
+                    ;;
+            esac
             ;;
     esac
 }
