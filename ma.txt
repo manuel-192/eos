@@ -1,5 +1,111 @@
 #!/bin/bash
 
+Main() {
+    local progname="${0##*/}"
+
+    # Parameters for user custom file(s):
+    # Galileo Neo and older (only user_commands.bash):
+    #   1. --iso-config install-mode
+    #   2. username
+    #
+    # After Galileo Neo (both user-commands-before.bash and user_commands.bash):
+    #   1. user-commands-before.bash: install-mode
+    #   2. user_commands.bash:        username
+    #
+    # If both files are present, then
+    #   1. if user_commands.bash has "case .. --iso-config) .. esac", use it instead of user-commands-before.bash
+
+    INFO "parameters: $*"
+    
+    case "$1" in
+        --iso-config)                          # for backwards compatibility for Galileo Neo and older
+            # called before running calamares
+            shift
+            IsoConfig "$@"
+            ;;
+        offline | online)      ## | community)
+            # Option --iso-config was missing, so assume we are doing ISO config.
+            # We don't think $1 was meant to be a user name! ;)
+            IsoConfig "$@"
+            ;;
+        --after)           # called after calamares ended
+            # THIS DOES NOT WORK JUST YET!!
+            echo "Running additional stuff after calamares..."
+            local -r uuid="$2"
+            echo "ma.txt: UUID = '$uuid'"
+            if [ "$uuid" ] ; then
+                sudo mount UUID=$uuid /mnt || return 1
+                local userhome=(/mnt/home/*)               # ei toimi, ehkä mount pielessä?
+                local username=${userhome[0]##*/}
+                #local loki=$userhome/logs.txt
+                echo "ma.txt: username = '$username'"
+                pacman -Q grub dracut
+                expac -Q "%n %v" grub dracut emacs
+                sudo umount /mnt
+            fi
+            exit 1
+            ;;
+        *)
+            InstallEnd "$@"
+            ;;
+    esac
+}
+
+InstallEnd() {
+    INFO "Executing user commands: started."
+
+    local new_user="$1"
+    StartStop  GetNewUserName
+    local home="/home/$new_user"
+    local update_grub=no
+    local lspci=""
+    local graphics=""
+    local this_rig=""
+    local pacmanconf=/etc/pacman.conf
+    local repotype=stable    # stable or testing
+
+    StartStop Lspci
+
+    StartStop SetRepoTypes
+
+    StartStop ThisRig
+
+    StartStop AddRepos
+
+    StartStop FixMirrorlists
+
+    StartStop RemovePackages
+    StartStop InstallPackages
+    StartStop Services
+
+    StartStop DriverSettings
+    StartStop SystemSettings
+    StartStop HomeSettings    # modify some dotfiles at $HOME
+    StartStop GrubSettings
+
+    StartStop CleanUp
+
+    INFO "Executing user commands: done."
+}
+
+IsoConfig() {
+    INFO "Running user defined ISO config: started."
+    local -r install_mode="$1"   # online, offline, community
+
+    # Change the default filesystem from ext4 to btrfs in virtualbox VM.
+    if [ "$(device-info --virtualbox)" = "yes" ] ; then
+        sed -i /etc/calamares/modules/partition.conf -E \
+            -e 's|^defaultFileSystemType:.*|defaultFileSystemType: "btrfs"|' \
+            -e 's|^(availableFileSystemTypes:.*)"ext4","btrfs"|\1"btrfs","ext4"|'
+    fi
+
+    # Set KDE-Desktop as default.
+    printf "\ndefault: KDE-Desktop\n" >> /etc/calamares/modules/packagechooser.conf
+
+    # Nothing more to do before install.
+    INFO "Running user defined ISO config: done."
+}
+
 ERROR() { echo "==> $progname: error: $1" ; }
 WARN()  { echo "==> $progname: warning: $1" ; }
 INFO()  { echo "==> $progname: info: $1" ; }
@@ -604,110 +710,6 @@ StartStop() {
     INFO "Executing $*: started."
     "$@"
     INFO "Executing $*: done."
-}
-
-InstallEnd() {
-    INFO "Executing user commands: started."
-
-    local new_user="$1"
-    StartStop  GetNewUserName
-    local home="/home/$new_user"
-    local update_grub=no
-    local lspci=""
-    local graphics=""
-    local this_rig=""
-    local pacmanconf=/etc/pacman.conf
-    local repotype=stable    # stable or testing
-
-    StartStop Lspci
-
-    StartStop SetRepoTypes
-
-    StartStop ThisRig
-
-    StartStop AddRepos
-
-    StartStop FixMirrorlists
-
-    StartStop RemovePackages
-    StartStop InstallPackages
-    StartStop Services
-
-    StartStop DriverSettings
-    StartStop SystemSettings
-    StartStop HomeSettings    # modify some dotfiles at $HOME
-    StartStop GrubSettings
-
-    StartStop CleanUp
-
-    INFO "Executing user commands: done."
-}
-
-IsoConfig() {
-    INFO "Running user defined ISO config: started."
-    local -r install_mode="$1"   # online, offline, community
-
-    # Change the default filesystem from ext4 to btrfs in virtualbox VM.
-    if [ "$(device-info --virtualbox)" = "yes" ] ; then
-        sed -i /etc/calamares/modules/partition.conf -E \
-            -e 's|^defaultFileSystemType:.*|defaultFileSystemType: "btrfs"|' \
-            -e 's|^(availableFileSystemTypes:.*)"ext4","btrfs"|\1"btrfs","ext4"|'
-    fi
-
-    # Set KDE-Desktop as default.
-    printf "\ndefault: KDE-Desktop\n" >> /etc/calamares/modules/packagechooser.conf
-
-    # Nothing more to do before install.
-    INFO "Running user defined ISO config: done."
-}
-
-Main() {
-    local progname="${0##*/}"
-
-    # Parameters for user custom file(s):
-    # Galileo Neo and older (only user_commands.bash):
-    #   1. --iso-config install-mode
-    #   2. username
-    #
-    # After Galileo Neo (both user-commands-before.bash and user_commands.bash):
-    #   1. user-commands-before.bash: install-mode
-    #   2. user_commands.bash:        username
-    #
-    # If both files are present, then
-    #   1. if user_commands.bash has "case .. --iso-config) .. esac", use it instead of user-commands-before.bash
-
-    case "$1" in
-        --iso-config)                          # for backwards compatibility for Galileo Neo and older
-            # called before running calamares
-            shift
-            IsoConfig "$@"
-            ;;
-        offline | online)      ## | community)
-            # Option --iso-config was missing, so assume we are doing ISO config.
-            # We don't think $1 was meant to be a user name! ;)
-            IsoConfig "$@"
-            ;;
-        --after)           # called after calamares ended
-            # THIS DOES NOT WORK JUST YET!!
-            echo "Running additional stuff after calamares..."
-            local -r uuid="$2"
-            echo "ma.txt: UUID = '$uuid'"
-            if [ "$uuid" ] ; then
-                sudo mount UUID=$uuid /mnt || return 1
-                local userhome=(/mnt/home/*)               # ei toimi, ehkä mount pielessä?
-                local username=${userhome[0]##*/}
-                #local loki=$userhome/logs.txt
-                echo "ma.txt: username = '$username'"
-                pacman -Q grub dracut
-                expac -Q "%n %v" grub dracut emacs
-                sudo umount /mnt
-            fi
-            exit 1
-            ;;
-        *)
-            InstallEnd "$@"
-            ;;
-    esac
 }
 
 Main "$@"
