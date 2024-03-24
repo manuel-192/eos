@@ -4,13 +4,13 @@ Main() {
     local progname="${0##*/}"
 
     # Parameters for user custom file(s):
-    # Galileo Neo and older (only user_commands.bash):
+    # Galileo Neo and older (only file user_commands.bash):
     #   1. --iso-config install-mode
     #   2. username
     #
-    # After Galileo Neo (both user-commands-before.bash and user_commands.bash):
+    # Gemini and later (we have two separate files):
     #   1. user-commands-before.bash: install-mode
-    #   2. user_commands.bash:        username
+    #   2. user_commands.bash:        --user=username
     #
     # If both files are present, then
     #   1. if user_commands.bash has "case .. --iso-config) .. esac", use it instead of user-commands-before.bash
@@ -23,10 +23,10 @@ Main() {
             shift
             IsoConfig "$@"
             ;;
-        offline | online)      ## | community)
+        offline | online | --online)      ## | community)
             # Option --iso-config was missing, so assume we are doing ISO config.
             # We don't think $1 was meant to be a user name! ;)
-            IsoConfig "$@"
+            IsoConfig "${1#--}"
             ;;
         --after)           # called after calamares ended
             # THIS DOES NOT WORK JUST YET!!
@@ -614,11 +614,14 @@ DriverSettings() {
             Check pacman -S --needed --noconfirm eos-brightness
             ;;
         v1)
-            case "$(device-info --vm)" in
-                virtualbox)
-                    # prevent wayland in virtuabox
-                    Check mv /usr/share/wayland-sessions/plasma.desktop /usr/share/wayland-sessions/plasma.desktop.foo
-                    ;;
+            case "$XDG_SESSION_DESKTOP" in
+                KDE)
+                    case "$(device-info --vm)" in
+                        virtualbox)
+                            # don't offer wayland login in virtuabox
+                            Check mv /usr/share/wayland-sessions/plasma.desktop /usr/share/wayland-sessions/plasma.desktop.foo
+                            ;;
+                    esac
             esac
             ;;
     esac
