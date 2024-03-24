@@ -45,6 +45,10 @@ Main() {
             fi
             exit 1
             ;;
+        --user=*)                                          # supports the eos_script style instead of shellscript
+            INFO "parameters: $*"
+            InstallEnd "${1#*=}"
+            ;;
         *)
             InstallEnd "$@"
             ;;
