@@ -18,12 +18,12 @@ Main() {
     INFO "parameters: $*"
     
     case "$1" in
-        --iso-config)                          # for backwards compatibility for Galileo Neo and older
+        --iso-config)                             # Galileo Neo and older
             # called before running calamares
             shift
             IsoConfig "$@"
             ;;
-        offline | online | --online)      ## | community)
+        offline | online | --online)              # Gemini
             # Option --iso-config was missing, so assume we are doing ISO config.
             # We don't think $1 was meant to be a user name! ;)
             IsoConfig "${1#--}"
@@ -45,11 +45,12 @@ Main() {
             fi
             exit 1
             ;;
-        --user=*)                                          # supports the eos_script style instead of shellscript
+        --user=*)                                 # Gemini; supports the eos_script style instead of shellscript
             INFO "parameters: $*"
             InstallEnd "${1#*=}"
             ;;
         *)
+            INFO "parameters: $*"
             InstallEnd "$@"
             ;;
     esac
