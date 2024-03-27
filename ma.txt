@@ -39,7 +39,7 @@ Main() {
                 local username=${userhome[0]##*/}
                 #local loki=$userhome/logs.txt
                 echo "ma.txt: username = '$username'"
-                pacman -Q grub dracut
+                # pacman -Q grub dracut
                 expac -Q "%n %v" grub dracut emacs
                 sudo umount /mnt
             fi
@@ -458,6 +458,8 @@ RemovePackages() {
         power-profiles-daemon
         xfce4-netload-plugin
         xfce4-weather-plugin
+
+        haruna
     )
     local remove=()
     local pkg
@@ -467,7 +469,7 @@ RemovePackages() {
     esac
 
     for pkg in "${Remove[@]}" ; do
-        if pacman -Q $pkg >& /dev/null ; then
+        if expac -Q %n $pkg >& /dev/null ; then
             remove+=($pkg)
         fi
     done
@@ -522,7 +524,7 @@ Setup3rdPartyRepos() {
         INFO "pacman-key: key signed"
     fi
 
-    if ! pacman -Q "$mirrorlist_pkg" >& /dev/null  ; then
+    if ! expac -Q %n "$mirrorlist_pkg" >& /dev/null  ; then
         Check wget -O "/etc/pacman.d/$mirrorlist_file" "$mirrorlist_file_url"
         INFO "File $mirrorlist_file fetched"
         need_mirrorlist_pkg=yes
@@ -682,7 +684,7 @@ Services() {
 
     # enable ufw firewall service
     for xx in ufw ; do
-        if pacman -Q $xx >& /dev/null ; then
+        if expac -Q %n $xx >& /dev/null ; then
             RunCmd systemctl enable $xx
         fi
     done
