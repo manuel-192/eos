@@ -10,12 +10,12 @@ Main() {
     #
     # Gemini and later (we have two separate files):
     #   1. user-commands-before.bash: install-mode
-    #   2. user_commands.bash:        --user=username
+    #   2. user_commands.bash:        username
     #
     # If both files are present, then
     #   1. if user_commands.bash has "case .. --iso-config) .. esac", use it instead of user-commands-before.bash
 
-    INFO "parameters: $*"
+    INFO "$FUNCNAME: parameters: $*"
     
     case "$1" in
         --iso-config)                             # Galileo Neo and older
@@ -46,12 +46,10 @@ Main() {
             exit 1
             ;;
         --user=*)                                 # Gemini; supports the eos_script style instead of shellscript
-            INFO "parameters: $*"
-            InstallEnd "${1#*=}"
+            InstallEnd "${1#*=}"                  # Note: CalArgConv removes "--user="
             ;;
         *)
-            INFO "parameters: $*"
-            InstallEnd "$@"
+            InstallEnd "$@"                       # Gemini after converting --user=*, or galileo neo
             ;;
     esac
 }
