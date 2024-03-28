@@ -141,8 +141,7 @@ BashrcConfig() {
 ###########################################################################
 
 CODEDIR=$codedir
-BASH_SETTINGS_FILE=\$CODEDIR/MAN/eos/bashrc.min
-source \$BASH_SETTINGS_FILE
+source /etc/bashrc.min
 EOF
     chown -R $new_user "$codedir"
 }
