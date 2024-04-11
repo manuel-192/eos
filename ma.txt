@@ -131,16 +131,18 @@ RunCmd() {
 BashrcConfig() {
     [ -n "$new_user" ] || return
     local subdir
-    local -r owndir="$home/My"
-    local -r codedir="$owndir/Code"
+    local -r owndir1="$home/Own"
+    local -r owndir2='$HOME/Own'
+    local -r codedir1="$owndir1/Code"
+    local -r codedir2="$owndir2/Code"
 
     pushd $home >/dev/null
-    for subdir in ${codedir##*/} Documents Downloads Music Pictures Videos
+    for subdir in ${codedir1##*/} Documents Downloads Music Pictures Videos
     do
         if [ "$subdir" ] ; then
-            mkdir -p "$owndir/$subdir"
+            RunCmd mkdir -p "$owndir1/$subdir"
             [ -d "$subdir" ] && CheckWithWarning rmdir "$subdir"
-            ln -s "${owndir##*/}/$dir"
+            RunCmd ln -s "${owndir1##*/}/$dir"
         fi
     done
     popd >/dev/null
@@ -149,7 +151,7 @@ BashrcConfig() {
 
 ###########################################################################
 
-CODEDIR=$codedir
+CODEDIR=$codedir2
 source /etc/bashrc.min
 EOF
     chown -R $new_user "$codedir"
