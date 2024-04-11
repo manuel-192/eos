@@ -131,11 +131,7 @@ RunCmd() {
 BashrcConfig() {
     [ -n "$new_user" ] || return
     local codedir="$home/Code"
-    local MAN="$codedir/MAN"
-    mkdir -p "$MAN"
-    pushd "$MAN"
-    git clone https://github.com/manuel-192/eos.git
-    popd
+
     cat <<EOF >> "$home/.bashrc"
 
 ###########################################################################
