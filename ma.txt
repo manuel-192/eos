@@ -130,7 +130,20 @@ RunCmd() {
 
 BashrcConfig() {
     [ -n "$new_user" ] || return
-    local codedir="$home/Code"
+    local subdir
+    local -r owndir="$home/My"
+    local -r codedir="$owndir/Code"
+
+    pushd $home >/dev/null
+    for subdir in ${codedir##*/} Documents Downloads Music Pictures Videos
+    do
+        if [ "$subdir" ] ; then
+            mkdir -p "$owndir/$subdir"
+            [ -d "$subdir" ] && CheckWithWarning rmdir "$subdir"
+            ln -s "${owndir##*/}/$dir"
+        fi
+    done
+    popd >/dev/null
 
     cat <<EOF >> "$home/.bashrc"
 
