@@ -154,7 +154,6 @@ BashrcConfig() {
 CODEDIR=$codedir2
 source /etc/bashrc.min
 EOF
-    chown -R $new_user "$codedir"
 }
 
 BashrcConfig_old() {
@@ -287,7 +286,6 @@ MyTermTitle() {
 trap "MyTermTitle" DEBUG
 
 EOF
-    chown $new_user:$new_user $home/.bashrc    # not really needed if it already exists
 }
 
 EmacsConfig() {
@@ -318,7 +316,6 @@ EmacsConfig() {
  '(vc-follow-symlinks t)
  '(x-select-enable-clipboard-manager nil))
 EOF
-    chown $new_user:$new_user $home/.emacs
 }
 
 GetNewUserName() {
@@ -363,7 +360,6 @@ StartupNotify=false
 Terminal=false
 Hidden=false
 EOF
-        CheckWithWarning chown "$new_user:$new_user" "$file"
     fi
 
     case "$this_rig" in
@@ -400,6 +396,7 @@ HomeSettings() {
         EmacsConfig
         BashrcConfig
         OtherConfig
+        chown -R $new_user:$new_user $home
     else
         ERROR "$FUNCNAME failed!"
     fi  
