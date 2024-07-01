@@ -1,0 +1,5 @@
+2024-07-01:
+- Nvidia black screen issue:
+  - delete file ~/.config/kwinoutputconfig.json
+  - https://forum.endeavouros.com/t/black-screen-after-rebooting-after-nvidia-update/57402/40
+  - https://bbs.archlinux.org/viewtopic.php?id=297236
