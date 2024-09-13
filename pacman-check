@@ -1,0 +1,15 @@
+#!/bin/bash
+
+Main()
+{
+    local infolink="https://archlinux.org/packages/?sort=pkgname&q=pacman"
+    local data=$(wget -q -O- "$infolink")
+    local str=$(echo "$data" | grep ">pacman<" | grep /core-testing/)
+    if [ -z "$str" ] ; then
+        echo "build yay and paru because pacman updated!"
+    else
+        echo "nothing to do"
+    fi
+}
+
+Main "$@"
