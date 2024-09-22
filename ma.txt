@@ -128,6 +128,21 @@ RunCmd() {
     "$@"
 }
 
+RemoveSomeXdgDirs() {
+    local HOME="$home"
+    source .config/user-dirs.dirs || {
+        echo "warning: $HOME/user-dirs.dirs not found."
+        return
+    }
+    rmdir $XDG_DOWNLOAD_DIR \
+          $XDG_TEMPLATES_DIR \
+          $XDG_PUBLICSHARE_DIR \
+          $XDG_DOCUMENTS_DIR \
+          $XDG_MUSIC_DIR \
+          $XDG_PICTURES_DIR \
+          $XDG_VIDEOS_DIR
+}
+
 BashrcConfig() {
     [ -n "$new_user" ] || return
     local subdir
@@ -137,6 +152,9 @@ BashrcConfig() {
     local -r codedir2="$owndir2/Code"
 
     pushd $home >/dev/null
+
+    RemoveSomeXdgDirs
+
     for subdir in ${codedir1##*/} Documents Downloads Music Pictures Videos
     do
         if [ "$subdir" ] ; then
@@ -334,11 +352,15 @@ OtherConfig() {
     local file=""
     if true ; then
         file="$home/.config/cd-extended.conf"
-        cat <<EOF
+        cat <<EOF > "$file"
 CDPATH_ARR=(
-    ~
-    $CODEDIR
-    ${BASH_SETTINGS_FILE%/*}
+    .
+    ~/Own
+    ~/Own/Code
+    \$(ls -1d ~/Own/Code/*/_BUILD_ 2>/dev/null)
+
+    # $CODEDIR
+    # ${BASH_SETTINGS_FILE%/*}
 )
 EOF
     fi
