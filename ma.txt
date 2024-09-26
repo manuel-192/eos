@@ -181,7 +181,7 @@ BashrcConfig_old() {
 
 # Aliases
 
-alias branch='pacman-conf --repo-list | grep "^testing$" || echo stable'
+alias pacman-branch='pacman-conf --repo-list | grep "^testing$" || echo stable'
 alias bye=poweroff
 alias cls=clear
 alias cp='cp -i'
@@ -664,7 +664,7 @@ SystemSettings() {
 
     sed -i /etc/eos-rankmirrors.conf \
         -e 's|^\(EOS_AUTORANK_TIMEOUT\)=.*|\1=2|' \
-        -e "s|^\(ALWAYS_FIRST_EOS_MIRRORS\)=.*|\1='alpix\|moson\|umu'|"
+        -e "s|^\(ALWAYS_FIRST_EOS_MIRRORS\)=.*|\1='alpix\|moson\|accum'|"
 
     CheckWithWarning eos-rankmirrors
 }
@@ -688,11 +688,18 @@ Server = https://mirror.pseudoform.org/\$repo/os/\$arch
 Server = https://archlinux.thaller.ws/\$repo/os/\$arch
 EOF
 
+    cat <<EOF >> /etc/eos-rankmirrors.conf
+
+CMD_OPTIONS=(
+    --prefer="alpix,moson,accum"
+    --ignore="jlu,tuna,sjtu,funami,hacktegic,archlinux.tw,mirror.freedif,miraa,albony,nxtgen,jingk,urbanwave,fastmirror,ip-connect,gigenet,fosszone"
+)
+EOF
     if false ; then
-    cat <<EOF > /etc/pacman.d/endeavouros-mirrorlist
+        cat <<EOF > /etc/pacman.d/endeavouros-mirrorlist
 Server = https://mirror.alpix.eu/endeavouros/repo/\$repo/\$arch
 Server = https://mirror.moson.org/endeavouros/repo/\$repo/\$arch
-Server = https://ftp.acc.umu.se/mirror/endeavouros/repo/\$repo/\$arch
+Server = https://mirror.accum.se/mirror/endeavouros/repo/\$repo/\$arch
 EOF
     fi
 }
