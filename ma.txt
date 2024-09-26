@@ -683,9 +683,8 @@ SetRepoTypes() {
 
 FixMirrorlists() {
     cat <<EOF > /etc/pacman.d/mirrorlist
-Server = https://mirror.f4st.host/archlinux/\$repo/os/\$arch
-Server = https://mirror.pseudoform.org/\$repo/os/\$arch
 Server = https://mirror.moson.org/arch/\$repo/os/\$arch
+Server = https://mirror.pseudoform.org/\$repo/os/\$arch
 Server = https://archlinux.thaller.ws/\$repo/os/\$arch
 EOF
 
