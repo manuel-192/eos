@@ -194,14 +194,16 @@ alias meld='setsid meld-rcs'
 alias mv='mv -i'
 alias nano='nano -l'
 alias o=exo-open
-alias p='pacman-ext --extras --no-banner'
+#alias p='pacman-ext --extras --no-banner'
 #alias pa='paru -Sua'
 #alias pd='pacman-ext --downgrade'
-alias pacdiff=eos-pacdiff
+alias pacdiff=eos-pacmerge
 alias poweroff='sync && poweroff'
 alias reboot='sync && reboot'
 alias rm='rm -i'
 alias sou='source ~/.bashrc'               # re-read ~/.bashrc
+alias u='upd-small --clamav'
+alias u2='upd-small --clamav --deep'
 alias whoneeds='pactree --reverse'
 
 # alias grep='grep -n'
@@ -454,6 +456,7 @@ InstallPackages() {
         # m-m
         abbrevs-ls
         abbrevs-misc
+        arch-cl
         cd-extended
         dvb-mn88473
         emacs-tweaks
@@ -466,6 +469,7 @@ InstallPackages() {
         pacman-ext
         pactree-bash-completion
         pkgcheck
+        rami
         # vb-notif
     )
     Install+=(gufw)    # pacman -Q firewalld >& /dev/null || Install+=(gufw)
@@ -658,50 +662,49 @@ DriverSettings() {
 }
 
 SystemSettings() {
-    sed -i /etc/eos-script-lib-yad.conf \
-        -e 's|^\(EOS_PACDIFF_WARNING\)=.*|\1=no|' \
-        -e 's|^\(SyncAfterUpdate\)=.*|\1=yes|'
-
-    sed -i /etc/eos-rankmirrors.conf \
-        -e 's|^\(EOS_AUTORANK_TIMEOUT\)=.*|\1=2|' \
-        -e "s|^\(ALWAYS_FIRST_EOS_MIRRORS\)=.*|\1='alpix\|moson\|accum'|"
-
-    CheckWithWarning eos-rankmirrors
+    sed -E -i /etc/eos-script-lib-yad.conf \
+        -e 's|^(EOS_PACDIFF_WARNING)=.*|\1=no|' \
+        -e 's|^(SyncAfterUpdate)=.*|\1=yes|'
 }
 
 SetRepoTypes() {
     case "$repotype" in
         testing)
-            sed -i $pacmanconf \
-                -e 's|^#\(\[testing\]\)$|\1|' \
-                -e 's|^#\(\[community-testing\]\)$|\1|' \
-                -e 's|^#\(\[multilib-testing\]\)$|\1|' \
-                -e 's|^#\(Include = \)$|\1|'
+            sed -E -i $pacmanconf \
+                -e 's|^#(\[core-testing\])$|\1|' \
+                -e 's|^#(\[extra-testing\])$|\1|' \
+                -e 's|^#(\[multilib-testing\])$|\1|' \
+                -e 's|^#(Include = )$|\1|'
             ;;
     esac
 }
 
 FixMirrorlists() {
-    cat <<EOF > /etc/pacman.d/mirrorlist
+    local tmpfile=$(mktemp)
+
+    cat <<EOF > $tmpfile
+Server = https://mirror.accum.se/mirror/archlinux/$repo/os/$arch
+Server = https://berlin.mirror.pkgbuild.com/$repo/os/$arch
 Server = https://mirror.moson.org/arch/\$repo/os/\$arch
 Server = https://mirror.pseudoform.org/\$repo/os/\$arch
 Server = https://archlinux.thaller.ws/\$repo/os/\$arch
-EOF
 
-    cat <<EOF >> /etc/eos-rankmirrors.conf
+EOF
+    cat /etc/pacman.d/mirrorlist >> $tmpfile
+    cp $tmpfile /etc/pacman.d/mirrorlist
+
+    cat <<EOF > $tmpfile
 
 CMD_OPTIONS=(
-    --prefer="alpix,moson,accum"
-    --ignore="jlu,tuna,sjtu,funami,hacktegic,archlinux.tw,mirror.freedif,miraa,albony,nxtgen,jingk,urbanwave,fastmirror,ip-connect,gigenet,fosszone"
+    --prefer=accum,alpix,moson
+    --ignore=jlu,tuna,sjtu,funami,hacktegic,archlinux.tw,miraa,albony,nxtgen,jingk,urbanwave
+    --ignore=ip-connect,gigenet,fosszone,b-interactive,leitecastro,kyiv
+    --timeout 2
 )
 EOF
-    if false ; then
-        cat <<EOF > /etc/pacman.d/endeavouros-mirrorlist
-Server = https://mirror.alpix.eu/endeavouros/repo/\$repo/\$arch
-Server = https://mirror.moson.org/endeavouros/repo/\$repo/\$arch
-Server = https://mirror.accum.se/mirror/endeavouros/repo/\$repo/\$arch
-EOF
-    fi
+    cat $tmpfile >> /etc/eos-rankmirrors.conf
+
+    CheckWithWarning eos-rankmirrors
 }
 
 Lspci() {
