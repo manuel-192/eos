@@ -683,8 +683,8 @@ FixMirrorlists() {
     local tmpfile=$(mktemp)
 
     cat <<EOF > $tmpfile
-Server = https://mirror.accum.se/mirror/archlinux/$repo/os/$arch
-Server = https://berlin.mirror.pkgbuild.com/$repo/os/$arch
+Server = https://mirror.accum.se/mirror/archlinux/\$repo/os/\$arch
+Server = https://berlin.mirror.pkgbuild.com/\$repo/os/\$arch
 Server = https://mirror.moson.org/arch/\$repo/os/\$arch
 Server = https://mirror.pseudoform.org/\$repo/os/\$arch
 Server = https://archlinux.thaller.ws/\$repo/os/\$arch
