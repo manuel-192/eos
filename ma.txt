@@ -429,10 +429,11 @@ HomeSettings() {
 InstallPackages() {
     local Install=(   # packages to install
         # atril
-        emacs
+        emacs-wayland
         firefox-developer-edition
         # gparted
         gpg-crypter
+        iso-create-ml
         # kaffeine
         libreoffice-fresh
         # libreoffice-fresh-fi
@@ -458,7 +459,7 @@ InstallPackages() {
         abbrevs-misc
         arch-cl
         cd-extended
-        dvb-mn88473
+        # dvb-mn88473                           # does the stick work?
         emacs-tweaks
         grub-mkconfig-reminder-after-kernel
         grub_os-prober_fix
@@ -469,7 +470,6 @@ InstallPackages() {
         pacman-ext
         pactree-bash-completion
         pkgcheck
-        rami
         # vb-notif
     )
     Install+=(gufw)    # pacman -Q firewalld >& /dev/null || Install+=(gufw)
