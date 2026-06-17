@@ -6,7 +6,7 @@
 1. avaa paineruuvi (iso talttapää) 90-180 astetta
 1. avaa erikoistyökalulla suodatinastian kierteitä hitaasti
 1. avaa käsin             -"-
-1. valuta vedet hanasta
+1. valuta vedet suodattimesta
 1. vaihda suodatinrulla, ala- ja yläosa tarkasti paikoilleen
 1. pyöritä suodatinputki kiinni käsin
 1. varovainen kiristys erikoistyökalulla
